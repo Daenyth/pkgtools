@@ -1,0 +1,180 @@
+#!/bin/bash
+
+CONTRIB_INFO='Daenyth <Daenyth+Arch AT gmail DOT com>'
+BASEDIR="${HOME}/builds"
+
+###
+# Lines below this point should not need to be edited.
+##
+MYVERSION=3.0
+
+PROTODIR='/usr/share/pacman/'
+
+DOCOPYPKGBUILD=1 # Copy the prototype PKGBUILD
+DOCOPYINSTALL=0  # Copy the .install file
+DOCOPYRC=0       # Copy the prototype rc.d script
+DOFORCE=0        # Overwrite existing files
+
+PROTO_PKGBUILD="${PROTODIR}/PKGBUILD.proto"
+PROTO_INSTALL="${PROTODIR}/proto.install"
+PROTO_RC="${PROTODIR}/rc-script.proto"
+
+# {{{ usage()
+function usage {
+        cat << _USAGE
+$(basename $0) version $MYVERSION -- A script to speed up creating new PKGBUILDs
+Usage: $(basename $0) [options] PKGNAME
+Options:
+    -h --help          - Print this usage
+    -f --force         - Overwrite existing files in the target dir
+    -i --install-file  - Copy the prototype .install file
+    --rc               - Copy the protype for an rc.d script
+    -p --pkgbuild      - Specify the PKGBUILD file. If not absolute, the
+                         filename is relative to ${PROTODIR}.
+                         Use "-" to not copy any PKGBUILD
+    --cvs              - Create a cvs PKGBUILD
+    --darcs            - Create a darcs PKGBUILD
+    --git              - Create a git PKGBUILD
+    --svn              - Create a svn PKGBUILD
+_USAGE
+        exit 0
+}
+# }}}
+
+# {{{  die() warn() quit() msg()
+function die {
+        warn "${1:-Unknown error}"
+        quit ${2:-1}
+}
+
+function warn {
+        if [ -n "$1" ]; then
+                echo "$1" 1>&2
+        fi
+}
+
+function quit {
+        exit ${1:-0}
+}
+
+function msg {
+        echo "$1"
+}
+# }}}
+
+# setpkgbuild() {{{
+setpkgbuild () {
+        if [ -z "$1" ]; then
+                die "setpkgbuild() requires an argument!"
+        fi
+        case "$1" in
+                -)
+                        DOCOPYPKGBUILD=0
+                        ;;
+                /*)
+                        PROTO_PKGBUILD="$1"
+                        ;;
+                *)
+                        PROTO_PKGBUILD="${PROTODIR}/$1"
+                        ;;
+        esac
+}
+# }}}
+
+if [ -z "$1" ]; then
+        usage
+fi
+
+while [ "$#" -ne 0 ]; do
+        case $1 in
+                -h|--help) 
+                        usage
+                        ;;
+                -i|--proto-install)     
+                        DOCOPYINSTALL=1
+                        ;;
+                --rc)
+                        DOCOPYRC=1
+                        ;;
+                -f|--force)
+                        DOFORCE=1
+                        ;;
+                -p|--pkgbuild)
+                        if [ -z "$2" ]; then
+                                die "$1 option requires a parameter!"
+                        fi
+                        setpkgbuild "$2"
+                        shift
+                        ;;
+                --cvs)
+                        setpkgbuild "PKGBUILD-cvs.proto"
+                        ;;
+                --darcs)
+                        setpkgbuild "PKGBUILD-darcs.proto"
+                        ;;
+                --git)
+                        setpkgbuild "PKGBUILD-git.proto"
+                        ;;
+                --svn)
+                        setpkgbuild "PKGBUILD-svn.proto"
+                        ;;
+                *)      
+                        pkgname=$(echo $1 | sed 's; ;;g' | sed 's;/$;;')
+                        ;;
+        esac
+        shift
+done
+
+pkgdir="${BASEDIR}/${pkgname}"
+
+if [ -d "$pkgdir" ]; then
+        if [ "$DOFORCE" -eq 1 ]; then
+                warn "$pkgname already exists in $BASEDIR -- continuing anyway!"
+        else
+                die "$pkgname already exists in $BASEDIR -- aborting"
+        fi
+else
+        mkdir -p "$pkgdir"
+        msg "Creating package dir for $pkgname"
+fi
+cd "$pkgdir"
+
+if [ -r "$PROTO_PKGBUILD" ]; then
+        msg "Copying prototype PKGBUILD"
+        cp "$PROTO_PKGBUILD" ./PKGBUILD
+        sed -i "s#^pkgname=.*#pkgname=$pkgname#" PKGBUILD
+
+        sed -i '/^# This is an example PKGBUILD/d' PKGBUILD
+        sed -i '/^# and remove these comments/d' PKGBUILD
+        sed -i '/^# NOTE: Please fill out/d' PKGBUILD
+        sed -i '/^# then please put/d' PKGBUILD
+
+        sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
+else
+        warn "Could not find prototype PKGBUILD"
+fi
+
+if [ "$DOCOPYINSTALL" -eq 1 ]; then
+        if [ -r "$PROTO_INSTALL" ]; then 
+                msg "Copying prototype .install file"
+                cp "$PROTO_INSTALL" "./${pkgname}.install"
+                sed -i "s#^install=.*#install='${pkgname}.install'#" PKGBUILD
+        else
+                warn "Could not find prototype .install"
+        fi
+fi
+
+if [ "$DOCOPYRC" -eq 1 ]; then
+        if [ -r "$PROTO_RC" ]; then 
+                msg "Copying prototype rc.d script"
+                cp "$PROTO_RC" "./${pkgname}"
+                sed -i "s#daemon_name=.*#daemon_name=$pkgname#" $pkgname
+                sed -i "s#^source=(\(.*\))#source=(\1 $pkgname)#" PKGBUILD
+        else
+                warn "Could not find prototype rc.d script"
+        fi
+fi
+
+msg "All done! New package prepared in $pkgdir"
+quit 0
+# vim: set ts=8 fdm=marker et:
