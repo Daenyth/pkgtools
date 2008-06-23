@@ -10,6 +10,10 @@ post_install() {
    a command which the shell cannot find. If you want
    this functionality, run (as root):
    ln -s /usr/share/pkgtools/pkgfile-hook /etc/profile.d/pkgfile-hook.zsh
+ - zsh hook: is still in unstable, please use it if you find it useful. 
+   But report buts to the url below.
+ - Bugs: please report any bugs to this thread. 
+   http://bbs.archlinux.org/viewtopic.php?pid=384196#p384196
 _EOM
 }
 
