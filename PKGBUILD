@@ -13,9 +13,16 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf')
 replaces=(newpkg)
 conflicts=(newpkg)
 provides=(newpkg)
-install="{$pkgname.install}"
+install="$pkgname.install"
 optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
+
+md5sums=('8b5a8475ca01987dfd581edd8d325f81'
+         '3792dea96d400bc23d1f6f42460f6d54'
+         'e711a94744171b66ca41c8ad157fb4bd'
+         'c413483144814da63d23311f6b1e7147'
+         'd44a4b781accea4300db63dc0f4b33a7'
+         '3456bbd52daac40e771e7ab619e9378b')
 
 build() {
   install -d "$pkgdir/usr/share/pkgtools/lists/"
