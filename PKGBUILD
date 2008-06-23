@@ -1,6 +1,6 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=5
+pkgver=6
 pkgrel=1
 pkgdesc="A collection of scripts for archlinux packages"
 arch=(any)
@@ -18,7 +18,7 @@ optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
 
 md5sums=('8b5a8475ca01987dfd581edd8d325f81'
-         'a143eb8fb6e2e32c2d367cf8d1df413f'
+         '912b5bf82893de50b778bf4fd751c324'
          'e711a94744171b66ca41c8ad157fb4bd'
          '79e306084c11059d6b15bccc44557af8'
          'd44a4b781accea4300db63dc0f4b33a7'
