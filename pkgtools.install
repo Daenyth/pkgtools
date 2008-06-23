@@ -4,16 +4,15 @@ post_install() {
  - Make sure to run pkgfile --update before use.
  - An entry has been placed in /etc/cron.daily to --update
    If you do not want this functionality, run (as root):
-   chmod -x /etc/cron.daily/pkgfile
+     chmod -x /etc/cron.daily/pkgfile
  - zsh users: pkgfile includes a command not found hook.
    This will automatically run pkgfile whenever you run
    a command which the shell cannot find. If you want
    this functionality, run (as root):
-   ln -s /usr/share/pkgtools/pkgfile-hook /etc/profile.d/pkgfile-hook.zsh
- - zsh hook: is still in unstable, please use it if you find it useful. 
-   But report buts to the url below.
+     ln -s /usr/share/pkgtools/pkgfile-hook /etc/profile.d/pkgfile-hook.zsh
+   NOTE: This is an alpha feature, and may not work completely.
  - Bugs: please report any bugs to this thread. 
-   http://bbs.archlinux.org/viewtopic.php?pid=384196#p384196
+   http://bbs.archlinux.org/viewtopic.php?pid=384196
 _EOM
 }
 
