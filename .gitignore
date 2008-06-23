@@ -1,3 +1,4 @@
 src
 pkg
-*pkg*.gz
+*pkg*.tar.gz
+pkgtools.tar.gz
