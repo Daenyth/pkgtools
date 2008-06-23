@@ -1,12 +1,10 @@
 #!/bin/bash
 # pkgfile -- search the arch repo to see what package owns a file
 
-#TODO: add config file
 ###
 # You can change these values
 ##
-#FILELIST_DIR="/usr/share/pkgtools/lists"
-FILELIST_DIR="$HOME/.pkgtools/lists/"
+FILELIST_DIR="/usr/share/pkgtools/lists"
 RATELIMIT='100k' # Argument to wget's --limit-rate flag
 
 ###
@@ -17,10 +15,18 @@ DEBUG=0
 REPOS=(core extra community unstable)
 
 
+if [ -r /etc/pkgtools/pkgfile.conf ]; then
+        source /etc/pkgtools/pkgfile.conf
+else
+       die 1 "Unable to source global config file at /etc/pkgtools/pkgfile.conf"
+fi
+if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
+        source "${HOME}/.pkgtools/pkgfile.conf"
+fi
 ###
 # You should not change below this point
 ##
-MYVERSION=2.0
+MYVERSION=3.0
 SEARCHTARGET=
 ACTIONS=()
 REGEX=
