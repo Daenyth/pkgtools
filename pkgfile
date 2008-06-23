@@ -177,6 +177,9 @@ while [ $# -gt 0 ]; do
                         ACTIONS=(${ACTIONS[@]} regex)
                         SEARCHTARGET="$2"; shift
                         ;;
+                -*)
+                        die 1 "Unrecognized option %s\n" "$1"
+                        ;;
                 *)
                         ACTIONS=(${ACTIONS[@]} search)
                         SEARCHTARGET="$1"
