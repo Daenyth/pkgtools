@@ -2,3 +2,4 @@ src
 pkg
 *pkg*.tar.gz
 pkgtools.tar.gz
+.*.swp

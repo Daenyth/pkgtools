@@ -149,6 +149,31 @@ search () {
 }
 # }}}
 
+# listfiles() {{{
+listfiles () {
+        local pkg="$1"
+        local FOUNDFILE=0
+        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+        if echo * | grep -q '^\*$'; then
+                die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
+        fi
+        for repo in ${REPOS[@]}; do
+                [ "$DEBUG" -eq 1 ] && set -x
+                local findarg="$repo/$pkg-[^-]+-[^-]+$"
+                find "$repo" -type d -regex "$findarg" | while read line; do
+                        FOUNDFILE=1
+                        filelist="$line/files"
+                        sed -n "1d;s|^|$pkg /|p" "$filelist"
+                done
+                [ "$DEBUG" -eq 1 ] && set -x
+        done
+        if [ "$FOUNDFILE" -eq 0 ]; then
+                msg "Package '%s' could not be found\n" "$pkg"
+        fi
+       
+}
+# }}}
+
 if [ -z "$1" ]; then
         usage
 fi
@@ -172,9 +197,16 @@ while [ $# -gt 0 ]; do
                         ;;
                 -r|--regex)
                         if [ -z "$2" ]; then
-                                die 1 "%s --regex option requires an argument!\n" "$PROGNAME"
+                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         fi
                         ACTIONS=(${ACTIONS[@]} regex)
+                        SEARCHTARGET="$2"; shift
+                        ;;
+                --list)
+                        if [ -z "$2" ]; then
+                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
+                        fi
+                        ACTIONS=(${ACTIONS[@]} list)
                         SEARCHTARGET="$2"; shift
                         ;;
                 -*)
@@ -195,6 +227,9 @@ for action in "${ACTIONS[@]}"; do
                         ;;
                 search|regex)
                         search "$SEARCHTARGET"
+                        ;;
+                list)
+                        listfiles "$SEARCHTARGET"
                         ;;
                 *)
                         die 1 "Invalid \$ACTIONS item '%s' -- This should never happen!\n" "$action"
