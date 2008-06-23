@@ -1,7 +1,6 @@
 #!/bin/bash
 # pkgfile -- search the arch repo to see what package owns a file
 
-#TODO: Add --list option, similar to -Ql
 
 ###
 # You can change these values
