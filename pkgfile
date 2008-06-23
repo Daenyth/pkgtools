@@ -17,8 +17,6 @@ REPOS=(core extra community unstable)
 
 if [ -r /etc/pkgtools/pkgfile.conf ]; then
         source /etc/pkgtools/pkgfile.conf
-else
-       die 1 "Unable to source global config file at /etc/pkgtools/pkgfile.conf"
 fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"

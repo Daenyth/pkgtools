@@ -31,8 +31,6 @@ PROTO_RC="${PROTODIR}/rc-script.proto"
 
 if [ -r /etc/pkgtools/newpkg.conf ]; then
         source /etc/pkgtools/newpkg.conf
-else
-       die 1 "Unable to source global config file at /etc/pkgtools/newpkg.conf"
 fi
 if [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
         source "${HOME}/.pkgtools/newpkg.conf"
