@@ -1,6 +1,8 @@
 #!/bin/bash
 # pkgfile -- search the arch repo to see what package owns a file
 
+#TODO: Add --list option, similar to -Ql
+
 ###
 # You can change these values
 ##
@@ -24,7 +26,7 @@ fi
 ###
 # You should not change below this point
 ##
-MYVERSION=3.1
+MYVERSION=4.0
 SEARCHTARGET=
 ACTIONS=()
 REGEX=
