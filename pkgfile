@@ -1,0 +1,194 @@
+#!/bin/bash
+# pkgfile -- search the arch repo to see what package owns a file
+
+#TODO: add config file
+###
+# You can change these values
+##
+#FILELIST_DIR="/usr/share/pkgtools/lists"
+FILELIST_DIR="$HOME/.pkgtools/lists/"
+RATELIMIT='100k' # Argument to wget's --limit-rate flag
+
+###
+# You can change these values, but should not have to
+##
+VERBOSE=0
+DEBUG=0
+REPOS=(core extra community unstable)
+
+
+###
+# You should not change below this point
+##
+MYVERSION=2.0
+SEARCHTARGET=
+ACTIONS=()
+REGEX=
+PROGNAME="$(basename $0)"
+
+# {{{  die() warn() quit() msg()
+die () {
+        #set -x
+        local ret=$1; 
+        local warning="$2"; shift 2
+        warn "${warning:-Unknown error}" "$@"
+        quit ${ret:-1}
+}
+
+warn () {
+        #set -x
+        local message="$1"; shift
+        printf "$message" "$@" 1>&2
+        #set +x
+}
+
+quit () {
+        exit ${1:-0}
+}
+
+msg  () {
+        local message="$1"
+        shift
+        printf "$message" $@
+}
+
+# }}}
+
+# not() -- toggle a 0/1 {{{
+not () {
+        if [ "$1" -eq 0 ]; then
+                echo 1
+        else
+                echo 0
+        fi
+}
+# }}}
+
+# usage() {{{
+usage () {
+        msg "%s version %s -- Find which package owns a file\n" "$PROGNAME" $MYVERSION
+        msg "Usage: %s [OPTIONS] filename\n" "$PROGNAME"
+        msg "  -h --help       - Print this help\n"
+        msg "  -d --debug      - Enable debug output\n"
+        msg "  -u --update     - Update to the latest filelist\n"
+        msg "                    This requires write permission for\n"
+        msg "                    %s\n" $FILELIST_DIR
+        msg "  -v --verbose    - Enable verbose output:\n"
+        msg "                    List the exact filename found,\n"
+        msg "                    instead of just the package name\n"
+        msg "  -l --limit-rate - This argument is used with --update\n"
+        msg "                    It is passed directly to wget\n"
+        msg "  -r --regex      - Search for a regex instead of a filename\n"
+        quit 0
+}
+# }}}
+
+# update() -- update the package file list {{{
+update () {
+        for repo in ${REPOS[@]}; do
+                [ "$DEBUG" -eq 1 ] && set -x
+                eval mirror="$(grep -v '^ *#' /etc/pacman.d/mirrorlist | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
+                repofile="${repo}.files.tar.gz"
+                filelist="${mirror}/${repofile}"
+                if [ ! -d "$FILELIST_DIR" ]; then
+                        warn "%s does not exist -- creating" $FILELIST_DIR
+                        mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
+                fi
+                if [ ! -w "$FILELIST_DIR" ];then
+                        die 1 "No write permission to %s, try somewhere else" "$FILELIST_DIR"
+                fi
+                cd "$FILELIST_DIR"
+                rm -f "$repofile"
+                msg "Updating %s file list... " $repo
+                wget -q  --limit-rate="$RATELIMIT" "$filelist" || (warn "Could not retrieve %s\n" $filelist; continue)
+                msg "Extracting file list... " $repo
+                mkdir -p "$repo" || (warn "Could not create directory for %s\n" $repo; continue)
+                tar zxf "$repofile" -C "$repo" 2> /dev/null || (warn "Unable to extract %s\n" $repofile; continue)
+                msg "Done\n"
+                [ "$DEBUG" -eq 1 ] && set +x
+        done
+        quit 0
+
+}
+# }}}
+
+# search() -- find which package owns a file {{{
+search () {
+        [ "$DEBUG" -eq 1 ] && set -x
+        if [ "regex" = "$action" ]; then
+                local fname="$1"
+        else
+                local fname="$(echo $1 | sed 's|^/|^|;s|^\([^^]\)|/\1|')$"; shift
+        fi
+        [ "$DEBUG" -eq 1 ] && echo "'$fname'"
+
+        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+        if echo * | grep -q '^\*$'; then
+                die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
+        fi
+
+        if [ "$VERBOSE" -eq 0 ]; then
+                local sedstring='s#-.*-.*/files:.*##'
+        else
+                local sedstring='s#-.*-.*/files:# : #' 
+        fi
+
+        grep -R "$fname" */* | sed "$sedstring" | uniq
+
+        [ "$DEBUG" -eq 1 ] && set -x
+        quit 0
+}
+# }}}
+
+if [ -z "$1" ]; then
+        usage
+fi
+
+while [ $# -gt 0 ]; do
+        case "$1" in
+                -h|--help)
+                        usage
+                        ;;
+                -u|--update)
+                        ACTIONS=(update ${ACTIONS[@]})
+                        ;;
+                -v|--verbose)
+                        VERBOSE=$(not $VERBOSE)
+                        ;;
+                -d|--debug)
+                        DEBUG=$(not $DEBUG)
+                        ;;
+                -l|--ratelimit)
+                        RATELIMIT="$1"
+                        ;;
+                -r|--regex)
+                        if [ -z "$2" ]; then
+                                die 1 "%s --regex option requires an argument!\n" "$PROGNAME"
+                        fi
+                        ACTIONS=(${ACTIONS[@]} regex)
+                        SEARCHTARGET="$2"; shift
+                        ;;
+                *)
+                        ACTIONS=(${ACTIONS[@]} search)
+                        SEARCHTARGET="$1"
+                        ;;
+        esac
+        shift
+done
+
+for action in "${ACTIONS[@]}"; do
+        case $action in
+                update)
+                        update
+                        ;;
+                search|regex)
+                        search "$SEARCHTARGET"
+                        ;;
+                *)
+                        die 1 "Invalid \$ACTIONS item '%s' -- This should never happen!\n" "$action"
+                        ;;
+        esac
+done
+
+quit 0
+# vim: set ts=8 fdm=marker et :
