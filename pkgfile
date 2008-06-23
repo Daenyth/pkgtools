@@ -85,6 +85,7 @@ usage () {
         msg "  -l --limit-rate - This argument is used with --update\n"
         msg "                    It is passed directly to wget\n"
         msg "  -r --regex      - Search for a regex instead of a filename\n"
+        msg "  --list          - List files similar to pacman -Ql\n"
         quit 0
 }
 # }}}
