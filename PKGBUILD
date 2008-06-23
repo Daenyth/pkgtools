@@ -18,9 +18,9 @@ optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
 
 md5sums=('8b5a8475ca01987dfd581edd8d325f81'
-         '3792dea96d400bc23d1f6f42460f6d54'
+         'a143eb8fb6e2e32c2d367cf8d1df413f'
          'e711a94744171b66ca41c8ad157fb4bd'
-         'c413483144814da63d23311f6b1e7147'
+         '79e306084c11059d6b15bccc44557af8'
          'd44a4b781accea4300db63dc0f4b33a7'
          '3456bbd52daac40e771e7ab619e9378b')
 
