@@ -99,7 +99,7 @@ update () {
                         mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
                 fi
                 if [ ! -w "$FILELIST_DIR" ];then
-                        die 1 "No write permission to %s, try somewhere else" "$FILELIST_DIR"
+                        die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
                 fi
                 cd "$FILELIST_DIR"
                 rm -f "$repofile"
