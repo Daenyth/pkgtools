@@ -16,7 +16,7 @@ else
 fi
 
 ###
-# You can change these values, but should not have to
+# You should not change below this point
 ##
 VERBOSE=0
 DEBUG=0
@@ -29,9 +29,6 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-###
-# You should not change below this point
-##
 MYVERSION=4.0
 SEARCHTARGET=
 ACTIONS=()
