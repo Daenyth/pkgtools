@@ -8,6 +8,13 @@
 CONTRIB_INFO='Your Name <youremail@domain.com>'
 BASEDIR="${HOME}/builds"
 
+if [ -r /usr/share/pkgtools/functions ]; then
+        source /usr/share/pkgtools/functions
+else
+        printf "Unable to source function file!\n" >&2
+        exit 1
+fi
+
 ###
 # Lines below this point should not need to be edited.
 ##
@@ -53,33 +60,6 @@ function usage {
     msg "    --git              - Create a git PKGBUILD\n"
     msg "    --svn              - Create a svn PKGBUILD\n"
     exit 0
-}
-# }}}
-
-# {{{  die() warn() quit() msg()
-die () {
-        #set -x
-        local ret=$1; 
-        local warning="$2"; shift 2
-        warn "${warning:-Unknown error}" "$@"
-        quit ${ret:-1}
-}
-
-warn () {
-        #set -x
-        local message="$1"; shift
-        printf "$message" "$@" 1>&2
-        #set +x
-}
-
-quit () {
-        exit ${1:-0}
-}
-
-msg  () {
-        local message="$1"
-        shift
-        printf "$message" $@
 }
 # }}}
 

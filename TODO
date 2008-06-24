@@ -4,4 +4,3 @@ newpkg:5:#TODO: Perhaps an --append option, to add files to an existing dir. Cur
 newpkg:19:ACTIONS=()       # Better than $DOFOO TODO
 newpkg:23:DOABS=0          # Copy from ABS instead of normal operation TODO
 
-newpkg and pkgfile: split common functions (die, warn, msg, quit) into a 'functions' file

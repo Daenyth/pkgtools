@@ -3,10 +3,17 @@
 
 
 ###
-# You can change these values
+# You can change these values in the config file
 ##
 FILELIST_DIR="/usr/share/pkgtools/lists"
 RATELIMIT='100k' # Argument to wget's --limit-rate flag
+
+if [ -r /usr/share/pkgtools/functions ]; then
+        source /usr/share/pkgtools/functions
+else
+        printf "Unable to source function file!\n" >&2
+        exit 1
+fi
 
 ###
 # You can change these values, but should not have to
@@ -28,36 +35,7 @@ fi
 MYVERSION=4.0
 SEARCHTARGET=
 ACTIONS=()
-REGEX=
 PROGNAME="$(basename $0)"
-
-# {{{  die() warn() quit() msg()
-die () {
-        #set -x
-        local ret=$1; 
-        local warning="$2"; shift 2
-        warn "${warning:-Unknown error}" "$@"
-        quit ${ret:-1}
-}
-
-warn () {
-        #set -x
-        local message="$1"; shift
-        printf "$message" "$@" 1>&2
-        #set +x
-}
-
-quit () {
-        exit ${1:-0}
-}
-
-msg  () {
-        local message="$1"
-        shift
-        printf "$message" $@
-}
-
-# }}}
 
 # not() -- toggle a 0/1 {{{
 not () {
@@ -81,10 +59,10 @@ usage () {
         msg "  -v --verbose    - Enable verbose output:\n"
         msg "                    List the exact filename found,\n"
         msg "                    instead of just the package name\n"
-        msg "  -l --limit-rate - This argument is used with --update\n"
+        msg "  --limit-rate    - This argument is used with --update\n"
         msg "                    It is passed directly to wget\n"
         msg "  -r --regex      - Search for a regex instead of a filename\n"
-        msg "  --list          - List files similar to pacman -Ql\n"
+        msg "  -l --list       - List files similar to pacman -Ql\n"
         quit 0
 }
 # }}}
@@ -128,6 +106,9 @@ search () {
                 local fname="$1"
         else
                 local fname="$(echo $1 | sed 's|^/|^|;s|^\([^^]\)|/\1|')$"; shift
+                # Change a leading / to ^.
+                # Change a leading non-^ character to '/$char;
+                # This will fix grep's regex to prevent false positives
         fi
         [ "$DEBUG" -eq 1 ] && echo "'$fname'"
 
@@ -195,7 +176,7 @@ while [ $# -gt 0 ]; do
                 -d|--debug)
                         DEBUG=$(not $DEBUG)
                         ;;
-                -l|--ratelimit)
+                --ratelimit)
                         RATELIMIT="$1"
                         ;;
                 -r|--regex)
@@ -205,7 +186,7 @@ while [ $# -gt 0 ]; do
                         ACTIONS=(${ACTIONS[@]} regex)
                         SEARCHTARGET="$2"; shift
                         ;;
-                --list)
+                -l|--list)
                         if [ -z "$2" ]; then
                                 die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         fi
