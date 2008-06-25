@@ -10,7 +10,7 @@ function preexec() {
 function precmd() {
   (($?)) && [ -n "$command" ] && [ -x /usr/bin/pkgfile ] && {
   which -- "$command" >& /dev/null ||
-      printf "This file can be found in package " && pkgfile "$command"
+      printf "This file can be found in package " && pkgfile "bin/$command"
     unset command
   }
 }
