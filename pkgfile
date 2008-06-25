@@ -91,7 +91,7 @@ update () {
                 msg "Done\n"
                 [ "$DEBUG" -eq 1 ] && set +x
         done
-        quit 0
+        return 0
 
 }
 # }}}
