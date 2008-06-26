@@ -1,0 +1,39 @@
+#!/bin/bash
+
+PROGNAME="$(basename $0)"
+MYVERSION='1.0'
+
+if [ -r /usr/share/pkgtools/functions ]; then
+        source /usr/share/pkgtools/functions
+else
+        printf "Unable to source function file!\n" >&2
+        exit 1
+fi
+
+BUILDSCRIPT=PKGBUILD
+
+if [ ! -f "$BUILDSCRIPT" ]; then
+	die "%s not found!\n" "$BUILDSCRIPT"
+fi
+
+pkgname="$(. $BUILDSCRIPT; echo $pkgname)"
+aurdir="aur/$pkgname"
+rm -rf "$aurdir"
+mkdir -p "$aurdir"
+
+sources=($(. $BUILDSCRIPT; echo ${source[@]}; echo $install))
+for source in ${sources[@]}; do
+	if echo "$source" | grep -qv '://'; then
+		cp "$source" "$aurdir"
+	fi
+done
+cp "$BUILDSCRIPT" "$aurdir"
+
+cd aur
+msg "Creating new package '%s'..." $pkgname
+tar -cvzf "$pkgname.tar.gz" "$pkgname"
+
+mv -f "$name.tar.gz" ..
+msg "Cleaning up the work directory"
+cd ..
+rm -rf aur
