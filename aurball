@@ -30,10 +30,10 @@ done
 cp "$BUILDSCRIPT" "$aurdir"
 
 cd aur
-msg "Creating new package '%s'..." $pkgname
+msg "Creating new package '%s'...\n" $pkgname
 tar -cvzf "$pkgname.tar.gz" "$pkgname"
 
 mv -f "$pkgname.tar.gz" ..
-msg "Cleaning up the work directory"
+msg "Cleaning up the work directory\n"
 cd ..
 rm -rf aur

@@ -18,14 +18,6 @@ install="$pkgname.install"
 optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
 
-md5sums=('bbb512c746b07a99df61b05eb57bfc7d'
-         '2fb2d35a2e17b318e38bcd1b05a4850a'
-         '9ea36dc41e71f62a77b67d2644e1136d'
-         '3788d4d6900bfaad04e97b47d0ac1b70'
-         'e711a94744171b66ca41c8ad157fb4bd'
-         '79e306084c11059d6b15bccc44557af8'
-         '1d7fdb5a445fd9e9b1816872909c17a7'
-         '3456bbd52daac40e771e7ab619e9378b')
 
 build() {
   # Common fucntions needed by all scripts
@@ -47,3 +39,11 @@ build() {
 }
 
 # vim:set ts=2 sw=2 et:
+md5sums=('bbb512c746b07a99df61b05eb57bfc7d'
+         '2fb2d35a2e17b318e38bcd1b05a4850a'
+         'dad5dcdb4cd1a53c2b2a1186b06b6fc3'
+         '3788d4d6900bfaad04e97b47d0ac1b70'
+         'e711a94744171b66ca41c8ad157fb4bd'
+         '79e306084c11059d6b15bccc44557af8'
+         '1d7fdb5a445fd9e9b1816872909c17a7'
+         '3456bbd52daac40e771e7ab619e9378b')
