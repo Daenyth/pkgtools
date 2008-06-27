@@ -33,7 +33,7 @@ cd aur
 msg "Creating new package '%s'..." $pkgname
 tar -cvzf "$pkgname.tar.gz" "$pkgname"
 
-mv -f "$name.tar.gz" ..
+mv -f "$pkgname.tar.gz" ..
 msg "Cleaning up the work directory"
 cd ..
 rm -rf aur
