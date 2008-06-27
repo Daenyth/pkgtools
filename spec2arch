@@ -8,11 +8,12 @@
 # Syntax:
 #    spec2arch <specfile> <outfile>
 ###############################################################################
-# $Id: spec2arch 68 2008-06-27 12:52:39Z izzy $
+# $Id$
 
 #==========================================================[ Configuration ]===
 # This is what will be put in front of the "source" lines content:
-SRC_BASEURL="http://projects.izzysoft.de/ftp/net/div/izzysoft/\$pkgname"
+#SRC_BASEURL="http://projects.izzysoft.de/ftp/net/div/izzysoft/\$pkgname"
+SRC_BASEURL=""
 
 #===========================================================[ Syntax Check ]===
 [ -z "$2" ] && {
@@ -27,6 +28,28 @@ SRC_BASEURL="http://projects.izzysoft.de/ftp/net/div/izzysoft/\$pkgname"
 }
 SPECFILE=$1
 OUTFILE=$2
+
+#--------------------------------------------[ Package unsupported for us? ]---
+#excludeos
+EXCLOS=$(cat "$SPECFILE"|tr [:upper:] [:lower:]|sed -n '/^excludeos.*linux/p')
+[ -n "$EXCLOS" ] && {
+  echo "Sorry - but this package seems not to be supported for ArchLinux:"
+  echo "'$EXCLOS'"
+  exit 22
+}
+#exclusiveos
+EXCLUS=$(cat "$SPECFILE"|tr [:upper:] [:lower:]|sed -n '/^exclusiveos/p')
+[ -n "$EXCLUS" ] && {
+  EXCLUSLX=$(cat "$SPECFILE"|tr [:upper:] [:lower:]|sed -n '/^exclusiveos.*linux/p')
+  [ -z "$EXCLUSLX" ] && {
+    echo "Sorry - but this package seems not to be supported for ArchLinux:"
+    echo "'$EXCLUS'"
+    echo "'$EXCLUSLX'"
+    exit 22
+  }
+}
+#excludearch
+#exclusivearch
 
 #===========================================================[ Helper Funcs ]===
 #-------------------------------[ Remove leading and trailing white spaces ]---
@@ -52,10 +75,22 @@ function output() {
   [ -n "$URL" ] && echo "url=\"$URL\""
   [ -n "$LICENSE" ] && echo "license=('$LICENSE')"
   echo "groups=('$GROUP')"
-  [ -n "$DEPENDS" ] && echo "depends=($(trim "$DEPENDS"))"
-  [ -n "$PROVIDES" ] && echo "provides=($(trim "$PROVIDES")"
-  [ -n "$CONFLICTS" ] && echo "conflicts=($(trim "$CONFLICTS"))"
-  [ -n "$REPLACES" ] && echo "replaces=($(trim "$REPLACES"))"
+  [ -n "$DEPENDS" ] && {
+    DEPENDS=$(echo "$DEPENDS"|sed 's/,/ /')
+    echo "depends=($(trim "$DEPENDS"))"
+  }
+  [ -n "$PROVIDES" ] && {
+    PROVIDES=$(echo "$PROVIDES"|sed 's/,/ /')
+    echo "provides=($(trim "$PROVIDES")"
+  }
+  [ -n "$CONFLICTS" ] && {
+    CONFLICTS=$(echo "$CONFLICTS"|sed 's/,/ /')
+    echo "conflicts=($(trim "$CONFLICTS"))"
+  }
+  [ -n "$REPLACES" ] && {
+    REPLACES=$(echo "$REPLACES"|sed 's/,/ /')
+    echo "replaces=($(trim "$REPLACES"))"
+  }
   [ -n "$BACKUP" ] && echo "backup=($(trim "$BACKUP"))"
   echo "source=($SRC_BASEURL/\$pkgname-\$pkgver.tar.gz)"
   echo
@@ -88,7 +123,6 @@ while read line; do
       continue
     fi
   }
-
   if [ "${line:0:1}" == "%" ]; then
     VAR=`echo $line|awk '{print $1}'|tr [:upper:] [:lower:]`
     case "$VAR" in
@@ -113,14 +147,14 @@ while read line; do
       "vendor") VENDOR="$VAL";;
       "packager") PACKAGER="$VAL";;
       "url") URL="$VAL";;
-      "buildarchitectures")
+      "buildarchitectures"|"buildarch")
         if [ "$VAL" = "noarch" ]; then
 	  ARCH="('any')"
 	else
 	  ARCH="('$VAL')"
        fi
 	;;
-	"requires") DEPENDS="${DEPENDS} '$VAL'";; # Should we have logic here to check for versioned requirements?
+      "requires"|"buildrequires") DEPENDS="${DEPENDS} '$VAL'";; # Should we have logic here to check for versioned requirements?
       "provides") PROVIDES="${PROVIDES} '$VAL'";;
       "conflicts") CONFLICTS="${CONFLICTS} '$VAL'";;
       "replaces") REPLACES="${REPLACES} '$VAL'";;
