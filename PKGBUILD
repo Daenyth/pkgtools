@@ -1,6 +1,6 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=7rc3
+pkgver=7
 pkgrel=1
 pkgdesc="A collection of scripts for archlinux packages"
 arch=(any)
