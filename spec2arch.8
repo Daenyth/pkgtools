@@ -1,0 +1,50 @@
+.TH spec2arch 8 "27 June 2008"
+.IX spec2arch
+.SH NAME
+RPM SpecFile to ArchLinux PKGBUILD converter
+
+.SH SYNOPSIS
+.B spec2arch
+.RB "\fIRPMSpecFile\fR"
+.RB "\fIPKGBUILDFile\fR"
+
+.SH DESCRIPTION
+spec2arch does a raw "convert" from a given .spec file to an ArchLinux
+PKGBUILD file. The resulting file will rarely be that perfect to use it
+straight ahead, and will at least need to be reviewed if not even corrected -
+but it will make it much easier to get started with it.
+
+spec2arch will most probably fail with too complex .spec files. But for "easy
+packages", you may successfully use it in conjunction with \fBpkgmake\fR, and
+may even be as lucky again as to only maintain the one .spec file, but create
+packages for even one more distribution.
+
+.SH OPTIONS
+.IP "\fBRPMSpecFile\fR"
+This is the input file to read, which obviously has to be a RPM .spec file. The
+templates used for pkgmake will not work for obvious reasons: They contain
+placeholders instead of the real values...
+
+.IP "\fBPKGBUILDFile\fR"
+The output file to generate. It will most likely be named PKGBUILD, but this
+way you can provide the directory and name where to store it.
+
+.SH "EXAMPLES"
+spec2arch sample.spec /usr/local/projects/sample/PKGBUILD
+
+.SH "CONFIGURATION"
+Not that much to configure  - for now it's just one line at the top of the
+script itself, where you may configure the URL path for the source tarball.
+
+.SH "FILES"
+/usr/bin/spec2arch
+
+.SH "AUTHOR" 
+.PP 
+This manual page was written by Andreas Itzchak Rehberg (devel@izzysoft.de),
+the author of the program. Permission is granted to copy, distribute and/or
+modify this document under the terms of the GNU General Public License,
+Version 2.
+
+More information may be found on the authors website, http://www.izzysoft.de/
+ 
