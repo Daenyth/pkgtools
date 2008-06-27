@@ -76,19 +76,19 @@ function output() {
   [ -n "$LICENSE" ] && echo "license=('$LICENSE')"
   echo "groups=('$GROUP')"
   [ -n "$DEPENDS" ] && {
-    DEPENDS=$(echo "$DEPENDS"|sed 's/,/ /')
+    DEPENDS=$(echo "$DEPENDS"|sed 's/,/ /g')
     echo "depends=($(trim "$DEPENDS"))"
   }
   [ -n "$PROVIDES" ] && {
-    PROVIDES=$(echo "$PROVIDES"|sed 's/,/ /')
+    PROVIDES=$(echo "$PROVIDES"|sed 's/,/ /g')
     echo "provides=($(trim "$PROVIDES")"
   }
   [ -n "$CONFLICTS" ] && {
-    CONFLICTS=$(echo "$CONFLICTS"|sed 's/,/ /')
+    CONFLICTS=$(echo "$CONFLICTS"|sed 's/,/ /g')
     echo "conflicts=($(trim "$CONFLICTS"))"
   }
   [ -n "$REPLACES" ] && {
-    REPLACES=$(echo "$REPLACES"|sed 's/,/ /')
+    REPLACES=$(echo "$REPLACES"|sed 's/,/ /g')
     echo "replaces=($(trim "$REPLACES"))"
   }
   [ -n "$BACKUP" ] && echo "backup=($(trim "$BACKUP"))"
@@ -111,31 +111,31 @@ BUILDBLOCK=0
 while read line; do
   [ $BUILDBLOCK -eq 1 ] && {
     if [ "${line:0:1}" == "%" ]; then
-      VAR=`echo $line|awk '{print $1}'|tr [:upper:] [:lower:]`
+      VAR=$(echo $line|awk '{print $1}'|tr [:upper:] [:lower:])
       case "$VAR" in
         "%prep"|"%setup"|"%build"|"%install"|"%pre"|"%clean"|"%post") continue;;
 	*) BUILDBLOCK=0; continue;;
       esac
     else
-      VAL=`trim "$line"`
+      VAL=$(trim "$line")
       [ -z "$VAL" -o  "${VAL:0:1}" = "#" ] && continue
       BUILD="${BUILD}\n  $line"
       continue
     fi
   }
   if [ "${line:0:1}" == "%" ]; then
-    VAR=`echo $line|awk '{print $1}'|tr [:upper:] [:lower:]`
+    VAR=$(echo $line|awk '{print $1}'|tr [:upper:] [:lower:])
     case "$VAR" in
       "%prep"|"%setup"|"%build"|"%install"|"%pre"|"%clean"|"%post") BUILDBLOCK=1; continue;;
       *) continue;;
     esac
   fi
-  pat=`echo "$line"|egrep -i "^\w+:"`
+  pat=$(echo "$line"|egrep -i "^\w+:")
   [ -n "$pat" ] && {
-    VAR=`echo "$line"|awk -F: '{print $1}'`
-    VARL=`echo "$VAR"|tr [:upper:] [:lower:]`
+    VAR=$(echo "$line"|awk -F: '{print $1}')
+    VARL=$(echo "$VAR"|tr [:upper:] [:lower:])
     VLEN=${#VAR}
-    VAL=`trim "${line:$VLEN+1}"`
+    VAL=$(trim "${line:$VLEN+1}")
     case "$VARL" in
       "summary") PKGDESC="$VAL";;
       "version") PKGVER=$VAL;;
@@ -162,11 +162,11 @@ while read line; do
     esac
     continue
   }
-  pat=`echo "$line"|egrep -i "^%config"`
+  pat=$(echo "$line"|egrep -i "^%config")
   [ -n "$pat" ] && {
-    VAR=`echo "$line"|awk '{print $1}'`
+    VAR=$(echo "$line"|awk '{print $1}')
     VLEN=${#VAR}
-    VAL=`trim "${line:$VLEN+1}"`
+    VAL=$(trim "${line:$VLEN+1}")
     BACKUP="${BACKUP} '$VAL'"
     continue
   }
