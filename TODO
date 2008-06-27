@@ -8,7 +8,7 @@ newpkg:23:DOABS=0          # Copy from ABS instead of normal operation TODO
 
 We should hack up some sort of release script also.
 makepkg || die
-namcamp PKGBUILD pkgtools*.tar.gz || die
+namcamp PKGBUILD pkgtools*.pkg.tar.gz || die
 find pkg -type f
 find src -type f
 yesno "look good"? || die
