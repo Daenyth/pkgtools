@@ -52,15 +52,16 @@ function output() {
   [ -n "$URL" ] && echo "url=\"$URL\""
   [ -n "$LICENSE" ] && echo "license=('$LICENSE')"
   echo "groups=('$GROUP')"
-  [ -n "$DEPENDS" ] && echo "depends=(`trim \"$DEPENDS\"`)"
-  [ -n "$PROVIDES" ] && echo "provides=(`trim \"$PROVIDES\"`)"
-  [ -n "$CONFLICTS" ] && echo "conflicts=(`trim \"$CONFLICTS\"`)"
-  [ -n "$REPLACES" ] && echo "replaces=(`trim \"$REPLACES\"`)"
-  [ -n "$BACKUP" ] && echo "backup=(`trim \"$BACKUP\"`)"
+  [ -n "$DEPENDS" ] && echo "depends=($(trim "$DEPENDS"))"
+  [ -n "$PROVIDES" ] && echo "provides=($(trim "$PROVIDES")"
+  [ -n "$CONFLICTS" ] && echo "conflicts=($(trim "$CONFLICTS"))"
+  [ -n "$REPLACES" ] && echo "replaces=($(trim "$REPLACES"))"
+  [ -n "$BACKUP" ] && echo "backup=($(trim "$BACKUP"))"
   echo "source=($SRC_BASEURL/\$pkgname-\$pkgver.tar.gz)"
   echo
   echo -e "build() {$BUILD"
   echo "}"
+  echo "# vim: set ts=2 sw=2 et:"
 }
 
 #=======================================================[ Parse Input File ]===
@@ -70,6 +71,7 @@ CONFLICTS=""
 REPLACES=""
 BACKUP=""
 BUILD=""
+LICENSE=""
 BUILDBLOCK=0
 while read line; do
   [ $BUILDBLOCK -eq 1 ] && {
@@ -86,6 +88,7 @@ while read line; do
       continue
     fi
   }
+
   if [ "${line:0:1}" == "%" ]; then
     VAR=`echo $line|awk '{print $1}'|tr [:upper:] [:lower:]`
     case "$VAR" in
@@ -105,22 +108,23 @@ while read line; do
       "name") PKGNAME=$VAL;;
       "release") PKGREL=$VAL;;
       "license") LICENSE="$VAL";;
-      "group") GROUP="$VAL";;
+      #"group") GROUP="$VAL";; # Arch's group tag is not used in the same way. Arch groups are similar in concept to metapackages.
       # "source") SOURCE="${SRC_BASEURL}/$VAL";;
       "vendor") VENDOR="$VAL";;
       "packager") PACKAGER="$VAL";;
       "url") URL="$VAL";;
       "buildarchitectures")
         if [ "$VAL" = "noarch" ]; then
-	  ARCH="('i386','i686','x86_64')"
+	  ARCH="('any')"
 	else
 	  ARCH="('$VAL')"
-	fi
+       fi
 	;;
-      "requires") DEPENDS="${DEPENDS} '$VAL'";;
+	"requires") DEPENDS="${DEPENDS} '$VAL'";; # Should we have logic here to check for versioned requirements?
       "provides") PROVIDES="${PROVIDES} '$VAL'";;
       "conflicts") CONFLICTS="${CONFLICTS} '$VAL'";;
       "replaces") REPLACES="${REPLACES} '$VAL'";;
+      "copyright") LICENSE="${LICENSE} '$VAL'";;
     esac
     continue
   }
