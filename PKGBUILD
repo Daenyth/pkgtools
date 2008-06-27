@@ -20,7 +20,7 @@ optdepends=('zsh: For command not found hook'
 
 md5sums=('bbb512c746b07a99df61b05eb57bfc7d'
          '2fb2d35a2e17b318e38bcd1b05a4850a'
-         '3acb50393e75575b5dfa716b4345bb66'
+         '7f0fafdd5e4f4121ddcd6e02670dc3aa'
          '3788d4d6900bfaad04e97b47d0ac1b70'
          'e711a94744171b66ca41c8ad157fb4bd'
          '79e306084c11059d6b15bccc44557af8'
