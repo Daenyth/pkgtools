@@ -115,12 +115,12 @@ search () {
         fi
 
         if [ "$VERBOSE" -eq 0 ]; then
-                local sedstring='s#-.*-.*/files:.*##'
+                local sedreplace=''
         else
-                local sedstring='s#-.*-.*/files:# : #' 
+                local sedreplace=' : ' 
         fi
 
-        grep -R "$fname" */* | sed "$sedstring" | uniq
+        grep -R "$fname" */* | sed "s#-[0-9.a-z_]*-[0-9.]*/files:.*#$sedreplace#" | uniq
 
         [ "$DEBUG" -eq 1 ] && set -x
         quit 0
