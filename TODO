@@ -19,3 +19,9 @@ git push; git push --tags
 Autodetect releasever or CLI option?
 
 # ----
+
+Path to functions file is hardcoded to /usr, what about people using /usr/local?
+
+# ----
+
+Use $BUILDSCRIPT from makepkg.conf instead of hardcoding "PKGBUILD"
