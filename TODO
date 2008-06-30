@@ -26,12 +26,4 @@ Path to functions file is hardcoded to /usr, what about people using /usr/local?
 
 Use $BUILDSCRIPT from makepkg.conf instead of hardcoding "PKGBUILD"
 
-# ----
-pkgfile
-
-pacman -Qo `which ifconfig`
-/sbin/ifconfig is owned by net-tools 1.60-13
-
-pkgfile ifconfig
-core/net
 
