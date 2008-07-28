@@ -72,7 +72,7 @@ update () {
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
                 if [ ! -d "$FILELIST_DIR" ]; then
-                        warn "%s does not exist -- creating" $FILELIST_DIR
+                        warn "%s does not exist -- creating " $FILELIST_DIR
                         mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
                 fi
                 if [ ! -w "$FILELIST_DIR" ];then
