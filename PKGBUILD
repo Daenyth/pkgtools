@@ -4,7 +4,7 @@ pkgver=7
 pkgrel=1
 pkgdesc="A collection of scripts for archlinux packages"
 arch=(any)
-url="http://bbs.archlinux.org/viewtopic.php?pid=384196#p384196"
+url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
 source=(newpkg pkgfile aurball
         'functions'
