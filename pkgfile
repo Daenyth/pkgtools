@@ -141,7 +141,7 @@ listfiles () {
                 local findresult="$(\
                 find "$repo" -type d -regex "$findarg" | while read line; do
                         filelist="$line/files"
-                        sed -n "1d;s|^|$pkg /|p" "$filelist" # Give it output like pacman -Ql
+                        sed -n "1d;s|^|$pkg /|p" "$filelist" | sort # Give it output like pacman -Ql
                 done)"
                 if [ -n "$findresult" ]; then
                         FOUNDFILE=1
