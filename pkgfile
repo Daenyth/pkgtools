@@ -155,6 +155,11 @@ listfiles () {
 }
 # }}}
 
+# pkgquery() similar to rpm -Qf {{{
+pkgquery () {
+        echo 'stub'
+}
+
 if [ -z "$1" ]; then
         usage
 fi
