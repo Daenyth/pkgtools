@@ -20,7 +20,7 @@ fi
 ##
 VERBOSE=0
 DEBUG=0
-REPOS=(core extra community unstable)
+REPOS=(core extra community)
 
 
 if [ -r /etc/pkgtools/pkgfile.conf ]; then
