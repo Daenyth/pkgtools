@@ -30,3 +30,7 @@ Use $BUILDSCRIPT from makepkg.conf instead of hardcoding "PKGBUILD"
 # ----
 
 Include ideas from http://threadstates.com/downloads/pac-file
+
+# ----
+
+pkgfile: Implement pkgquery like rpm -Qf.
