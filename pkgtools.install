@@ -1,25 +1,29 @@
-## arg 1:  the new package version
-post_install() {
-  cat << _EOM
- - Make sure to run pkgfile --update before use.
- - An entry has been placed in /etc/cron.daily to --update
+_MSG_UPDATE=" -Make sure to run pkgfile --update before use"
+_MSG_CRON=" - An entry has been placed in /etc/cron.daily to --update
    If you do not want this functionality, run (as root):
-     chmod -x /etc/cron.daily/pkgfile
- - zsh users: pkgfile includes a command not found hook.
+     chmod -x /etc/cron.daily/pkgfile"
+_MSG_ZSHHOOK=" - zsh users: pkgfile includes a command not found hook.
    This will automatically run pkgfile whenever you run
    a command which the shell cannot find. If you want
    this functionality, run (as root):
      ln -s /usr/share/pkgtools/pkgfile-hook /etc/profile.d/pkgfile-hook.zsh
-   NOTE: This is an alpha feature, and may not work completely.
- - Bugs: please report any bugs to this thread. 
-   http://bbs.archlinux.org/viewtopic.php?pid=384196
-_EOM
+   NOTE: This is an alpha feature, and may not work completely."
+_MSG_BUGS=" - Bugs: please report any bugs to this thread. 
+   http://bbs.archlinux.org/viewtopic.php?pid=384196"
+## arg 1:  the new package version
+post_install() {
+  echo "$_MSG_UPDATE"
+  if pacman -Q zsh 2&>1 /dev/null; then
+    echo "$_MSG_ZSHHOOK"
+  fi
+  echo "$_MSG_CRON"
+  echo "$_MSG_BUGS"
 }
 
 ## arg 1:  the new package version
 ## arg 2:  the old package version
 post_upgrade() {
-  post_install "$1"
+  echo "$_MSG_BUGS"
 }
 
 ## arg 1:  the old package version
@@ -30,4 +34,4 @@ to remove the link in /etc/profile.d/
 _EOM
 }
 
-# vim:set ts=2 sw=2 et:
+# vim:set ts=2 sw=2 et filetype=sh:
