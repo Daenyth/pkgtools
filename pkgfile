@@ -173,8 +173,11 @@ while [ $# -gt 0 ]; do
                 -d|--debug)
                         DEBUG=$(not $DEBUG)
                         ;;
-                --ratelimit)
-                        RATELIMIT="$1"
+                --limit-rate)
+                        if [ -z "$2" ]; then
+                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
+                        fi
+                        RATELIMIT="$2"; shift
                         ;;
                 -r|--regex)
                         if [ -z "$2" ]; then
