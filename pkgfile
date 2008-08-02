@@ -55,7 +55,7 @@ usage () {
         msg "                    %s\n" $FILELIST_DIR
         msg "  -v --verbose    - Enable verbose output:\n"
         msg "                    List the exact filename found,\n"
-        msg "                    instead of just the package name\n"
+        msg "                    in addition to the package name\n"
         msg "  --limit-rate    - This argument is used with --update\n"
         msg "                    It is passed directly to wget\n"
         msg "  -r --regex      - Search for a regex instead of a filename\n"
