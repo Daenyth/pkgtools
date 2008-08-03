@@ -110,7 +110,7 @@ update () {
 # search() -- find which package owns a file {{{
 search () {
         [ "$DEBUG" -eq 1 ] && set -x
-        if [ "regex" = "$action" ]; then
+        if [ 'regex' = "$action" ]; then
                 local fname="$1"
         else
                 local fname="$(echo $1 | sed 's|^/|^|;s|^\([^^]\)|/\1|')$"; shift
