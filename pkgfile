@@ -44,6 +44,17 @@ not () {
 }
 # }}}
 
+# cd_filelist_dir() {{{
+cd_filelist_dir () {
+        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+        if [ 'noempty' == "$1" ]; then
+                if echo * | grep -q '^\*$'; then
+                        die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
+                fi
+        fi
+}
+# }}}
+
 # usage() {{{
 usage () {
         msg "%s version %s -- Find which package owns a file\n" "$PROGNAME" $MYVERSION
@@ -78,7 +89,7 @@ update () {
                 if [ ! -w "$FILELIST_DIR" ];then
                         die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
                 fi
-                cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+                cd_filelist_dir
                 rm -f "$repofile"
                 if [ "$VERBOSE" -eq 1 ]; then
                         msg "Using mirror %s... " $mirror
@@ -109,10 +120,7 @@ search () {
         fi
         [ "$DEBUG" -eq 1 ] && echo "'$fname'"
 
-        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
-        if echo * | grep -q '^\*$'; then
-                die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
-        fi
+        cd_filelist_dir noempty
 
         if [ "$VERBOSE" -eq 0 ]; then
                 local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:.*##'
@@ -131,10 +139,7 @@ search () {
 listfiles () {
         local pkg="$1"
         local FOUNDFILE=0
-        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
-        if echo * | grep -q '^\*$'; then
-                die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
-        fi
+        cd_filelist_dir noempty
         for repo in ${REPOS[@]}; do
                 [ "$DEBUG" -eq 1 ] && set -x
                 local findarg="$repo/$pkg-[^-]+-[^-]+$"
