@@ -179,23 +179,22 @@ while [ $# -gt 0 ]; do
                         DEBUG=$(not $DEBUG)
                         ;;
                 --limit-rate)
-                        if [ -z "$2" ]; then
-                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
-                        fi
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         RATELIMIT="$2"; shift
                         ;;
                 -r|--regex)
-                        if [ -z "$2" ]; then
-                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
-                        fi
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} regex)
                         SEARCHTARGET="$2"; shift
                         ;;
                 -l|--list)
-                        if [ -z "$2" ]; then
-                                die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
-                        fi
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} list)
+                        SEARCHTARGET="$2"; shift
+                        ;;
+                -i|--info)
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
+                        ACTIONS=(${ACTIONS[@]} info)
                         SEARCHTARGET="$2"; shift
                         ;;
                 -*)
@@ -219,6 +218,9 @@ for action in "${ACTIONS[@]}"; do
                         ;;
                 list)
                         listfiles "$SEARCHTARGET"
+                        ;;
+                info)
+                        pkgquery "$SEARCHTARGET"
                         ;;
                 *)
                         die 1 "Invalid \$ACTIONS item '%s' -- This should never happen!\n" "$action"
