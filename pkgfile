@@ -29,7 +29,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-MYVERSION=4.1
+MYVERSION=5.0
 SEARCHTARGET=
 ACTIONS=()
 PROGNAME="$(basename $0)"
