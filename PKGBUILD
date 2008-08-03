@@ -2,7 +2,7 @@
 pkgname=pkgtools
 pkgver=8
 pkgrel=1
-pkgdesc="A collection of scripts for archlinux packages"
+pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
 url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
