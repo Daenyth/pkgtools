@@ -155,10 +155,27 @@ listfiles () {
 }
 # }}}
 
-# pkgquery() similar to rpm -Qf {{{
+# pkgquery() -- similar to rpm -Qf {{{
 pkgquery () {
-        echo 'stub'
+        local fname="$1"
+        local LOCALFILE=0
+        
+        # If the file is local we can take some shortcuts to improve speed.
+        [ -e "$fname" ] && LOCALFILE=1
+
+        if [ $LOCALFILE -eq 1 ]; then
+                local pkgname=$(LC_ALL=C pacman -Qo "$fname" 2>&1)
+                if [[ "$pkgname" =~ 'error: ' ]]; then
+                        die 1 'Unable to find package info for file %s\n' "$fname"
+                fi
+                pkgname=$(echo $pkgname | cut -d ' ' -f 5)
+                pacman -Qi "$pkgname"
+        else
+                die 1 '%s --info may currently only be used with local files\n' $PROGNAME
+        fi
+
 }
+# }}}
 
 if [ -z "$1" ]; then
         usage
