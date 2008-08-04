@@ -57,6 +57,8 @@ cd_filelist_dir () {
 
 # usage() {{{
 usage () {
+
+#           |--------------------------------------------------------------------------------| 80 Characters
         msg "%s version %s -- Find which package owns a file\n" "$PROGNAME" $MYVERSION
         msg "Usage: %s [OPTIONS] filename\n" "$PROGNAME"
         msg "  -h --help       - Print this help\n"
@@ -71,7 +73,10 @@ usage () {
         msg "                    It is passed directly to wget\n"
         msg "  -r --regex      - Search for a regex instead of a filename\n"
         msg "  -l --list       - List files similar to pacman -Ql\n"
-        quit 0
+        msg "  -i --info       - Provides information about the package owning a file\n"
+        msg "                    Similar to \`rpm -Qf'\n"  
+#           |--------------------------------------------------------------------------------| 80 Characters
+        quit ${1:-0}
 }
 # }}}
 
