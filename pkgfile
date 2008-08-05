@@ -26,6 +26,7 @@
 ##
 FILELIST_DIR="/usr/share/pkgtools/lists"
 RATELIMIT='100k' # Argument to wget's --limit-rate flag
+PACMAN_MIRRORLIST='/etc/pacman.d/mirrorlist'
 
 if [ -r /usr/share/pkgtools/functions ]; then
         source /usr/share/pkgtools/functions
@@ -103,7 +104,7 @@ usage () {
 update () {
         for repo in ${REPOS[@]}; do
                 [ "$DEBUG" -eq 1 ] && set -x
-                eval mirror="$(grep -v '^ *#' /etc/pacman.d/mirrorlist | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
+                eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
                 if [ ! -d "$FILELIST_DIR" ]; then
