@@ -12,7 +12,7 @@
 
 #==========================================================[ Configuration ]===
 # These are the internal defaults. Don't change them here - use the
-# /etc/pkgmake/spec2arch.conf or $HOME/.pkgmake/spec2arch.conf instead!
+# /etc/pkgtools/spec2arch.conf or $HOME/.pkgtools/spec2arch.conf instead!
 SRC_BASEURL=""
 USE_WARNING=1
 OVERWRITE_TARGET=0
@@ -53,8 +53,8 @@ function syntax() {
 }
 
 #------------------------------------------------------------[ Read Config ]---
-[ -e /etc/pkgmake/spec2arch.conf ] && . /etc/pkgmake/spec2arch.conf
-[ -e $HOME/.pkgmake/spec2arch.conf ] && . $HOME/.pkgmake/spec2arch.conf
+[ -e /etc/pkgtools/spec2arch.conf ] && . /etc/pkgtools/spec2arch.conf
+[ -e $HOME/.pkgtools/spec2arch.conf ] && . $HOME/.pkgtools/spec2arch.conf
 
 #-----------------------------------------------------[ parse command line ]---
 case "$1" in
