@@ -47,6 +47,7 @@ function syntax() {
   echo "+w	put the warning in the PKGBUILD file"
   echo "--baseurl <baseurl>	set SRC_BASEURL to <baseurl>"
   echo "--editor <editor>	use <editor> to manually edit the PKGBUILD file"
+  echo "--md5of <file>		create md5sum of specified (colon-separated) file(s)"
   echo
   exit $EL
 }
@@ -77,6 +78,7 @@ while [ "$1" != "" ] ; do
     +w) USE_WARNING=1;;
     --baseurl) shift; SRC_BASEURL="$1";;
     --editor) shift; EDITOR="$1";;
+    --md5of) shift; MD5OF="$1";;
   esac
   shift
 done
@@ -176,7 +178,16 @@ function output() {
   [ -n "$BACKUP" ] && echo "backup=($(trim "$BACKUP"))"
   [ -n "$SRC_BASEURL" -a "${SRC_BASEURL:${#SRC_BASEURL}-1}" != "/" ] && SRC_BASEURL="${SRC_BASEURL}/"
   echo "source=($SRC_BASEURL\$pkgname-\$pkgver.tar.gz)"
-  echo "md5sums=()"
+  if [ -n "$MD5OF" ]; then
+    MD5OF=$(echo $MD5OF|sed 's/:/ /g')
+    MDSUM=""
+    for FILEN in $MD5OF; do
+      [ -f $FILEN ] && MDSUM="$MDSUM '$(md5sum $FILEN|awk '{print $1}')'"
+    done
+    echo "md5sums=(${MDSUM:1})"
+  else
+    echo "md5sums=()"
+  fi
   [ -n "$BUILD" ] && {
     echo
     echo "build() {"
@@ -294,7 +305,7 @@ while read line; do
       "summary") PKGDESC="$VAL";;
       "version") PKGVER=$VAL;;
       "name") PKGNAME=$VAL;;
-      "release") PKGREL=$VAL;;
+      "release") PKGREL=$(echo $VAL|sed 's/[^0-9]//g');;
       "license") LICENSE="$VAL";;
       #"group") GROUP="$VAL";; # Arch's group tag is not used in the same way. Arch groups are similar in concept to metapackages.
       # "source") SOURCE="${SRC_BASEURL}/$VAL";;
