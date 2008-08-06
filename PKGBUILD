@@ -15,7 +15,7 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 replaces=(newpkg)
 conflicts=(newpkg)
 provides=(newpkg)
-install="$pkgname.install"
+install=pkgtools.install
 optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
 
