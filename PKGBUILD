@@ -47,9 +47,9 @@ build() {
 
 # vim:set ts=2 sw=2 et:
 md5sums=('ff115b184d090deae11afc67f56094eb'
-         '8eb98a93c4f53dd06062efbe0a6e4fc6'
+         'e93463bba9168624e7c8b9cf28bdc47b'
          'adc46727c22d790454b2137a8f3d2c88'
-         '886655bf39624428fa7c7127d55f9839'
+         '45050fc57c3cabf85debbfcbd4825b9e'
          '3788d4d6900bfaad04e97b47d0ac1b70'
          'e711a94744171b66ca41c8ad157fb4bd'
          '79e306084c11059d6b15bccc44557af8'
