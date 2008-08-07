@@ -13,7 +13,7 @@
 #==========================================================[ Configuration ]===
 # Since this script is used in different packages (pkgmake, pkgtools), we need
 # to point it to the right directory
-CONFNAME="pkgmake"
+CONFNAME="pkgtools"
 # These are the internal defaults. Don't change them here - use the
 # /etc/${CONFNAME}/spec2arch.conf or $HOME/.${CONFNAME}/spec2arch.conf instead!
 SRC_BASEURL=""
