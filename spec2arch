@@ -8,7 +8,6 @@
 # Syntax:
 #    spec2arch <specfile> <outfile>
 ###############################################################################
-# $Id$
 
 #==========================================================[ Configuration ]===
 # Since this script is used in different packages (pkgmake, pkgtools), we need
