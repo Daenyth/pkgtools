@@ -8,8 +8,8 @@ _MSG_ZSHHOOK=" - zsh users: pkgfile includes a command not found hook.
    this functionality, run (as root):
      ln -s /usr/share/pkgtools/pkgfile-hook /etc/profile.d/pkgfile-hook.zsh
    NOTE: This is an alpha feature, and may not work completely."
-_MSG_BUGS=" - Bugs: please report any bugs to this thread. 
-   http://bbs.archlinux.org/viewtopic.php?pid=384196"
+_MSG_BUGS=" - Bugs: please report any bugs to the Community bugtracker at
+   http://bugs.archlinux.org/index.php?project=5"
 ## arg 1:  the new package version
 post_install() {
   echo "$_MSG_UPDATE"
