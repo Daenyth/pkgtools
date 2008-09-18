@@ -36,3 +36,7 @@ Include ideas from http://threadstates.com/downloads/pac-file
 pkgfile: Implement pkgquery like rpm -Qf.
 	 Partially done. Local files work, but should also be able to search the filelist
 
+# ----
+
+pkgfile: make --list faster by using pacman -Ql, and the same for default search.
+	add a --remote flag to force using the database instead of pacman.
