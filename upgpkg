@@ -31,12 +31,12 @@ if [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
         source "${HOME}/.pkgtools/newpkg.conf"
 fi
 
-if [ -z $BASEDIR ]; then die "$(gettext "upgpkg: unable to locate BASEDIR in configuration.")"; fi
+if [ -z "$BASEDIR" ]; then die "$(gettext "upgpkg: unable to locate BASEDIR in configuration.")"; fi
 
-if [ -z $1 ]; then printf "upgpkg %s\n" "$MYVERSION"; printf "$(gettext "usage: upgpkg package-name newver\n")"; exit; fi
+if [ -z "$1" ]; then printf "upgpkg %s\n" "$MYVERSION"; printf "$(gettext "usage: upgpkg package-name newver\n")"; exit; fi
 
 if [ ! -d "$BASEDIR/$1" ]; then die "$(gettext "upgpkg: package %s not in %s.\n")" "$1" "$BASEDIR"; fi
-if [ -z $2 ]; then die "$(gettext "upgpkg: no new version specified for %s\n")" "$1"; fi
+if [ -z "$2" ]; then die "$(gettext "upgpkg: no new version specified for %s\n")" "$1"; fi
 
 # Main code follows
 
