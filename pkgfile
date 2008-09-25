@@ -40,6 +40,7 @@ fi
 ##
 VERBOSE=0
 DEBUG=0
+REMOTE_SEARCH=0 # Force remote search instead of using pacman database
 REPOS=(core extra community)
 
 
@@ -164,6 +165,14 @@ search () {
 listfiles () {
         local pkg="$1"
         local FOUNDFILE=0
+
+        if [ $REMOTE_SEARCH -eq 0 ]; then
+                if pacman -Q "$pkg" &> /dev/null; then
+                        pacman -Ql "$pkg" | sort
+                        return 0
+                fi
+        fi
+
         cd_filelist_dir noempty
         for repo in ${REPOS[@]}; do
                 [ "$DEBUG" -eq 1 ] && set -x
@@ -193,7 +202,7 @@ pkgquery () {
         # If the file is local we can take some shortcuts to improve speed.
         [ -e "$fname" ] && LOCALFILE=1
 
-        if [ $LOCALFILE -eq 1 ]; then
+        if [ $LOCALFILE -eq 1 -a $REMOTE_SEARCH -eq 0 ]; then
                 local pkgname=$(LC_ALL=C pacman -Qo "$fname" 2>&1)
                 if [[ "$pkgname" =~ 'error: ' ]]; then
                         die 1 'Unable to find package info for file %s\n' "$fname"
@@ -224,6 +233,9 @@ while [ $# -gt 0 ]; do
                         ;;
                 -d|--debug)
                         DEBUG=$(not $DEBUG)
+                        ;;
+                -R|--remote)
+                        REMOTE_SEARCH=$(not $REMOTE_SEARCH)
                         ;;
                 --limit-rate)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
