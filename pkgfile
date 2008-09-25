@@ -50,7 +50,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-MYVERSION=5.0
+MYVERSION=5.1
 SEARCHTARGET=
 ACTIONS=()
 PROGNAME="$(basename $0)"
@@ -81,21 +81,24 @@ usage () {
 
 #           |--------------------------------------------------------------------------------| 80 Characters
         msg "%s version %s -- Find which package owns a file\n" "$PROGNAME" $MYVERSION
-        msg "Usage: %s [OPTIONS] filename\n" "$PROGNAME"
-        msg "  -h --help       - Print this help\n"
-        msg "  -d --debug      - Enable debug output\n"
-        msg "  -u --update     - Update to the latest filelist\n"
+        msg "Usage: %s [ACTIONS] [OPTIONS] filename\n" "$PROGNAME"
+        msg "ACTIONS:\n"
+        msg "  -h --help       - Print this help.\n"
+        msg "  -i --info       - Provides information about the package owning a file.\n"
+        msg "                    Similar to \`rpm -Qf'.\n"  
+        msg "  -l --list       - List files similar to \`pacman -Ql'.\n"
+        msg "  -r --regex      - Search for a regex instead of a filename.\n"
+        msg "  -s --search     - Search for what package owns a file.\n"
+        msg "                    This is the default action.\n"
+        msg "  -u --update     - Update to the latest filelist.\n"
         msg "                    This requires write permission for\n"
         msg "                    %s\n" $FILELIST_DIR
-        msg "  -v --verbose    - Enable verbose output:\n"
-        msg "                    List the exact filename found,\n"
-        msg "                    in addition to the package name\n"
-        msg "  --limit-rate    - This argument is used with --update\n"
-        msg "                    It is passed directly to wget\n"
-        msg "  -r --regex      - Search for a regex instead of a filename\n"
-        msg "  -l --list       - List files similar to pacman -Ql\n"
-        msg "  -i --info       - Provides information about the package owning a file\n"
-        msg "                    Similar to \`rpm -Qf'\n"  
+
+        msg "OPTIONS:\n"
+        msg "  -d --debug      - Increase debug level. This can be passed multiple times.\n"
+        msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
+        msg "  -R --remote     - Search remotely instead of using local pacman info.\n"
+        msg "  -v --verbose    - Enable verbose output.\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
         quit ${1:-0}
 }
@@ -224,39 +227,44 @@ fi
 
 while [ $# -gt 0 ]; do
         case "$1" in
-                -h|--help)
-                        usage
-                        ;;
-                -u|--update)
-                        ACTIONS=(update ${ACTIONS[@]})
-                        ;;
-                -v|--verbose)
-                        VERBOSE=$(not $VERBOSE)
-                        ;;
                 -d|--debug)
                         DEBUG=$(( DEBUG += 1 ))
                         ;;
-                -R|--remote)
-                        REMOTE_SEARCH=$(not $REMOTE_SEARCH)
+                -h|--help)
+                        usage
+                        ;;
+                -i|--info)
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
+                        ACTIONS=(${ACTIONS[@]} info)
+                        SEARCHTARGET="$2"; shift
                         ;;
                 -L|--limit-rate)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         RATELIMIT="$2"; shift
-                        ;;
-                -r|--regex)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
-                        ACTIONS=(${ACTIONS[@]} regex)
-                        SEARCHTARGET="$2"; shift
                         ;;
                 -l|--list)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} list)
                         SEARCHTARGET="$2"; shift
                         ;;
-                -i|--info)
+                -R|--remote)
+                        REMOTE_SEARCH=$(not $REMOTE_SEARCH)
+                        ;;
+                -r|--regex)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
-                        ACTIONS=(${ACTIONS[@]} info)
+                        ACTIONS=(${ACTIONS[@]} regex)
                         SEARCHTARGET="$2"; shift
+                        ;;
+                -s|--search)
+                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
+                        ACTIONS=(${ACTIONS[@]} search)
+                        SEARCHTARGET="$2"; shift
+                        ;;
+                -u|--update)
+                        ACTIONS=(update ${ACTIONS[@]})
+                        ;;
+                -v|--verbose)
+                        VERBOSE=$(not $VERBOSE)
                         ;;
                 -*)
                         die 1 "Unrecognized option %s\n" "$1"
