@@ -190,7 +190,9 @@ listfiles () {
         done
         if [ "$FOUNDFILE" -eq 0 ]; then
                 msg "Package '%s' not found\n" "$pkg"
+                return 1
         fi
+        return 0
 }
 # }}}
 
