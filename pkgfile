@@ -239,7 +239,7 @@ while [ $# -gt 0 ]; do
                 -R|--remote)
                         REMOTE_SEARCH=$(not $REMOTE_SEARCH)
                         ;;
-                --limit-rate)
+                -L|--limit-rate)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         RATELIMIT="$2"; shift
                         ;;
