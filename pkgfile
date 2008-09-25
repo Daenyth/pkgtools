@@ -186,7 +186,7 @@ listfiles () {
                         FOUNDFILE=1
                         echo "$findresult"
                 fi
-                [ "$DEBUG" -eq 1 ] && set -x
+                [ "$DEBUG" -eq 1 ] && set +x
         done
         if [ "$FOUNDFILE" -eq 0 ]; then
                 msg "Package '%s' not found\n" "$pkg"
@@ -234,7 +234,7 @@ while [ $# -gt 0 ]; do
                         VERBOSE=$(not $VERBOSE)
                         ;;
                 -d|--debug)
-                        DEBUG=$(not $DEBUG)
+                        DEBUG=$(( DEBUG += 1 ))
                         ;;
                 -R|--remote)
                         REMOTE_SEARCH=$(not $REMOTE_SEARCH)
