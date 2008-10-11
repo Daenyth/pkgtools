@@ -126,8 +126,11 @@ update () {
                 msg "Updating %s file list... " $repo
                 wget -q  --limit-rate="$RATELIMIT" "$filelist" || (warn "Could not retrieve %s\n" $filelist; continue)
                 msg "Extracting file list... " $repo
-                mkdir -p "$repo" || (warn "Could not create directory for %s\n" $repo; continue)
-                tar zxf "$repofile" -C "$repo" 2> /dev/null || (warn "Unable to extract %s\n" $repofile; continue)
+                mkdir -p "$repo.tmp" || (warn "Could not create directory for %s\n" $repo; continue)
+                tar zxf "$repofile" -C "$repo.tmp" 2> /dev/null || (warn "Unable to extract %s\n" $repofile; continue)
+                rm -rf "$repo"
+                mv "$repo.tmp" "$repo"
+                rm -f "$repofile"
                 msg "Done\n"
                 [ "$DEBUG" -eq 1 ] && set +x
         done
