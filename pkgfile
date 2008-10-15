@@ -51,7 +51,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-readonly MYVERSION=5.1
+readonly MYVERSION=6.0
 SEARCHTARGET=
 ACTIONS=()
 PROGNAME="$(basename $0)"

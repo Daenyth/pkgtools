@@ -1,6 +1,6 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=9
+pkgver=10
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
@@ -47,9 +47,9 @@ build() {
 
 # vim:set ts=2 sw=2 et:
 md5sums=('ff115b184d090deae11afc67f56094eb'
-         'e93463bba9168624e7c8b9cf28bdc47b'
+         'dfe66d5c5fddb80be5eb393bf0e9f0be'
          'adc46727c22d790454b2137a8f3d2c88'
-         '45050fc57c3cabf85debbfcbd4825b9e'
+         '6997bd880795c68be9c9e6bffa129726'
          '3788d4d6900bfaad04e97b47d0ac1b70'
          'e711a94744171b66ca41c8ad157fb4bd'
          '79e306084c11059d6b15bccc44557af8'
