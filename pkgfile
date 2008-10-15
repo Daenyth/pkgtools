@@ -51,7 +51,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-MYVERSION=5.1
+readonly MYVERSION=5.1
 SEARCHTARGET=
 ACTIONS=()
 PROGNAME="$(basename $0)"
@@ -113,6 +113,7 @@ update () {
                 eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
+
                 if [ ! -d "$FILELIST_DIR" ]; then
                         warn "%s does not exist -- creating " $FILELIST_DIR
                         mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
@@ -190,10 +191,10 @@ listfiles () {
                 [ "$DEBUG" -eq 1 ] && set -x
                 local findarg="$repo/$pkg-[^-]+-[^-]+$"
                 local findresult="$(\
-                find "$repo" -type d -regex "$findarg" | while read line; do
-                        filelist="$line/files"
-                        sed -n "1d;s|^|$pkg /|p" "$filelist" | sort # Give it output like pacman -Ql
-                done)"
+                        find "$repo" -type d -regex "$findarg" | while read line; do
+                                filelist="$line/files"
+                                sed -n "1d;s|^|$pkg /|p" "$filelist" | sort # Give it output like pacman -Ql
+                        done)"
                 if [ -n "$findresult" ]; then
                         FOUNDFILE=1
                         if [ $BINARIES -eq 0 ]; then
