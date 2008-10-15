@@ -41,6 +41,7 @@ fi
 VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
+BINARIES=0 # Search for binaries (files in a bin or sbin directory). Used with -l
 REPOS=(core extra community)
 
 
@@ -95,6 +96,7 @@ usage () {
         msg "                    %s\n" $FILELIST_DIR
 
         msg "OPTIONS:\n"
+        msg "  -b --binaries   - When using --list, only show files in a bin/ directory.\n"
         msg "  -d --debug      - Increase debug level. This can be passed multiple times.\n"
         msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
         msg "  -R --remote     - Search remotely instead of using local pacman info.\n"
@@ -174,7 +176,11 @@ listfiles () {
 
         if [ $REMOTE_SEARCH -eq 0 ]; then
                 if pacman -Q "$pkg" &> /dev/null; then
-                        pacman -Ql "$pkg" | sort
+                        if [ $BINARIES -eq 0 ]; then
+                                pacman -Ql "$pkg"
+                        else
+                                pacman -Ql "$pkg" | grep '/s?bin/'
+                        fi
                         return 0
                 fi
         fi
@@ -190,7 +196,12 @@ listfiles () {
                 done)"
                 if [ -n "$findresult" ]; then
                         FOUNDFILE=1
-                        echo "$findresult"
+                        if [ $BINARIES -eq 0 ]; then
+                                echo "$findresult"
+                        else
+                                echo "$findresult" | grep '/s?bin/'
+                        fi
+
                 fi
                 [ "$DEBUG" -eq 1 ] && set +x
         done
@@ -230,6 +241,9 @@ fi
 
 while [ $# -gt 0 ]; do
         case "$1" in
+                -b|--binaries)
+                        BINARIES=$(not $BINARIES)
+                        ;;
                 -d|--debug)
                         DEBUG=$(( DEBUG += 1 ))
                         ;;
