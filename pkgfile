@@ -24,7 +24,8 @@
 ###
 # You can change these values in the config file
 ##
-FILELIST_DIR="/usr/share/pkgtools/lists"
+PKGTOOLS_DIR='/usr/share/pkgtools/'
+FILELIST_DIR="$PKGTOOLS_DIR/lists"
 RATELIMIT='100k' # Argument to wget's --limit-rate flag
 PACMAN_MIRRORLIST='/etc/pacman.d/mirrorlist'
 
@@ -41,7 +42,7 @@ fi
 VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
-BINARIES=0 # Search for binaries (files in a bin or sbin directory). Used with -l
+BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
 REPOS=(core extra community)
 
 
@@ -148,7 +149,7 @@ search () {
         if [ 'regex' = "$action" ]; then
                 local fname="$1"
         else
-                local fname="$(echo $1 | sed 's|^/|^|;s|^\([^^]\)|/\1|')$"; shift
+                local fname="$(echo $1 | sed 's|^/|^|; s|^\([^^]\)|/\1|')$"; shift
                 # Change a leading / to ^.
                 # Change a leading non-^ character to '/$char;
                 # This will fix grep's regex to prevent false positives
