@@ -12,9 +12,6 @@ source=(newpkg pkgfile aurball spec2arch
         spec2arch.8 spec2arch.conf.5
         pkgfile-hook pkgfile.cron)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
-replaces=(newpkg)
-conflicts=(newpkg)
-provides=(newpkg)
 install=pkgtools.install
 optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
