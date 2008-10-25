@@ -43,6 +43,7 @@ VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
 BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
+UPDATE=0
 REPOS=(core extra community)
 
 
@@ -138,7 +139,7 @@ update () {
                 msg "Done\n"
                 [ "$DEBUG" -eq 1 ] && set +x
         done
-        return 0
+        quit 0
 
 }
 # }}}
@@ -181,7 +182,7 @@ listfiles () {
                         if [ $BINARIES -eq 0 ]; then
                                 pacman -Ql "$pkg"
                         else
-                                pacman -Ql "$pkg" | grep '/s?bin/'
+                                pacman -Ql "$pkg" | grep -E '/s?bin/.'
                         fi
                         return 0
                 fi
@@ -201,7 +202,7 @@ listfiles () {
                         if [ $BINARIES -eq 0 ]; then
                                 echo "$findresult"
                         else
-                                echo "$findresult" | grep '/s?bin/'
+                                echo "$findresult" | grep -E '/s?bin/.'
                         fi
 
                 fi
@@ -253,34 +254,26 @@ while [ $# -gt 0 ]; do
                         usage
                         ;;
                 -i|--info)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} info)
-                        SEARCHTARGET="$2"; shift
                         ;;
                 -L|--limit-rate)
                         [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         RATELIMIT="$2"; shift
                         ;;
                 -l|--list)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} list)
-                        SEARCHTARGET="$2"; shift
                         ;;
                 -R|--remote)
                         REMOTE_SEARCH=$(not $REMOTE_SEARCH)
                         ;;
                 -r|--regex)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} regex)
-                        SEARCHTARGET="$2"; shift
                         ;;
                 -s|--search)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         ACTIONS=(${ACTIONS[@]} search)
-                        SEARCHTARGET="$2"; shift
                         ;;
                 -u|--update)
-                        ACTIONS=(update ${ACTIONS[@]})
+                        UPDATE=$(( UPDATE += 1 ))
                         ;;
                 -v|--verbose)
                         VERBOSE=$(not $VERBOSE)
@@ -289,18 +282,28 @@ while [ $# -gt 0 ]; do
                         die 1 "Unrecognized option %s\n" "$1"
                         ;;
                 *)
-                        ACTIONS=(${ACTIONS[@]} search)
+                        [ -z "${ACTIONS[@]}" ] && ACTIONS=(${ACTIONS[@]} search)
                         SEARCHTARGET="$1"
                         ;;
         esac
         shift
 done
 
+if [ $UPDATE -ge 1 ]; then
+#        if [ $UPDATE -ge 2 ]; then
+#                update force # This will be used when I check timestamps. Analogous to pacman -Syy
+#        else
+                update
+#        fi
+fi
+
+if [ -z "$SEARCHTARGET" ]; then
+        die 1 "No package name specified to search for!\n"
+fi
+
+# I'm gonna change this back to one action per invocation, this is complicated and mostly pointless.
 for action in "${ACTIONS[@]}"; do
         case $action in
-                update)
-                        update
-                        ;;
                 search|regex)
                         search "$SEARCHTARGET"
                         ;;
