@@ -39,7 +39,7 @@ build() {
   install -Dm755 "${srcdir}/spec2arch"        "${pkgdir}/usr/bin/spec2arch"
   install -Dm644 "${srcdir}/spec2arch.conf"   "${pkgdir}/etc/pkgtools/spec2arch.conf"
   install -Dm644 "${srcdir}/spec2arch.8"      "${pkgdir}/usr/share/man/man8/spec2arch.8"
-  install -Dm644 "${srcdir}/spec2arch.conf.5" "${pkgdir}/usr/share/man/man8/spec2arch.conf.5"
+  install -Dm644 "${srcdir}/spec2arch.conf.5" "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
 }
 
 # vim:set ts=2 sw=2 et:
