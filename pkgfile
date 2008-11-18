@@ -58,6 +58,8 @@ SEARCHTARGET=
 ACTIONS=()
 PROGNAME="$(basename $0)"
 
+umask 0022 # This will ensure that any files we create are readable by normal users
+
 # not() -- toggle a 0/1 {{{
 not () {
         if [ "$1" -eq 0 ]; then
