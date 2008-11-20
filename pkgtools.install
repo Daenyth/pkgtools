@@ -23,14 +23,18 @@ post_install() {
 ## arg 1:  the new package version
 ## arg 2:  the old package version
 post_upgrade() {
+  if [ `vercmp $2 11-1` -eq -1 ]; then
+    echo " - All bugs related to pkgfile -b should be fixed in this update."
+  fi
   echo "$_MSG_BUGS"
 }
 
 ## arg 1:  the old package version
 post_remove() {
   cat << _EOM
-If you used the zsh pkgfile hook, remember
-to remove the link in /etc/profile.d/
+ - If you used the zsh pkgfile hook, remember
+   to remove the link in /etc/profile.d/
+ - You may also want to clean /usr/share/pkgtools/lists  
 _EOM
 }
 
