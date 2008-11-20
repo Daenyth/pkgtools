@@ -156,6 +156,10 @@ search () {
                 # Change a leading / to ^.
                 # Change a leading non-^ character to '/$char;
                 # This will fix grep's regex to prevent false positives
+                if [ $BINARIES -eq 1 -a "${fname:0:1}" != '^' ]; then
+                        # Only search for binaries when we are not given an absolute path.
+                        fname="$(echo $fname | sed 's|^/|/s?bin/|')"
+                fi
         fi
         [ "$DEBUG" -eq 1 ] && echo "'$fname'"
 
@@ -167,7 +171,7 @@ search () {
                 local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:# : /#' 
         fi
 
-        grep -R "$fname" */* | sed "$sedstring" | uniq
+        grep -R -E "$fname" */* | sed "$sedstring" | uniq
 
         [ "$DEBUG" -eq 1 ] && set -x
         quit 0
