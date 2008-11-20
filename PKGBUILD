@@ -6,7 +6,7 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
 url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-source=(newpkg pkgfile aurball spec2arch
+source=(newpkg pkgfile spec2arch
         functions
         newpkg.conf pkgfile.conf spec2arch.conf
         spec2arch.8 spec2arch.conf.5
@@ -32,9 +32,6 @@ build() {
   install -Dm644 "${srcdir}/pkgfile-hook"     "${pkgdir}/usr/share/pkgtools/pkgfile-hook"
   install -Dm744 "${srcdir}/pkgfile.cron"     "${pkgdir}/etc/cron.daily/pkgfile"
 
-  # aurball
-  install -Dm755 "${srcdir}/aurball"          "${pkgdir}/usr/bin/aurball"
-
   # spec2arch
   install -Dm755 "${srcdir}/spec2arch"        "${pkgdir}/usr/bin/spec2arch"
   install -Dm644 "${srcdir}/spec2arch.conf"   "${pkgdir}/etc/pkgtools/spec2arch.conf"
@@ -44,8 +41,7 @@ build() {
 
 # vim:set ts=2 sw=2 et:
 md5sums=('ff115b184d090deae11afc67f56094eb'
-         '75b4c24bc41508307e36665981fdddcb'
-         'adc46727c22d790454b2137a8f3d2c88'
+         'd97687b029ae1b3b1980edc3e15b2133'
          '6997bd880795c68be9c9e6bffa129726'
          '3788d4d6900bfaad04e97b47d0ac1b70'
          'e711a94744171b66ca41c8ad157fb4bd'
