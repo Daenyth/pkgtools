@@ -248,7 +248,7 @@ fi
 # This is mostly a black box to me, I just copy and pasted from makepkg. It seems to work though!
 # Thanks to the pacman team for being awesome in so many ways
 OPT_SHORT='bdhiL:lRrsuv'
-OPT_LONG='binaries,debug,helpinfo,limit-rate:,list,remote,regex,search,update,verbose'
+OPT_LONG='binaries,debug,help,info,limit-rate:,list,remote,regex,search,update,verbose'
 OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo 'GETOPT GO BANG!')"
 if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
         # This is a small hack to stop the script bailing with 'set -e'
