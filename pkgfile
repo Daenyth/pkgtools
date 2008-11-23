@@ -258,7 +258,6 @@ if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
         echo
 	usage 1 
 fi
-echo "$OPT_TEMP"
 eval set -- "$OPT_TEMP"
 unset OPT_SHORT OPT_LONG OPT_TEMP
 
