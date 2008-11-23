@@ -248,6 +248,20 @@ if [ -z "$1" ]; then
         usage
 fi
 
+# This is mostly a black box to me, I just copy and pasted from makepkg. It seems to work though!
+# Thanks to the pacman team for being awesome in so many ways
+OPT_SHORT='bdhiL:lRrsuv'
+OPT_LONG='binaries,debug,helpinfo,limit-rate:,list,remote,regex,search,update,verbose'
+OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo 'GETOPT GO BANG!')"
+if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
+	# This is a small hack to stop the script bailing with 'set -e'
+        echo
+	usage 1 
+fi
+echo "$OPT_TEMP"
+eval set -- "$OPT_TEMP"
+unset OPT_SHORT OPT_LONG OPT_TEMP
+
 while [ $# -gt 0 ]; do
         case "$1" in
                 -b|--binaries)
@@ -263,7 +277,6 @@ while [ $# -gt 0 ]; do
                         ACTIONS=(${ACTIONS[@]} info)
                         ;;
                 -L|--limit-rate)
-                        [ -z "$2" ] && die 1 "%s %s option requires an argument!\n" "$PROGNAME" "$1"
                         RATELIMIT="$2"; shift
                         ;;
                 -l|--list)
@@ -283,9 +296,6 @@ while [ $# -gt 0 ]; do
                         ;;
                 -v|--verbose)
                         VERBOSE=$(not $VERBOSE)
-                        ;;
-                -*)
-                        die 1 "Unrecognized option %s\n" "$1"
                         ;;
                 *)
                         [ -z "${ACTIONS[@]}" ] && ACTIONS=(${ACTIONS[@]} search)
