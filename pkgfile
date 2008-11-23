@@ -251,9 +251,9 @@ OPT_SHORT='bdhiL:lRrsuv'
 OPT_LONG='binaries,debug,helpinfo,limit-rate:,list,remote,regex,search,update,verbose'
 OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo 'GETOPT GO BANG!')"
 if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
-	# This is a small hack to stop the script bailing with 'set -e'
+        # This is a small hack to stop the script bailing with 'set -e'
         echo
-	usage 1 
+        usage 1 
 fi
 eval set -- "$OPT_TEMP"
 unset OPT_SHORT OPT_LONG OPT_TEMP
