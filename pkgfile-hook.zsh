@@ -11,7 +11,10 @@ function precmd() {
   (($?)) && [ -n "$command" ] && [ -x /usr/bin/pkgfile ] && {
     which -- "$command" >& /dev/null 
     if [ $? -ne 0 ]; then
-      printf "This command may be found in packages:\n" && /usr/bin/pkgfile -bv "$command"
+      local pkgs="$(pkgfile -b -v "$command")"
+      if [ ! -z "$pkgs" ]; then
+        echo -e "\"$command\" may be found in the following packages:\n\n${pkgs}\n"
+      fi
     fi
     unset command
   }
