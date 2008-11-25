@@ -36,6 +36,3 @@ Include ideas from http://threadstates.com/downloads/pac-file
 pkgfile: Implement pkgquery like rpm -Qf.
 	 Partially done. Local files work, but should also be able to search the filelist
 
-# ----
-
-Use getopt instead of the while loop for options
