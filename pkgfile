@@ -76,6 +76,8 @@ not () {
 cd_filelist_dir () {
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
         if [ 'noempty' == "$1" ]; then
+                # */* expanded is really ugly
+                [ $DEBUG -ge 1 ] && set +x
                 if echo */* | grep -q '^\*/\*$'; then
                         die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
                 fi
@@ -162,7 +164,7 @@ update () {
 # search() -- find which package owns a file {{{
 search () {
         [ "$DEBUG" -eq 1 ] && set -x
-        if [ 'regex' = "$action" ]; then
+        if [ "$action" = 'regex' ]; then
                 local fname="$1"
         else
                 local fname="$(regex_escape "$1")"
@@ -185,9 +187,10 @@ search () {
                 local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:# : /#' 
         fi
 
+        # */* expanded is really ugly
+        [ $DEBUG -ge 1 ] && set +x
         grep -R -E "$fname" */* | sed "$sedstring" | uniq
 
-        [ "$DEBUG" -eq 1 ] && set -x
         quit 0
 }
 # }}}
