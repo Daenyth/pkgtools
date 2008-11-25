@@ -44,6 +44,7 @@ VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
 BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
+GLOBBING=0 # Allow a search to use globs; * and ? as basic wildcards
 REPOS=(core extra community)
 
 
@@ -53,7 +54,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-readonly MYVERSION=6.2
+readonly MYVERSION=7.0
 SEARCHTARGET=
 ACTIONS=()
 UPDATE=0
@@ -82,6 +83,16 @@ cd_filelist_dir () {
 }
 # }}}
 
+# regex_escape() -- Takes a string and returns an version with regex metacharacters escaped (For grep -E) {{{
+regex_escape () {
+        if [ $GLOBBING -eq 1 ]; then
+                echo "$1" | sed -e 's|[].+$^{}\|[]|\\&|g' -e 's|[*]|[^/]*|g; s|[?]|.|g'
+        else
+                echo "$1" | sed -e 's|[].+*?$^{}\|[]|\\&|g'
+        fi
+}
+# }}}
+
 # usage() {{{
 usage () {
 
@@ -103,6 +114,7 @@ usage () {
         msg "OPTIONS:\n"
         msg "  -b --binaries   - When using --list, only show files in a bin/ directory.\n"
         msg "  -d --debug      - Increase debug level. This can be passed multiple times.\n"
+        msg "  -g --glob       - Allow using * and ? as basic wildcards in a search.\n"
         msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
         msg "  -R --remote     - Search remotely instead of using local pacman info.\n"
         msg "  -v --verbose    - Enable verbose output.\n"
@@ -153,7 +165,8 @@ search () {
         if [ 'regex' = "$action" ]; then
                 local fname="$1"
         else
-                local fname="$(echo $1 | sed 's|^/|^|; s|^\([^^]\)|/\1|')$"; shift
+                local fname="$(regex_escape "$1")"
+                fname="$(echo "$fname" | sed 's|^/|^|; s|^[^^]|/&|')$"
                 # Change a leading / to ^.
                 # Change a leading non-^ character to '/$char;
                 # This will fix grep's regex to prevent false positives
@@ -248,8 +261,8 @@ fi
 
 # This is mostly a black box to me, I just copy and pasted from makepkg. It seems to work though!
 # Thanks to the pacman team for being awesome in so many ways
-OPT_SHORT='bdhiL:lRrsuv'
-OPT_LONG='binaries,debug,help,info,limit-rate:,list,remote,regex,search,update,verbose'
+OPT_SHORT='bdghiL:lRrsuv'
+OPT_LONG='binaries,debug,glob,help,info,limit-rate:,list,remote,regex,search,update,verbose'
 OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo 'GETOPT GO BANG!')"
 if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
         # This is a small hack to stop the script bailing with 'set -e'
@@ -266,6 +279,9 @@ while [ $# -gt 0 ]; do
                         ;;
                 -d|--debug)
                         DEBUG=$(( DEBUG += 1 ))
+                        ;;
+                -g|--glob)
+                        GLOBBING=$(not $GLOBBING)
                         ;;
                 -h|--help)
                         usage
