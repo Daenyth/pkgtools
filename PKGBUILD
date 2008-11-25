@@ -10,7 +10,7 @@ source=(newpkg pkgfile spec2arch
         functions
         newpkg.conf pkgfile.conf spec2arch.conf
         spec2arch.8 spec2arch.conf.5
-        pkgfile-hook pkgfile.cron)
+        pkgfile-hook.zsh pkgfile-hook.bash pkgfile.cron)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 optdepends=('zsh: For command not found hook'
@@ -29,7 +29,8 @@ build() {
   install -d "$pkgdir/usr/share/pkgtools/lists/"
   install -Dm755 "${srcdir}/pkgfile"          "${pkgdir}/usr/bin/pkgfile"
   install -Dm644 "${srcdir}/pkgfile.conf"     "${pkgdir}/etc/pkgtools/pkgfile.conf"
-  install -Dm644 "${srcdir}/pkgfile-hook"     "${pkgdir}/usr/share/pkgtools/pkgfile-hook"
+  install -Dm644 "${srcdir}/pkgfile-hook.zsh" "${pkgdir}/usr/share/pkgtools/pkgfile-hook.zsh"
+  install -Dm644 "${srcdir}/pkgfile-hook.bash" "${pkgdir}/usr/share/pkgtools/pkgfile-hook.bash"
   install -Dm744 "${srcdir}/pkgfile.cron"     "${pkgdir}/etc/cron.daily/pkgfile"
 
   # spec2arch
