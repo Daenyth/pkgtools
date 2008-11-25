@@ -25,12 +25,13 @@
 # You can change these values in the config file
 ##
 PKGTOOLS_DIR='/usr/share/pkgtools/'
+CONFIG_DIR='/etc/pkgtools/'
 FILELIST_DIR="$PKGTOOLS_DIR/lists"
 RATELIMIT='100k' # Argument to wget's --limit-rate flag
 PACMAN_MIRRORLIST='/etc/pacman.d/mirrorlist'
 
-if [ -r /usr/share/pkgtools/functions ]; then
-        source /usr/share/pkgtools/functions
+if [ -r "$PKGTOOLS_DIR/functions" ]; then
+        source "$PKGTOOLS_DIR/functions"
 else
         printf "Unable to source function file!\n" >&2
         exit 1
@@ -43,12 +44,11 @@ VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
 BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
-UPDATE=0
 REPOS=(core extra community)
 
 
-if [ -r /etc/pkgtools/pkgfile.conf ]; then
-        source /etc/pkgtools/pkgfile.conf
+if [ -r "$CONFIG_DIR/pkgfile.conf" ]; then
+        source "$CONFIG_DIR/pkgfile.conf"
 fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
@@ -56,6 +56,7 @@ fi
 readonly MYVERSION=6.2
 SEARCHTARGET=
 ACTIONS=()
+UPDATE=0
 PROGNAME="$(basename $0)"
 
 umask 0022 # This will ensure that any files we create are readable by normal users
