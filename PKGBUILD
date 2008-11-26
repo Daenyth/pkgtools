@@ -10,7 +10,7 @@ source=(newpkg pkgfile spec2arch
         functions
         newpkg.conf pkgfile.conf spec2arch.conf
         spec2arch.8 spec2arch.conf.5
-        pkgfile-hook.zsh pkgfile-hook.bash pkgfile.cron)
+        pkgtools.sh pkgfile-hook.zsh pkgfile-hook.bash pkgfile.cron)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 optdepends=('zsh: For command not found hook'
@@ -20,6 +20,9 @@ optdepends=('zsh: For command not found hook'
 build() {
   # Common fucntions needed by all scripts
   install -Dm644 "${srcdir}/functions"        "${pkgdir}/usr/share/pkgtools/functions"
+
+  # Loads shell hooks
+  install -Dm755 "${srcdir}/pkgtools.sh"      "${pkgdir}/etc/profile.d/pkgtools.sh"
 
   # newpkg
   install -Dm755 "${srcdir}/newpkg"           "${pkgdir}/usr/bin/newpkg"

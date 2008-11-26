@@ -2,12 +2,14 @@ _MSG_UPDATE=" -Make sure to run pkgfile --update before use"
 _MSG_CRON=" - An entry has been placed in /etc/cron.daily to --update
    If you do not want this functionality, run (as root):
      chmod -x /etc/cron.daily/pkgfile"
-_MSG_HOOK=" - pkgfile includes a command not found hook for both zsh and bash.
+_MSG_HOOK=" - pkgfile includes a \"command not found\" hook for both zsh and bash.
    This will automatically run pkgfile whenever you run
    a command which the shell cannot find. If you want
-   this functionality, run (as root):
-     ln -s /usr/share/pkgtools/pkgfile-hook.zsh /etc/profile.d/pkgfile-hook.zsh
-     ln -s /usr/share/pkgtools/pkgfile-hook.bash /etc/profile.d/pkgfile-hook.bash"
+   this functionality, set CMD_SEARCH_ENABLED to 1 in
+   /etc/pkgtools/pkgfile.conf (or per-user by copying
+   that file to \$HOME/.pkgtools/pkgfile.conf), then
+   in your current shell run:
+     . /etc/profile"
 _MSG_BUGS=" - Bugs: please report any bugs to the Community bugtracker at
    http://bugs.archlinux.org/index.php?project=5"
 ## arg 1:  the new package version
@@ -30,9 +32,7 @@ post_upgrade() {
 ## arg 1:  the old package version
 post_remove() {
   cat << _EOM
- - If you used the pkgfile command not found hooks, remember
-   to remove the links in /etc/profile.d/
- - You may also want to clean /usr/share/pkgtools/lists  
+ - You may want to clean /usr/share/pkgtools/lists  
 _EOM
 }
 
