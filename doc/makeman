@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Validate and convert DocBook to manpage.
+# Requires xmlto and libxml2
+
+# To view result:
+#     man ./pkgfile.1
+
+xmllint --valid manpage-docbook.xml || exit 1
+[ -f pkgfile.1 ] && rm pkgfile.1
+xmlto man manpage-docbook.xml

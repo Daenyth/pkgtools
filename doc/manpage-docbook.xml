@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<refentry id="pkgfile">
+
+<refentryinfo>
+  <authorgroup>
+    <author>
+      <personname><firstname>Daenyth</firstname><surname></surname></personname>
+      <email>Daenyth+Arch AT gmail DOT com</email>
+    </author>
+  </authorgroup>
+  <date>November 27, 2008</date>
+</refentryinfo>
+
+<refmeta>
+  <refentrytitle>pkgfile</refentrytitle>
+  <manvolnum>1</manvolnum>
+  <refmiscinfo class="source">pkgfile</refmiscinfo>
+  <refmiscinfo class="version">12-1</refmiscinfo>
+  <refmiscinfo class="manual">pkgtools</refmiscinfo>
+</refmeta>
+
+<refnamediv>
+  <refname>pkgfile</refname>
+  <refpurpose>find which package owns a file</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+  <cmdsynopsis>
+    <command>pkgfile</command>
+    <arg>--info</arg>
+    <arg>--list</arg>
+    <arg>--regex</arg>
+    <arg>--search</arg>
+    <arg>--update</arg>
+    <arg>--binaries</arg>
+    <arg>--debug</arg>
+    <arg>--glob</arg>
+    <arg>--limit-rate</arg>
+    <arg>--remote</arg>
+    <arg>--verbose</arg>
+    <arg choice="req"><replaceable>filename</replaceable></arg>
+  </cmdsynopsis>
+  <cmdsynopsis>
+    <command>pkgfile</command>
+    <arg>--help</arg>
+  </cmdsynopsis>
+</refsynopsisdiv>
+
+<refsect1>
+<title>Description</title>
+
+<para>
+  <command>pkgfile</command> finds which packages own a file. It derives this
+  information by searching filelists retrieved from active repositories
+  specified in <filename>/etc/pacman.conf</filename>.
+</para>
+
+</refsect1>
+
+<refsect1>
+<title>Actions</title>
+
+<variablelist>
+
+<varlistentry>
+  <term><option>--help</option></term>
+  <term><option>-h</option></term>
+  <listitem>
+  <para>
+    Show help.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--info</option></term>
+  <term><option>-i</option></term>
+  <listitem>
+  <para>
+    Provides information about the package owning a file. Similar to
+    <command>rpm -Qf</command>.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--list</option></term>
+  <term><option>-l</option></term>
+  <listitem>
+  <para>
+    List files similar to <command>pacman -Ql</command>.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--regex</option></term>
+  <term><option>-r</option></term>
+  <listitem>
+  <para>
+    Search for a regex instead of a filename.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--search</option></term>
+  <term><option>-s</option></term>
+  <listitem>
+  <para>
+    Search for what package owns a file. This is the default action.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--update</option></term>
+  <term><option>-u</option></term>
+  <listitem>
+  <para>
+    Update to the latest filelist. This requires write permission for
+    <filename>/usr/share/pkgtools/lists</filename>.
+  </para>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+<title>Options</title>
+
+<variablelist>
+
+<varlistentry>
+  <term><option>--binaries</option></term>
+  <term><option>-b</option></term>
+  <listitem>
+  <para>
+    When using <option>--list</option>, only show files in a
+    <filename>bin/</filename> directory.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--debug</option></term>
+  <term><option>-d</option></term>
+  <listitem>
+  <para>
+    Increase debug level. This can be passed multiple times.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--glob</option></term>
+  <term><option>-g</option></term>
+  <listitem>
+  <para>
+    Allow using <userinput>*</userinput> and <userinput>?</userinput>
+    as basic wildcards in a search.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--limit-rate</option></term>
+  <term><option>-L</option></term>
+  <listitem>
+  <para>
+    Limit <command>wget</command>&apos;s data transfer rate when using
+    <option>--update</option>.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--remote</option></term>
+  <term><option>-R</option></term>
+  <listitem>
+  <para>
+    Search remotely instead of using local <command>pacman</command> info.
+  </para>
+  </listitem>
+</varlistentry>
+
+<varlistentry>
+  <term><option>--verbose</option></term>
+  <term><option>-v</option></term>
+  <listitem>
+  <para>
+    Enable verbose output.
+  </para>
+  </listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsect1>
+
+<refsect1>
+<title>Shell Hooks</title>
+
+<para>
+  <command>pkgfile</command> includes a <literal>command not found</literal>
+  hook for both <command>bash</command> and <command>zsh</command>. This
+  will automatically run <command>pkgfile</command> whenever you run a
+  command which the shell cannot find. If you want this functionality, set
+  <varname>CMD_SEARCH_ENABLED</varname> to <constant>1</constant> in
+  <filename>/etc/pkgtools/pkgfile.conf</filename> (or per-user by copying
+  that file to <filename>~/.pkgtools/pkgfile.conf</filename>), then in your
+  current shell run:
+</para>
+
+<informalexample>
+<screen>
+<prompt>$ </prompt><userinput>source /etc/profile</userinput>
+</screen>
+</informalexample>
+
+</refsect1>
+
+</refentry>
