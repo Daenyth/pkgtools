@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <refentry id="pkgfile">
- 
+
 <refentryinfo>
   <authorgroup>
     <author>
@@ -11,7 +11,7 @@
   </authorgroup>
   <date>November 27, 2008</date>
 </refentryinfo>
- 
+
 <refmeta>
   <refentrytitle>pkgfile</refentrytitle>
   <manvolnum>1</manvolnum>
@@ -19,26 +19,17 @@
   <refmiscinfo class="version">7.0</refmiscinfo>
   <refmiscinfo class="manual">pkgtools</refmiscinfo>
 </refmeta>
- 
+
 <refnamediv>
   <refname>pkgfile</refname>
   <refpurpose>Find which package owns a file</refpurpose>
 </refnamediv>
- 
+
 <refsynopsisdiv>
   <cmdsynopsis>
     <command>pkgfile</command>
-    <arg>--info</arg>
-    <arg>--list</arg>
-    <arg>--regex</arg>
-    <arg>--search</arg>
-    <arg>--update</arg>
-    <arg>--binaries</arg>
-    <arg>--debug</arg>
-    <arg>--glob</arg>
-    <arg>--limit-rate</arg>
-    <arg>--remote</arg>
-    <arg>--verbose</arg>
+    <arg>ACTIONS</arg>
+    <arg>OPTIONS</arg>
     <arg choice="req"><replaceable>filename</replaceable></arg>
   </cmdsynopsis>
   <cmdsynopsis>
@@ -46,23 +37,26 @@
     <arg>--help</arg>
   </cmdsynopsis>
 </refsynopsisdiv>
- 
+
 <refsect1>
 <title>Description</title>
- 
+
 <para>
   <command>pkgfile</command> finds which packages own a file. It derives this
   information by searching filelists retrieved from active repositories
   specified in <filename>/etc/pacman.conf</filename>.
 </para>
- 
+
 </refsect1>
- 
+
 <refsect1>
+<title>Invocation</title>
+ 
+<refsect2>
 <title>Actions</title>
- 
+
 <variablelist>
- 
+
 <varlistentry>
   <term><option>--help</option></term>
   <term><option>-h</option></term>
@@ -72,7 +66,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--info</option></term>
   <term><option>-i</option></term>
@@ -84,7 +78,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--list</option></term>
   <term><option>-l</option></term>
@@ -94,7 +88,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--regex</option></term>
   <term><option>-r</option></term>
@@ -104,7 +98,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--search</option></term>
   <term><option>-s</option></term>
@@ -114,7 +108,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--update</option></term>
   <term><option>-u</option></term>
@@ -125,16 +119,16 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 </variablelist>
+
+</refsect2>
  
-</refsect1>
- 
-<refsect1>
+<refsect2>
 <title>Options</title>
- 
+
 <variablelist>
- 
+
 <varlistentry>
   <term><option>--binaries</option></term>
   <term><option>-b</option></term>
@@ -145,7 +139,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--debug</option></term>
   <term><option>-d</option></term>
@@ -155,7 +149,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--glob</option></term>
   <term><option>-g</option></term>
@@ -165,7 +159,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--limit-rate</option></term>
   <term><option>-L</option></term>
@@ -177,7 +171,7 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--remote</option></term>
   <term><option>-R</option></term>
@@ -214,7 +208,7 @@
   </variablelist>
   </listitem>
 </varlistentry>
- 
+
 <varlistentry>
   <term><option>--verbose</option></term>
   <term><option>-v</option></term>
@@ -224,14 +218,16 @@
   </para>
   </listitem>
 </varlistentry>
- 
+
 </variablelist>
- 
+
+</refsect2>
+
 </refsect1>
- 
+
 <refsect1>
 <title>Shell Hooks</title>
- 
+
 <para>
   <command>pkgfile</command> includes a <literal>command not found</literal>
   hook for both <command>bash</command> and <command>zsh</command>. This
@@ -242,14 +238,14 @@
   that file to <filename>~/.pkgtools/pkgfile.conf</filename>), then in your
   current shell run:
 </para>
- 
+
 <informalexample>
 <screen>
 <prompt>$ </prompt><userinput>. /etc/profile</userinput>
 </screen>
 </informalexample>
- 
+
 </refsect1>
- 
+
 </refentry>
 <!-- vim: set ts=2 sw=2 et: -->

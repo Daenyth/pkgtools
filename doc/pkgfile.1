@@ -14,7 +14,7 @@
 pkgfile - Find which package owns a file
 .SH "SYNOPSIS"
 .HP 8
-\fBpkgfile\fR [\-\-info] [\-\-list] [\-\-regex] [\-\-search] [\-\-update] [\-\-binaries] [\-\-debug] [\-\-glob] [\-\-limit\-rate] [\-\-remote] [\-\-verbose] {\fIfilename\fR}
+\fBpkgfile\fR [ACTIONS] [OPTIONS] {\fIfilename\fR}
 .HP 8
 \fBpkgfile\fR [\-\-help]
 .SH "DESCRIPTION"
@@ -23,7 +23,8 @@ pkgfile - Find which package owns a file
 \fBpkgfile\fR
 finds which packages own a file\. It derives this information by searching filelists retrieved from active repositories specified in
 \fI/etc/pacman\.conf\fR\.
-.SH "ACTIONS"
+.SH "INVOCATION"
+.SS "Actions"
 .PP
 \fB\-\-help\fR, \fB\-h\fR
 .RS 4
@@ -57,7 +58,7 @@ Search for what package owns a file\. This is the default action\.
 Update to the latest filelist\. This requires write permission for
 \fI/usr/share/pkgtools/lists\fR\.
 .RE
-.SH "OPTIONS"
+.SS "Options"
 .PP
 \fB\-\-binaries\fR, \fB\-b\fR
 .RS 4
