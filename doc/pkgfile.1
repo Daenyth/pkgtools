@@ -1,17 +1,17 @@
 .\"     Title: pkgfile
-.\"    Author: Daenyth  <Daenyth+Arch AT gmail DOT com>
+.\"    Author: Daenyth Blank <Daenyth+Arch AT gmail DOT com>
 .\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
 .\"      Date: November 27, 2008
 .\"    Manual: pkgtools
-.\"    Source: pkgfile 12-1
+.\"    Source: pkgfile 7.0
 .\"
-.TH "PKGFILE" "1" "November 27, 2008" "pkgfile 12\-1" "pkgtools"
+.TH "PKGFILE" "1" "November 27, 2008" "pkgfile 7\.0" "pkgtools"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
 .ad l
 .SH "NAME"
-pkgfile - find which package owns a file
+pkgfile - Find which package owns a file
 .SH "SYNOPSIS"
 .HP 8
 \fBpkgfile\fR [\-\-info] [\-\-list] [\-\-regex] [\-\-search] [\-\-update] [\-\-binaries] [\-\-debug] [\-\-glob] [\-\-limit\-rate] [\-\-remote] [\-\-verbose] {\fIfilename\fR}
@@ -27,18 +27,18 @@ finds which packages own a file\. It derives this information by searching filel
 .PP
 \fB\-\-help\fR, \fB\-h\fR
 .RS 4
-Show help\.
+Show basic help and usage information\.
 .RE
 .PP
 \fB\-\-info\fR, \fB\-i\fR
 .RS 4
 Provides information about the package owning a file\. Similar to
-\fBrpm \-Qf\fR\.
+\fBrpm \-Qf\fR\. The current implementation only allows showing information for local files, but future versions will support searching through uninstalled packages as well\.
 .RE
 .PP
 \fB\-\-list\fR, \fB\-l\fR
 .RS 4
-List files similar to
+List files which belong to a package\. Similar to
 \fBpacman \-Ql\fR\.
 .RE
 .PP
@@ -62,8 +62,12 @@ Update to the latest filelist\. This requires write permission for
 \fB\-\-binaries\fR, \fB\-b\fR
 .RS 4
 When using
-\fB\-\-list\fR, only show files in a
+\fB\-\-list\fR
+or
+\fB\-\-search\fR, only show files that pkgfile thinks are binaries; files that are in a
 \fIbin/\fR
+or
+\fIsbin/\fR
 directory\.
 .RE
 .PP
@@ -85,14 +89,44 @@ as basic wildcards in a search\.
 .RS 4
 Limit
 \fBwget\fR\'s data transfer rate when using
-\fB\-\-update\fR\.
+\fB\-\-update\fR\. This can be permanantly set in
+\fIpkgfile\.conf\fR
+with the
+\fIRATELIMIT\fR
+option\.
 .RE
 .PP
 \fB\-\-remote\fR, \fB\-R\fR
 .RS 4
-Search remotely instead of using local
-\fBpacman\fR
-info\.
+Search remotely instead of using
+\fBpacman\fR\'s local installation database\. This effects the following options:
+.PP
+\fB\-\-list\fR
+.RS 4
+
+\fBpkgfile\fR
+will force the use of
+\fBpacman \-Ql\fR
+instead of its own routines\.
+.RE
+.PP
+\fB\-\-info\fR
+.RS 4
+
+\fBpkgfile\fR
+will force the use of
+\fBpacman \-Qi\fR
+instead of its own routines\.
+.RE
+.PP
+\fB\-\-search\fR
+.RS 4
+
+\fBpkgfile\fR
+will force the use of
+\fBpacman \-Qo\fR
+instead of its own routines\.
+.RE
 .RE
 .PP
 \fB\-\-verbose\fR, \fB\-v\fR
@@ -121,12 +155,12 @@ in
 .sp
 .RS 4
 .nf
-$ \fBsource /etc/profile\fR
+$ \fB\. /etc/profile\fR
 .fi
 .RE
 .SH "AUTHOR"
 .PP
-\fBDaenyth \fR <\&Daenyth+Arch AT gmail DOT com\&>
+\fBDaenyth Blank\fR <\&Daenyth+Arch AT gmail DOT com\&>
 .sp -1n
 .IP "" 4
 Author.

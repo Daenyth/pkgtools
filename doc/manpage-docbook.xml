@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
 <refentry id="pkgfile">
-
+ 
 <refentryinfo>
   <authorgroup>
     <author>
-      <personname><firstname>Daenyth</firstname><surname></surname></personname>
+      <personname><firstname>Daenyth</firstname><surname>Blank</surname></personname>
       <email>Daenyth+Arch AT gmail DOT com</email>
     </author>
   </authorgroup>
   <date>November 27, 2008</date>
 </refentryinfo>
-
+ 
 <refmeta>
   <refentrytitle>pkgfile</refentrytitle>
   <manvolnum>1</manvolnum>
   <refmiscinfo class="source">pkgfile</refmiscinfo>
-  <refmiscinfo class="version">12-1</refmiscinfo>
+  <refmiscinfo class="version">7.0</refmiscinfo>
   <refmiscinfo class="manual">pkgtools</refmiscinfo>
 </refmeta>
-
+ 
 <refnamediv>
   <refname>pkgfile</refname>
-  <refpurpose>find which package owns a file</refpurpose>
+  <refpurpose>Find which package owns a file</refpurpose>
 </refnamediv>
-
+ 
 <refsynopsisdiv>
   <cmdsynopsis>
     <command>pkgfile</command>
@@ -46,54 +46,55 @@
     <arg>--help</arg>
   </cmdsynopsis>
 </refsynopsisdiv>
-
+ 
 <refsect1>
 <title>Description</title>
-
+ 
 <para>
   <command>pkgfile</command> finds which packages own a file. It derives this
   information by searching filelists retrieved from active repositories
   specified in <filename>/etc/pacman.conf</filename>.
 </para>
-
+ 
 </refsect1>
-
+ 
 <refsect1>
 <title>Actions</title>
-
+ 
 <variablelist>
-
+ 
 <varlistentry>
   <term><option>--help</option></term>
   <term><option>-h</option></term>
   <listitem>
   <para>
-    Show help.
+    Show basic help and usage information.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--info</option></term>
   <term><option>-i</option></term>
   <listitem>
   <para>
     Provides information about the package owning a file. Similar to
-    <command>rpm -Qf</command>.
+    <command>rpm -Qf</command>. The current implementation only allows showing information for local files,
+    but future versions will support searching through uninstalled packages as well.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--list</option></term>
   <term><option>-l</option></term>
   <listitem>
   <para>
-    List files similar to <command>pacman -Ql</command>.
+    List files which belong to a package. Similar to <command>pacman -Ql</command>.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--regex</option></term>
   <term><option>-r</option></term>
@@ -103,7 +104,7 @@
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--search</option></term>
   <term><option>-s</option></term>
@@ -113,7 +114,7 @@
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--update</option></term>
   <term><option>-u</option></term>
@@ -124,27 +125,27 @@
   </para>
   </listitem>
 </varlistentry>
-
+ 
 </variablelist>
-
+ 
 </refsect1>
-
+ 
 <refsect1>
 <title>Options</title>
-
+ 
 <variablelist>
-
+ 
 <varlistentry>
   <term><option>--binaries</option></term>
   <term><option>-b</option></term>
   <listitem>
   <para>
-    When using <option>--list</option>, only show files in a
-    <filename>bin/</filename> directory.
+    When using <option>--list</option> or <option>--search</option>, only show files that pkgfile thinks are binaries;
+    files that are in a <filename>bin/</filename> or <filename>sbin/</filename> directory.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--debug</option></term>
   <term><option>-d</option></term>
@@ -154,18 +155,17 @@
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--glob</option></term>
   <term><option>-g</option></term>
   <listitem>
   <para>
-    Allow using <userinput>*</userinput> and <userinput>?</userinput>
-    as basic wildcards in a search.
+    Allow using <userinput>*</userinput> and <userinput>?</userinput> as basic wildcards in a search.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--limit-rate</option></term>
   <term><option>-L</option></term>
@@ -173,20 +173,48 @@
   <para>
     Limit <command>wget</command>&apos;s data transfer rate when using
     <option>--update</option>.
+    This can be permanantly set in <filename>pkgfile.conf</filename> with the <varname>RATELIMIT</varname> option.
   </para>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--remote</option></term>
   <term><option>-R</option></term>
   <listitem>
   <para>
-    Search remotely instead of using local <command>pacman</command> info.
+    Search remotely instead of using <command>pacman</command>&apos;s local installation database.
+    This effects the following options:
   </para>
+  <variablelist>
+    <varlistentry>
+      <term><option>--list</option></term>
+      <listitem>
+        <para>
+          <command>pkgfile</command> will force the use of <command>pacman -Ql</command> instead of its own routines.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--info</option></term>
+      <listitem>
+        <para>
+          <command>pkgfile</command> will force the use of <command>pacman -Qi</command> instead of its own routines.
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><option>--search</option></term>
+      <listitem>
+        <para>
+          <command>pkgfile</command> will force the use of <command>pacman -Qo</command> instead of its own routines.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
   </listitem>
 </varlistentry>
-
+ 
 <varlistentry>
   <term><option>--verbose</option></term>
   <term><option>-v</option></term>
@@ -196,14 +224,14 @@
   </para>
   </listitem>
 </varlistentry>
-
+ 
 </variablelist>
-
+ 
 </refsect1>
-
+ 
 <refsect1>
 <title>Shell Hooks</title>
-
+ 
 <para>
   <command>pkgfile</command> includes a <literal>command not found</literal>
   hook for both <command>bash</command> and <command>zsh</command>. This
@@ -214,13 +242,14 @@
   that file to <filename>~/.pkgtools/pkgfile.conf</filename>), then in your
   current shell run:
 </para>
-
+ 
 <informalexample>
 <screen>
-<prompt>$ </prompt><userinput>source /etc/profile</userinput>
+<prompt>$ </prompt><userinput>. /etc/profile</userinput>
 </screen>
 </informalexample>
-
+ 
 </refsect1>
-
+ 
 </refentry>
+<!-- vim: set ts=2 sw=2 et: -->
