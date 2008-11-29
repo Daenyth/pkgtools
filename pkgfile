@@ -212,9 +212,10 @@ listfiles () {
         fi
 
         cd_filelist_dir noempty
+        pkg_escaped=$(echo $pkg | sed -e 's/+/\\+/g') # Escape '+' chars for regex
         for repo in ${REPOS[@]}; do
                 [ "$DEBUG" -eq 1 ] && set -x
-                local findarg="$repo/$pkg-[^-]+-[^-]+$"
+                local findarg="$repo/$pkg_escaped-[^-]+-[^-]+$"
                 local findresult="$(\
                         find "$repo" -type d -regex "$findarg" | while read line; do
                                 filelist="$line/files"
