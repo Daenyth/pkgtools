@@ -13,6 +13,7 @@ source=(newpkg pkgfile spec2arch
         pkgfile-hook.sh pkgfile-hook.zsh pkgfile-hook.bash pkgfile.cron)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
+provides=(newpkg pkgfile)
 optdepends=('zsh: For command not found hook'
             'cron: For pkgfile --update entry')
 
