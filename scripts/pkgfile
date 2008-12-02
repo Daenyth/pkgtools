@@ -82,6 +82,7 @@ cd_filelist_dir () {
                         die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
                 fi
         fi
+        [ "$DEBUG" -ge 1 ] && set -x
 }
 # }}}
 
