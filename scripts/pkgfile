@@ -165,6 +165,12 @@ update () {
 # search() -- find which package owns a file {{{
 search () {
         [ "$DEBUG" -eq 1 ] && set -x
+
+        if [ $REMOTE_SEARCH -eq 0 -a "${1:0:1}" = '/' -a -e "$1" ]; then
+                pacman -Qo "$1"
+                quit $?
+        fi
+
         if [ "$action" = 'regex' ]; then
                 local fname="$1"
         else
