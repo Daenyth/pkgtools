@@ -77,12 +77,12 @@ cd_filelist_dir () {
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
         if [ 'noempty' == "$1" ]; then
                 # */* expanded is really ugly
-                [ $DEBUG -ge 1 ] && set +x
+                [ $DEBUG -ge 2 ] && set +x
                 if echo */* | grep -q '^\*/\*$'; then
                         die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
                 fi
         fi
-        [ "$DEBUG" -ge 1 ] && set -x
+        [ $DEBUG -ge 2 ] && set -x
 }
 # }}}
 
@@ -129,7 +129,7 @@ usage () {
 # update() -- update the package file list {{{
 update () {
         for repo in ${REPOS[@]}; do
-                [ "$DEBUG" -eq 1 ] && set -x
+                [ $DEBUG -ge 2 ] && set -x
                 eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
@@ -155,7 +155,7 @@ update () {
                 mv "$repo.tmp" "$repo"
                 rm -f "$repofile"
                 msg "Done\n"
-                [ "$DEBUG" -eq 1 ] && set +x
+                [ $DEBUG -ge 2 ] && set +x
         done
         quit 0
 
@@ -164,7 +164,7 @@ update () {
 
 # search() -- find which package owns a file {{{
 search () {
-        [ "$DEBUG" -eq 1 ] && set -x
+        [ $DEBUG -ge 2 ] && set -x
 
         if [ $REMOTE_SEARCH -eq 0 -a "${1:0:1}" = '/' -a -e "$1" ]; then
                 pacman -Qo "$1"
@@ -184,7 +184,7 @@ search () {
                         fname="$(echo $fname | sed 's|^/|/s?bin/|')"
                 fi
         fi
-        [ "$DEBUG" -eq 1 ] && echo "'$fname'"
+        [ $DEBUG -ge 2 ] && echo "'$fname'"
 
         cd_filelist_dir noempty
 
@@ -195,7 +195,8 @@ search () {
         fi
 
         # */* expanded is really ugly
-        [ $DEBUG -ge 1 ] && set +x
+        [ $DEBUG -ge 2 ] && set +x
+        [ $DEBUG -ge 1 ] && echo "\$fname = '$fname'"
         grep -R -E "$fname" */* | sed "$sedstring" | uniq
 
         quit 0
@@ -221,7 +222,7 @@ listfiles () {
         cd_filelist_dir noempty
         pkg_escaped=$(regex_escape "$pkg") 
         for repo in ${REPOS[@]}; do
-                [ "$DEBUG" -eq 1 ] && set -x
+                [ $DEBUG -ge 2 ] && set -x
                 local findarg="$repo/$pkg_escaped-[^-]+-[^-]+$"
                 local findresult="$(\
                         find "$repo" -type d -regex "$findarg" | while read line; do
@@ -237,7 +238,7 @@ listfiles () {
                         fi
 
                 fi
-                [ "$DEBUG" -eq 1 ] && set +x
+                [ $DEBUG -ge 2 ] && set +x
         done
         if [ "$FOUNDFILE" -eq 0 ]; then
                 msg "Package '%s' not found\n" "$pkg"
