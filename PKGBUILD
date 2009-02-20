@@ -27,7 +27,7 @@ build() {
   install -Dm644 "${srcdir}/newpkg.conf"      "${pkgdir}/etc/pkgtools/newpkg.conf"
 
   # pkgfile
-  install -d "$pkgdir/usr/share/pkgtools/lists/"
+  install -d "$pkgdir/var/cache/pkgtools/lists/"
   install -Dm755 "${srcdir}/pkgfile"          "${pkgdir}/usr/bin/pkgfile"
   install -Dm644 "${srcdir}/pkgfile.conf"     "${pkgdir}/etc/pkgtools/pkgfile.conf"
   install -Dm744 "${srcdir}/pkgfile.cron"     "${pkgdir}/etc/cron.daily/pkgfile"
