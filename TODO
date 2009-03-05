@@ -36,3 +36,5 @@ Include ideas from http://threadstates.com/downloads/pac-file
 pkgfile: Implement pkgquery like rpm -Qf.
 	 Partially done. Local files work, but should also be able to search the filelist
 
+# ----
+pkgfile: test zgrep vs untarring+grep the tree
