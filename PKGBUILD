@@ -1,7 +1,7 @@
 # Maintainer: Daenyth <Daenyth+Arch AT gmail DOT com>
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=12
+pkgver=13
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
@@ -50,7 +50,7 @@ md5sums=('ff115b184d090deae11afc67f56094eb'
          '6997bd880795c68be9c9e6bffa129726'
          '3788d4d6900bfaad04e97b47d0ac1b70'
          'e711a94744171b66ca41c8ad157fb4bd'
-         '7415df6b3dae5edbf2a3bb03276b51d1'
+         '789382057148107f94ef8ffe5fdd996c'
          '1e3b1c6efcca3d7ae64a85d12d769ffa'
          'b60b17497f9679ff05f19c6674f543e9'
          '0ec3dbb726830035d067c91e625dd5ed'
