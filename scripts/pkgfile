@@ -170,14 +170,14 @@ search () {
                 if [ "${1:0:1}" = '/' ]; then
                         if [ -e "$1" ]; then
                                 local target="$1"
-                        elif [ $BINARIES -eq 1 ]; then
-                                if which "$1" &>/dev/null; then
-                                        local target="$(which "$1")"
-                                fi
+                        fi
+                elif [ $BINARIES -eq 1 ]; then
+                        if which "$1" &>/dev/null; then
+                                local target="$(which "$1")"
                         fi
                 fi
                 if [ -n "$target" ]; then
-                        local owner=$(pacman -Qqo "$1" | awk '{print $1}')
+                        local owner=$(pacman -Qqo "$target" | awk '{print $1}')
                         local ret=$?
                         echo "local/$owner"
                         quit $ret
