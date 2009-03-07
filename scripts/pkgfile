@@ -105,7 +105,7 @@ usage () {
         msg "ACTIONS:\n"
         msg "  -h --help       - Print this help.\n"
         msg "  -i --info       - Provides information about the package owning a file.\n"
-        msg "                    Similar to \`rpm -Qf'.\n"  
+        msg "                    Similar to \`rpm -Qf'.\n"
         msg "  -l --list       - List files similar to \`pacman -Ql'.\n"
         msg "  -r --regex      - Search for a regex instead of a filename.\n"
         msg "  -s --search     - Search for what package owns a file.\n"
