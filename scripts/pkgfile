@@ -115,11 +115,11 @@ usage () {
         msg "                    %s\n" $FILELIST_DIR
 
         msg "OPTIONS:\n"
-        msg "  -b --binaries   - When using --list, only show files in a bin/ directory.\n"
+        msg "  -b --binaries   - Only show files in a bin/ directory. Works with -s, -l.\n"
         msg "  -d --debug      - Increase debug level. This can be passed multiple times.\n"
         msg "  -g --glob       - Allow using * and ? as basic wildcards in a search.\n"
         msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
-        msg "  -R --remote     - Search remotely instead of using local pacman info.\n"
+        msg "  -R --remote     - Force remote searching instead of using local pacman info.\n"
         msg "  -v --verbose    - Enable verbose output.\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
         quit ${1:-0}
