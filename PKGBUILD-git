@@ -1,18 +1,18 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools-git
-pkgver=
+pkgver=git
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
 url="http://github.com/Daenyth/pkgtools/wikis"
 license=('GPL')
+source=()
 makedepends=(git)
 provides=(pkgtools)
 conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-optdepends=('zsh: For command not found hook'
-            'cron: For pkgfile --update entry')
+optdepends=('cron: For pkgfile --update entry')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"
@@ -35,12 +35,27 @@ build() {
   cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
   cd ${srcdir}/$_gitname-build
 
-  #
-  # BUILD HERE
-  #
+  # Common fucntions needed by all scripts
+  install -Dm644 "other/functions"         "${pkgdir}/usr/share/pkgtools/functions"
 
-  # Next step: writing a makefile
+  # newpkg
+  install -Dm755 "scripts/newpkg"          "${pkgdir}/usr/bin/newpkg"
+  install -Dm644 "confs/newpkg.conf"       "${pkgdir}/etc/pkgtools/newpkg.conf"
 
-  # make all
-  # make install-all
+  # pkgfile
+  install -d "$pkgdir/var/cache/pkgtools/lists/"
+  install -Dm755 "scripts/pkgfile"         "${pkgdir}/usr/bin/pkgfile"
+  install -Dm644 "confs/pkgfile.conf"      "${pkgdir}/etc/pkgtools/pkgfile.conf"
+  install -Dm744 "other/pkgfile.cron"      "${pkgdir}/etc/cron.daily/pkgfile"
+  # Loads shell hooks
+  install -Dm755 "other/pkgfile-hook.sh"   "${pkgdir}/etc/profile.d/pkgfile-hook.sh"
+  install -Dm644 "other/pkgfile-hook.zsh"  "${pkgdir}/usr/share/pkgtools/pkgfile-hook.zsh"
+  install -Dm644 "other/pkgfile-hook.bash" "${pkgdir}/usr/share/pkgtools/pkgfile-hook.bash"
+
+  # spec2arch
+  install -Dm755 "scripts/spec2arch"       "${pkgdir}/usr/bin/spec2arch"
+  install -Dm644 "confs/spec2arch.conf"    "${pkgdir}/etc/pkgtools/spec2arch.conf"
+  install -Dm644 "confs/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
+  install -Dm644 "confs/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
+
 } 
