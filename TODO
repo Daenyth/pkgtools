@@ -38,3 +38,6 @@ pkgfile: Implement pkgquery like rpm -Qf.
 
 # ----
 pkgfile: test zgrep vs untarring+grep the tree
+
+# ----
+pkgfile: add --simple option to use fgrep, reorganize search()
