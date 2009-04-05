@@ -74,6 +74,8 @@ not () {
 
 # cd_filelist_dir() {{{
 cd_filelist_dir () {
+        check_filelist_dir
+
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
         if [ 'noempty' == "$1" ]; then
                 # */* expanded is really ugly
@@ -83,6 +85,18 @@ cd_filelist_dir () {
                 fi
         fi
         [ $DEBUG -ge 2 ] && set -x
+}
+# }}}
+
+# check_filelist_dir() -- Check for existance and correct pemissions for $FILELIST_DIR {{{
+check_filelist_dir () {
+                if [ ! -d "$FILELIST_DIR" ]; then
+                        warn "%s does not exist -- creating " $FILELIST_DIR
+                        mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
+                fi
+                if [ ! -w "$FILELIST_DIR" ];then
+                        die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
+                fi
 }
 # }}}
 
@@ -134,13 +148,6 @@ update () {
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
 
-                if [ ! -d "$FILELIST_DIR" ]; then
-                        warn "%s does not exist -- creating " $FILELIST_DIR
-                        mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
-                fi
-                if [ ! -w "$FILELIST_DIR" ];then
-                        die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
-                fi
                 cd_filelist_dir
                 rm -f "$repofile"
                 if [ "$VERBOSE" -eq 1 ]; then
