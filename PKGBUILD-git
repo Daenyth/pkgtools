@@ -12,7 +12,8 @@ provides=(pkgtools)
 conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-optdepends=('cron: For pkgfile --update entry')
+optdepends=('cron: For pkgfile --update entry'
+            'python: For pkgconflict')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"
@@ -58,5 +59,7 @@ build() {
   install -Dm644 "confs/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
   install -Dm644 "confs/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
 
+  # pkgconflict
+  install -Dm755 "scripts/pkgconflict.py"  "${pkgdir}/usr/bin/pkgconflict"
 }
 # vim:set ts=2 sw=2 et:
