@@ -13,7 +13,7 @@ PROGNAME="upgpkg"
 if [ -r /usr/share/pkgtools/functions ]; then
         source /usr/share/pkgtools/functions
 else
-        printf "$(gettext "upgpkg: Unable to source function file!\n")" >&2
+        printf "$(gettext "$PROGNAME: Unable to source function file!\n")" >&2
         exit 1
 fi
 
@@ -31,17 +31,17 @@ if [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
         source "${HOME}/.pkgtools/newpkg.conf"
 fi
 
-if [ -z "$BASEDIR" ]; then die "$(gettext "upgpkg: unable to locate BASEDIR in configuration.")"; fi
+if [ -z "$BASEDIR" ]; then die "$(gettext "$PROGNAME: unable to locate BASEDIR in configuration.")"; fi
 
-if [ -z "$1" ]; then printf "upgpkg %s\n" "$MYVERSION"; printf "$(gettext "usage: upgpkg package-name newver\n")"; exit; fi
+if [ -z "$1" ]; then printf "%s %s\n" "$PROGNAME" "$MYVERSION"; printf "$(gettext "usage: $PROGNAME package-name newver\n")"; exit; fi
 
-if [ ! -d "$BASEDIR/$1" ]; then die "$(gettext "upgpkg: package %s not in %s.\n")" "$1" "$BASEDIR"; fi
-if [ -z "$2" ]; then die "$(gettext "upgpkg: no new version specified for %s\n")" "$1"; fi
+if [ ! -d "$BASEDIR/$1" ]; then die "$(gettext "$PROGNAME: package %s not in %s.\n")" "$1" "$BASEDIR"; fi
+if [ -z "$2" ]; then die "$(gettext "$PROGNAME: no new version specified for %s\n")" "$1"; fi
 
 # Main code follows
 
 cd "$BASEDIR/$1"
-sed -ri '/md5sums[ ]?\=/{:a; /\)/d; N; ba;}' PKGBUILD || die "upgpkg: could not bump pkgver of $1\n"
+sed -ri '/md5sums[ ]?\=/{:a; /\)/d; N; ba;}' PKGBUILD || die "$PROGNAME: could not bump pkgver of $1\n"
 source PKGBUILD
 
 if [ $(vercmp $2 $pkgver) -gt 0 ]; then
@@ -49,11 +49,11 @@ if [ $(vercmp $2 $pkgver) -gt 0 ]; then
     sed -i "s/pkgrel=.*$/pkgrel=1/g" PKGBUILD
     makepkg -g >> PKGBUILD
 else
-    die "$(gettext "upgpkg: %s - new version (%s) older or equal to current %s\n")" "$1" "$2" "$pkgver"
+    die "$(gettext "$PROGNAME: %s - new version (%s) older or equal to current %s\n")" "$1" "$2" "$pkgver"
 fi
 makepkg -m
 if [ $? -gt 0 ]; then
     sed -i "s/pkgver=.*$/pkgver=$pkgver/g" PKGBUILD
     sed -i "s/pkgrel=.*$/pkgrel=$pkgrel/g" PKGBUILD
-    die "$(gettext "upgpkg: %s - build failed for %s, reverting to %s\n")" "$1" "$2" "$pkgver"
+    die "$(gettext "$PROGNAME: %s - build failed for %s, reverting to %s\n")" "$1" "$2" "$pkgver"
 fi
