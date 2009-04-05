@@ -144,28 +144,30 @@ usage () {
 update () {
         for repo in ${REPOS[@]}; do
                 [ $DEBUG -ge 2 ] && set -x
-                eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -v '^ *$' | head -n 1 | cut -d ' ' -f 3)"
+
+                eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -m1 -v '^ *$' | cut -d ' ' -f 3)"
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
 
                 cd_filelist_dir
+
                 rm -f "$repofile"
                 if [ "$VERBOSE" -eq 1 ]; then
                         msg "Using mirror %s... " $mirror
                 fi
                 msg "Updating %s file list... " $repo
                 wget -q  --limit-rate="$RATELIMIT" "$filelist" || (warn "Could not retrieve %s\n" $filelist; continue)
-                msg "Extracting file list... " $repo
+                msg "Extracting %s file list... " $repo
                 mkdir -p "$repo.tmp" || (warn "Could not create directory for %s\n" $repo; continue)
                 tar ozxf "$repofile" -C "$repo.tmp" 2> /dev/null || (warn "Unable to extract %s\n" $repofile; continue)
                 rm -rf "$repo"
                 mv "$repo.tmp" "$repo"
                 rm -f "$repofile"
                 msg "Done\n"
+
                 [ $DEBUG -ge 2 ] && set +x
         done
         quit 0
-
 }
 # }}}
 
