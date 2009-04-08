@@ -61,5 +61,8 @@ build() {
 
   # pkgconflict
   install -Dm755 "scripts/pkgconflict.py"  "${pkgdir}/usr/bin/pkgconflict"
+
+  # whoneeds
+  install -Dm755 "scripts/whoneeds.bash"   "${pkgdir}/usr/bin/whoneeds"
 }
 # vim:set ts=2 sw=2 et:
