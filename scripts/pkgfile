@@ -62,16 +62,6 @@ PROGNAME="$(basename $0)"
 
 umask 0022 # This will ensure that any files we create are readable by normal users
 
-# not() -- toggle a 0/1 {{{
-not () {
-        if [ "$1" -eq 0 ]; then
-                echo 1
-        else
-                echo 0
-        fi
-}
-# }}}
-
 # cd_filelist_dir() {{{
 cd_filelist_dir () {
         check_filelist_dir
@@ -309,13 +299,13 @@ unset OPT_SHORT OPT_LONG OPT_TEMP
 while [ $# -gt 0 ]; do
         case "$1" in
                 -b|--binaries)
-                        BINARIES=$(not $BINARIES)
+                        BINARIES=1
                         ;;
                 -d|--debug)
                         DEBUG=$(( DEBUG += 1 ))
                         ;;
                 -g|--glob)
-                        GLOBBING=$(not $GLOBBING)
+                        GLOBBING=1
                         ;;
                 -h|--help)
                         usage
@@ -330,7 +320,7 @@ while [ $# -gt 0 ]; do
                         ACTIONS=(${ACTIONS[@]} list)
                         ;;
                 -R|--remote)
-                        REMOTE_SEARCH=$(not $REMOTE_SEARCH)
+                        REMOTE_SEARCH=1
                         ;;
                 -r|--regex)
                         ACTIONS=(${ACTIONS[@]} regex)
@@ -342,7 +332,7 @@ while [ $# -gt 0 ]; do
                         UPDATE=$(( UPDATE += 1 ))
                         ;;
                 -v|--verbose)
-                        VERBOSE=$(not $VERBOSE)
+                        VERBOSE=1
                         ;;
                 *)
                         [ -z "${ACTIONS[@]}" ] && ACTIONS=(${ACTIONS[@]} search)
