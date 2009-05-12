@@ -207,6 +207,7 @@ while [ "$#" -ne 0 ]; do
         shift
 done
 
+[ -z "$pkgname" ] && die 1 "No package name supplied\n"
 pkgdir="${BASEDIR}/${pkgname}"
 
 maketargetdir
