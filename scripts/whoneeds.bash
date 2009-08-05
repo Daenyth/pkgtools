@@ -4,7 +4,8 @@
 function whoneeds_f
 {
     direct_needs=$(LC_ALL=C pacman -Qi $1 | tr '\n' ' ' |  sed 's/.*Required By *: *//' | sed 's/Conflicts With.*//')
-    if pacman -Qi $1 | grep -q '^Install Reason : Explicitly installed'; then
+    #if pacman -Qi $1 | grep -q '^Install Reason : Explicitly installed'; then
+    if [[ "$(fgrep -A1 '%REASON%' /var/lib/pacman/local/${1}-[[:digit:]]*/desc | tail -n 1)" = 1 ]]; then
         #echo "installed expicitly"
         echo $1
     fi
