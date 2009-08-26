@@ -7,7 +7,7 @@ arch=(any)
 url="http://github.com/Daenyth/pkgtools"
 license=('GPL')
 source=()
-depends=(bash>=4)
+depends=('bash>=4')
 makedepends=(git)
 provides=(pkgtools)
 conflicts=(pkgtools)
