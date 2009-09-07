@@ -176,9 +176,12 @@ search () {
                         fi
                 fi
                 if [ -n "$target" ]; then
-                        local owner=$(pacman -Qqo "$target" | awk '{print $1}')
+                        local owner # split this on two lines so `local` doesn't hijack $?
+                        owner=$(pacman -Qqo "$target" 2>&1)
                         local ret=$?
-                        echo "local/$owner"
+                        if [ $ret -eq 0 ]; then
+                                echo "local/$owner"
+                        fi
                         quit $ret
                 fi
         fi
