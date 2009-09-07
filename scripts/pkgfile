@@ -354,7 +354,7 @@ if [ -z "$SEARCHTARGET" ]; then
         die 1 "No target specified to search for!\n"
 fi
 
-case $ACTION In
+case $ACTION in
         search|regex)
                 search "$SEARCHTARGET"
                 ;;
