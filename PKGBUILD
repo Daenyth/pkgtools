@@ -1,8 +1,8 @@
 # Maintainer: Daenyth <Daenyth+Arch AT gmail DOT com>
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=13
-pkgrel=2
+pkgver=14
+pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
 url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
@@ -11,9 +11,10 @@ source=(http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 provides=(newpkg pkgfile)
-depends=(bash>=4)
-optdepends=('cron: For pkgfile --update entry')
-md5sums=('43b47bb49176c3da14b725b832109eb8')
+depends=('bash>=4')
+optdepends=('cron: For pkgfile --update entry'
+            'python: For pkgconflict')
+md5sums=('75908075abf8cd1565f63deed17d7c91')
 
 
 build() {
@@ -39,8 +40,14 @@ build() {
   # spec2arch
   install -Dm755 "scripts/spec2arch"       "${pkgdir}/usr/bin/spec2arch"
   install -Dm644 "confs/spec2arch.conf"    "${pkgdir}/etc/pkgtools/spec2arch.conf"
-  install -Dm644 "confs/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
-  install -Dm644 "confs/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
+  install -Dm644 "docs/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
+  install -Dm644 "docs/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
+
+  # pkgconflict
+  install -Dm755 "scripts/pkgconflict.py"  "${pkgdir}/usr/bin/pkgconflict"
+
+  # whoneeds
+  install -Dm755 "scripts/whoneeds.bash"   "${pkgdir}/usr/bin/whoneeds"
 }
 
 # vim:set ts=2 sw=2 et:
