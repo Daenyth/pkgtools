@@ -18,7 +18,7 @@ md5sums=('75908075abf8cd1565f63deed17d7c91')
 
 
 build() {
-  cd "$srcdir/Daenyth-$pkgname-*"
+  cd "$srcdir/Daenyth-$pkgname"-*
 
   # Common fucntions needed by all scripts
   install -Dm644 "other/functions"         "${pkgdir}/usr/share/pkgtools/functions"
@@ -40,8 +40,8 @@ build() {
   # spec2arch
   install -Dm755 "scripts/spec2arch"       "${pkgdir}/usr/bin/spec2arch"
   install -Dm644 "confs/spec2arch.conf"    "${pkgdir}/etc/pkgtools/spec2arch.conf"
-  install -Dm644 "docs/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
-  install -Dm644 "docs/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
+  install -Dm644 "doc/spec2arch.8"       "${pkgdir}/usr/share/man/man8/spec2arch.8"
+  install -Dm644 "doc/spec2arch.conf.5"  "${pkgdir}/usr/share/man/man5/spec2arch.conf.5"
 
   # pkgconflict
   install -Dm755 "scripts/pkgconflict.py"  "${pkgdir}/usr/bin/pkgconflict"
