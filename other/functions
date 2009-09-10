@@ -22,4 +22,16 @@ msg  () {
         printf "$message" $@
 }
 
+in_array() {
+        [ $# -lt 2 ] && return 1
+        needle=$1
+        shift
+        for item
+        do 
+                [ "$item" = "$needle" ] && return 0
+        done
+        return 1
+}
+
+
 # vim: set ts=8 et:

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ###
 # pkgfile -- search the arch repo to see what package owns a file
 # This program is a part of pkgtools
@@ -45,7 +44,6 @@ DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
 BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
 GLOBBING=0 # Allow a search to use globs; * and ? as basic wildcards
-REPOS=(core extra community)
 DEFAULT_ACTION=search
 
 if [ -r "$CONFIG_DIR/pkgfile.conf" ]; then
@@ -64,7 +62,7 @@ umask 0022 # This will ensure that any files we create are readable by normal us
 
 # cd_filelist_dir() {{{
 cd_filelist_dir () {
-        check_filelist_dir
+        [ 'noempty' != "$1" ] && check_filelist_dir
 
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
         if [ 'noempty' == "$1" ]; then
@@ -132,20 +130,22 @@ usage () {
 
 # update() -- update the package file list {{{
 update () {
-        for repo in ${REPOS[@]}; do
+        cd_filelist_dir
+        repo_done=()
+        (LC_ALL=C pacman --debug  | grep 'adding new server' \
+                | sed "s|.*adding new server URL to database '\(.*\)': \(.*\)|\1 \2|g"
+                ) | while read repo mirror
+	do
                 [ $DEBUG -ge 2 ] && set -x
-
-                eval mirror="$(grep -v '^ *#' $PACMAN_MIRRORLIST | grep -m1 -v '^ *$' | cut -d ' ' -f 3)"
+                in_array "$repo" "${repo_done[@]}" && continue
+                [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
-
-                cd_filelist_dir
-
-                rm -f "$repofile"
-                if [ "$VERBOSE" -eq 1 ]; then
-                        msg "Using mirror %s... " $mirror
-                fi
                 msg "Updating %s file list... " $repo
+                if [ "$VERBOSE" -eq 1 ]; then
+                        msg "\nUsing mirror %s... \n" $mirror
+                fi
+                rm -f "$repofile"
                 wget -q  --limit-rate="$RATELIMIT" "$filelist" || (warn "Could not retrieve %s\n" $filelist; continue)
                 msg "Extracting %s file list... " $repo
                 mkdir -p "$repo.tmp" || (warn "Could not create directory for %s\n" $repo; continue)
@@ -154,7 +154,7 @@ update () {
                 mv "$repo.tmp" "$repo"
                 rm -f "$repofile"
                 msg "Done\n"
-
+                repo_done=( "${repo_done[@]}" "$repo" )
                 [ $DEBUG -ge 2 ] && set +x
         done
         quit 0
@@ -206,7 +206,7 @@ search () {
         if [ "$VERBOSE" -eq 0 ]; then
                 local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:.*##'
         else
-                local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:# : /#' 
+                local sedstring='s#-\([0-9.a-z_]*-[0-9.]*\)/files:# (\1) : /#' 
         fi
 
         # */* expanded is really ugly
@@ -236,7 +236,8 @@ listfiles () {
 
         cd_filelist_dir noempty
         pkg_escaped=$(regex_escape "$pkg") 
-        for repo in ${REPOS[@]}; do
+        for repo in *; do
+                [ -d $repo ] || continue
                 [ $DEBUG -ge 2 ] && set -x
                 local findarg="$repo/$pkg_escaped-[^-]+-[^-]+$"
                 local findresult="$(\
