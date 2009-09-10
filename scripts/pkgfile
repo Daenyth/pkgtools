@@ -141,13 +141,13 @@ update () {
                 [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
-                msg "Updating %s file list... " $repo
+                msg "Updating [%s] file list... " $repo
                 if [ "$VERBOSE" -eq 1 ]; then
-                        msg "\nUsing mirror %s... \n" $mirror
+                        msg "Using mirror %s... " $mirror
                 fi
                 rm -f "$repofile"
                 wget -q  --limit-rate="$RATELIMIT" "$filelist" || { warn "Could not retrieve %s\n" $filelist; continue; }
-                msg "Extracting %s file list... " $repo
+                msg "Extracting [%s] file list... " $repo
                 mkdir -p "$repo.tmp" || { warn "Could not create temporary directory for %s\n" $repo; continue; }
                 tar ozxf "$repofile" -C "$repo.tmp" 2> /dev/null || { warn "Unable to extract %s\n" $repofile; continue; }
                 rm -rf "$repo"
