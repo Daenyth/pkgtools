@@ -141,6 +141,7 @@ update () {
                 [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
+                repo_done=( "${repo_done[@]}" "$repo" )
                 msg "Updating [%s] file list... " $repo
                 if [ "$VERBOSE" -eq 1 ]; then
                         msg "Using mirror %s... " $mirror
@@ -154,7 +155,6 @@ update () {
                 mv "$repo.tmp" "$repo"
                 rm -f "$repofile"
                 msg "Done\n"
-                repo_done=( "${repo_done[@]}" "$repo" )
                 [ $DEBUG -ge 2 ] && set +x
         done
         quit 0
