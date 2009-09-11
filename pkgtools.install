@@ -39,7 +39,6 @@ post_upgrade() {
    Please remove any old symlinks relating to it."
     echo "$_MSG_HOOK"
   fi
-  echo "$_MSG_BUGS"
 }
 
 ## arg 1:  the old package version
