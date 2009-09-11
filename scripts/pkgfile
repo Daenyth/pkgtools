@@ -186,7 +186,7 @@ search () {
                 fi
         fi
 
-        if [ "$action" = 'regex' ]; then
+        if [ "$ACTION" = 'regex' ]; then
                 local fname="$1"
         else
                 local fname="$(regex_escape "$1")"
@@ -369,7 +369,7 @@ case $ACTION in
                 pkgquery "$SEARCHTARGET"
                 ;;
         *)
-                die 1 "Invalid \$ACTION '%s' -- This should never happen!\n" "$action"
+                die 1 "Invalid \$ACTION '%s' -- This should never happen!\n" "$ACTION"
                 ;;
 esac
 
