@@ -165,7 +165,7 @@ update () {
 search () {
         [ $DEBUG -ge 2 ] && set -x
 
-        if [ $REMOTE_SEARCH -eq 0 ]; then
+        if [ $REMOTE_SEARCH -eq 0  -a "$ACTION" != 'regex' ]; then
                 if [ "${1:0:1}" = '/' ]; then
                         if [ -e "$1" ]; then
                                 local target="$1"
