@@ -1,8 +1,10 @@
 #!/bin/bash
 command_not_found_handle () {
-	local _prev_command="$1"
-	local pkgs="$(pkgfile -b -v "$_prev_command")"
+	local command="$1"
+	local pkgs="$(pkgfile -b -v "$command")"
 	if [ ! -z "$pkgs" ]; then
-		echo -e "\n$_prev_command may be found in the following packages:\n$pkgs"
+		echo -e "\n$command may be found in the following packages:\n$pkgs"
+		return 0
 	fi
+	printf "bash: $(gettext bash "%s: command not found")\n" $command
 }
