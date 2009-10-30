@@ -26,7 +26,7 @@
 PKGTOOLS_DIR='/usr/share/pkgtools/'
 CONFIG_DIR='/etc/pkgtools/'
 FILELIST_DIR="/var/cache/pkgtools/lists"
-RATELIMIT='100k' # Argument to wget's --limit-rate flag
+RATELIMIT= # Argument to wget's --limit-rate flag
 PACMAN_MIRRORLIST='/etc/pacman.d/mirrorlist'
 
 if [ -r "$PKGTOOLS_DIR/functions" ]; then
@@ -131,30 +131,36 @@ usage () {
 # update() -- update the package file list {{{
 update () {
         cd_filelist_dir
-        repo_done=()
-        (LC_ALL=C pacman --debug  | grep 'adding new server' \
+        local repo_done=()
+
+        (LC_ALL=C pacman --debug  | fgrep 'adding new server' \
                 | sed "s|.*adding new server URL to database '\(.*\)': \(.*\)|\1 \2|g"
                 ) | while read repo mirror
 	do
                 [ $DEBUG -ge 2 ] && set -x
+
                 in_array "$repo" "${repo_done[@]}" && continue
                 [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
+
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
-                repo_done=( "${repo_done[@]}" "$repo" )
+
                 msg "Updating [%s] file list... " $repo
                 if [ "$VERBOSE" -eq 1 ]; then
                         msg "Using mirror %s... " $mirror
                 fi
-                rm -f "$repofile"
-                wget -q  --limit-rate="$RATELIMIT" "$filelist" || { warn "Could not retrieve %s\n" $filelist; continue; }
+                wget -q "$RATELIMIT" "$filelist" -O "$filelist" || { warn "Could not retrieve %s\n" $filelist; continue; }
+
                 msg "Extracting [%s] file list... " $repo
                 mkdir -p "$repo.tmp" || { warn "Could not create temporary directory for %s\n" $repo; continue; }
                 tar ozxf "$repofile" -C "$repo.tmp" 2> /dev/null || { warn "Unable to extract %s\n" $repofile; continue; }
                 rm -rf "$repo"
                 mv "$repo.tmp" "$repo"
                 rm -f "$repofile"
+
+                repo_done=( "${repo_done[@]}" "$repo" )
                 msg "Done\n"
+
                 [ $DEBUG -ge 2 ] && set +x
         done
         quit 0
@@ -356,6 +362,10 @@ fi
 
 if [ -z "$SEARCHTARGET" ]; then
         die 1 "No target specified to search for!\n"
+fi
+
+if [ -n "$RATELIMIT" ]; then
+        RATELIMIT="--limit-rate='$RATELIMIT'"
 fi
 
 case $ACTION in
