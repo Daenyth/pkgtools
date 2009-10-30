@@ -129,6 +129,7 @@ usage () {
 
 # update() -- update the package file list {{{
 update () {
+        local target_repo="$1"
         cd_filelist_dir
         local repo_done=()
 
@@ -138,6 +139,7 @@ update () {
 	do
                 [ $DEBUG -ge 2 ] && set -x
 
+                [ -n "$target_repo" ] && [ "$repo" != "$target_repo" ] && continue
                 in_array "$repo" "${repo_done[@]}" && continue
                 [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
 
@@ -342,7 +344,7 @@ while [ $# -gt 0 ]; do
                         ACTION=search
                         ;;
                 -u|--update)
-                        UPDATE=$(( UPDATE += 1 ))
+                        ACTION=update
                         ;;
                 -v|--verbose)
                         VERBOSE=1
@@ -355,14 +357,6 @@ while [ $# -gt 0 ]; do
         shift
 done
 
-if [ $UPDATE -ge 1 ]; then
-#        if [ $UPDATE -ge 2 ]; then
-#                update force # This will be used when I check timestamps. Analogous to pacman -Syy
-#        else
-                update
-#        fi
-fi
-
 if [ -z "$SEARCHTARGET" ]; then
         die 1 "No target specified to search for!\n"
 fi
@@ -372,6 +366,9 @@ if [ -n "$RATELIMIT" ]; then
 fi
 
 case $ACTION in
+        update)
+                update "$SEARCHTARGET"
+                ;;
         search|regex)
                 search "$SEARCHTARGET"
                 ;;
