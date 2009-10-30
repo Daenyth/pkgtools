@@ -190,6 +190,7 @@ search () {
         fi
 
         if [ "$ACTION" = 'regex' ]; then
+                [ $BINARIES -eq 1 ] && warn "Warning: Binary searching cannot be combined with regex search. Ignoring this option\n"
                 local fname="$1"
         else
                 local fname="$(regex_escape "$1")"
@@ -197,12 +198,17 @@ search () {
                 # Change a leading / to ^.
                 # Change a leading non-^ character to '/$char;
                 # This will fix grep's regex to prevent false positives
+
+
+                # Only search for binaries when we are not given an absolute path, and do not have globbing on.
                 if [ $BINARIES -eq 1 -a "${fname:0:1}" != '^' ]; then
-                        # Only search for binaries when we are not given an absolute path.
-                        fname="$(echo $fname | sed 's|^/|/s?bin/|')"
+                        if [ $GLOBBING -eq 0 ]; then
+                                fname="$(echo $fname | sed 's|^/|/s?bin/|')"
+                        else
+                                warn "Warning: Binary searching cannot be combined with glob search. Ignoring this option\n"
+                        fi
                 fi
         fi
-        [ $DEBUG -ge 2 ] && echo "'$fname'"
 
         cd_filelist_dir noempty
 
