@@ -146,9 +146,7 @@ update () {
                 filelist="${mirror}/${repofile}"
 
                 msg "Updating [%s] file list... " $repo
-                if [ "$VERBOSE" -eq 1 ]; then
-                        msg "Using mirror %s... " $mirror
-                fi
+                vmsg "Trying mirror %s... " $mirror
                 wget -q "$RATELIMIT" "$filelist" -O "$filelist" || { warn "Could not retrieve %s\n" $filelist; continue; }
 
                 msg "Extracting [%s] file list... " $repo

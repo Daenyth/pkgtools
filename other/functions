@@ -22,6 +22,10 @@ msg  () {
         printf "$message" $@
 }
 
+vmsg () {
+        [ $VERBOSE -ge 1 ] && msg "$@"
+}
+
 in_array() {
         [ $# -lt 2 ] && return 1
         needle=$1
