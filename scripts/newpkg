@@ -21,7 +21,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ##
 
-CONTRIB_INFO='Your Name <youremail@domain.com>'
+CONTRIB_INFO=
 BASEDIR="${HOME}/builds"
 
 if [ -r /usr/share/pkgtools/functions ]; then
@@ -125,7 +125,7 @@ copypkgbuild () {
                 sed -i '/^# NOTE: Please fill out/d' PKGBUILD
                 sed -i '/^# then please put/d' PKGBUILD
 
-                sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
+                [ -n "$CONTRIB_INFO" ] && sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
         else
                 warn "Could not find prototype PKGBUILD '%s'\n" "$PROTO_PKGBUILD"
         fi
