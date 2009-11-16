@@ -172,7 +172,7 @@ search () {
 
         if [ $REMOTE_SEARCH -eq 0  -a "$ACTION" != 'regex' ]; then
                 if [ "${1:0:1}" = '/' ]; then
-                        if [ -e "$1" ]; then
+                        if [ -e "$1" -a -d "$1" ]; then
                                 local target="$1"
                         fi
                 elif [ $BINARIES -eq 1 ]; then
