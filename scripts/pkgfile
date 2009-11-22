@@ -51,7 +51,7 @@ fi
 if [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
 fi
-readonly MYVERSION=8.0
+readonly MYVERSION=8.1
 SEARCHTARGET=
 ACTION=
 UPDATE=0
@@ -111,6 +111,9 @@ usage () {
         msg "  -l --list       - List files similar to \`pacman -Ql'.\n"
         msg "  -r --regex      - Search for a regex instead of a filename.\n"
         msg "  -s --search     - Search for what package owns a file.\n"
+        msg "  -u --update     - Update to the latest filelist\n"
+        msg "                    This requires write permission for\n"
+        msg "                    %s\n" $FILELIST_DIR
 
         msg "OPTIONS:\n"
         msg "  -b --binaries   - Only show files in a bin/ directory. Works with -s, -l.\n"
@@ -118,9 +121,6 @@ usage () {
         msg "  -g --glob       - Allow using * and ? as basic wildcards in a search.\n"
         msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
         msg "  -R --remote     - Force remote searching instead of using local pacman info.\n"
-        msg "  -u --update     - Update to the latest filelist before running actions.\n"
-        msg "                    This requires write permission for\n"
-        msg "                    %s\n" $FILELIST_DIR
         msg "  -v --verbose    - Enable verbose output.\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
         quit ${1:-0}
