@@ -41,8 +41,9 @@ fi
 VERBOSE=0
 DEBUG=0
 REMOTE_SEARCH=0 # Force remote search instead of using pacman database
-BINARIES=0 # Search for binaries (files in a bin or sbin directory). 
+BINARIES=0 # Search for binaries (files in a bin or sbin directory).
 GLOBBING=0 # Allow a search to use globs; * and ? as basic wildcards
+CASE_SENSITIVE=0 # Case sensitive filename searching?
 DEFAULT_ACTION=search
 
 if [ -r "$CONFIG_DIR/pkgfile.conf" ]; then
@@ -117,6 +118,7 @@ usage () {
 
         msg "OPTIONS:\n"
         msg "  -b --binaries   - Only show files in a bin/ directory. Works with -s, -l.\n"
+        msg "  -c --case-sensitive - Make searches case sensitive.\n"
         msg "  -d --debug      - Increase debug level. This can be passed multiple times.\n"
         msg "  -g --glob       - Allow using * and ? as basic wildcards in a search.\n"
         msg "  -L --limit-rate - Limit wget's data transfer rate when using --update.\n"
@@ -170,6 +172,9 @@ update () {
 search () {
         [ $DEBUG -ge 2 ] && set -x
 
+        local GREP_ARGS=
+        [ $CASE_SENSITIVE -eq 0 ] && GREP_ARGS='-i'
+
         if [ $REMOTE_SEARCH -eq 0  -a "$ACTION" != 'regex' ]; then
                 if [ "${1:0:1}" = '/' ]; then
                         if [ -e "$1" -a -d "$1" ]; then
@@ -201,7 +206,6 @@ search () {
                 # Change a leading non-^ character to '/$char;
                 # This will fix grep's regex to prevent false positives
 
-
                 # Only search for binaries when we are not given an absolute path, and do not have globbing on.
                 if [ $BINARIES -eq 1 -a "${fname:0:1}" != '^' ]; then
                         if [ $GLOBBING -eq 0 ]; then
@@ -223,7 +227,7 @@ search () {
         # */* expanded is really ugly
         [ $DEBUG -ge 2 ] && set +x
         [ $DEBUG -ge 1 ] && echo "\$fname = '$fname'"
-        grep -R -E "$fname" */* | sed "$sedstring" | uniq
+        grep $GREP_ARGS -R -E "$fname" */* | sed "$sedstring" | uniq
 
         quit 0
 }
@@ -300,8 +304,8 @@ fi
 
 # This is mostly a black box to me, I just copy and pasted from makepkg. It seems to work though!
 # Thanks to the pacman team for being awesome in so many ways
-OPT_SHORT='bdghiL:lRrsuv'
-OPT_LONG='binaries,debug,glob,help,info,limit-rate:,list,remote,regex,search,update,verbose'
+OPT_SHORT='bcdghiL:lRrsuv'
+OPT_LONG='binaries,case-sensitive,debug,glob,help,info,limit-rate:,list,remote,regex,search,update,verbose'
 OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo 'GETOPT GO BANG!')"
 if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
         # This is a small hack to stop the script bailing with 'set -e'
@@ -315,6 +319,9 @@ while [ $# -gt 0 ]; do
         case "$1" in
                 -b|--binaries)
                         BINARIES=1
+                        ;;
+                -c|--case-sensitive)
+                        CASE_SENSITIVE=1
                         ;;
                 -d|--debug)
                         DEBUG=$(( DEBUG += 1 ))
