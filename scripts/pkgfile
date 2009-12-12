@@ -225,9 +225,9 @@ search () {
         cd_filelist_dir noempty
 
         if [ "$VERBOSE" -eq 0 ]; then
-                local sedstring='s#-[0-9.a-z_]*-[0-9.]*/files:.*##'
+                local sedstring='s#-[0-9.A-Za-z_]*-[0-9.]*/files:.*##'
         else
-                local sedstring='s#-\([0-9.a-z_]*-[0-9.]*\)/files:# (\1) : /#' 
+                local sedstring='s#-\([0-9.A-Za-z_]*-[0-9.]*\)/files:# (\1) : /#' 
         fi
 
         # */* expanded is really ugly
