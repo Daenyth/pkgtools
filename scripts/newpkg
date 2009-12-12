@@ -55,8 +55,13 @@ PROTO_RC="${PROTODIR}/rc-script.proto"
 if [ -r /etc/pkgtools/newpkg.conf ]; then
         source /etc/pkgtools/newpkg.conf
 fi
-if [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
+if [ -r "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf" ]; then
+        source "${HOME}/pkgtools/newpkg.conf"
+elif [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
         source "${HOME}/.pkgtools/newpkg.conf"
+        warn 'Your newpkg.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
+        warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
+        warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
 fi
 
 # {{{ usage()

@@ -14,7 +14,7 @@
 # to point it to the right directory
 CONFNAME="pkgtools"
 # These are the internal defaults. Don't change them here - use the
-# /etc/${CONFNAME}/spec2arch.conf or $HOME/.${CONFNAME}/spec2arch.conf instead!
+# /etc/${CONFNAME}/spec2arch.conf or $XDG_CONFIG_HOME/.${CONFNAME}/spec2arch.conf instead!
 SRC_BASEURL=""
 USE_WARNING=1
 OVERWRITE_TARGET=0
@@ -55,8 +55,15 @@ function syntax() {
 }
 
 #------------------------------------------------------------[ Read Config ]---
-[ -e /etc/${CONFNAME}/spec2arch.conf ] && . /etc/${CONFNAME}/spec2arch.conf
-[ -e $HOME/.${CONFNAME}/spec2arch.conf ] && . $HOME/.${CONFNAME}/spec2arch.conf
+[ -r /etc/${CONFNAME}/spec2arch.conf ] && . /etc/${CONFNAME}/spec2arch.conf
+if [ -r $XDG_CONFIG_HOME/${CONFNAME}/spec2arch.conf ]; then
+    source $XDG_CONFIG_HOME/${CONFNAME}/spec2arch.conf
+elif [ -r "${HOME}/.${CONFNAME}/spec2arch.conf" ]; then
+    source "${HOME}/.${CONFNAME}/spec2arch.conf"
+    printf 'Your spec2arch.conf is located in ~/.${CONFNAME}. ${CONFNAME} now uses $XDG_CONFIG_HOME.\n' >&2
+    printf 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n' >&2
+    printf "    mv ~/.${CONFNAME} \"$XDG_CONFIG_HOME/pkgtools\"\n\n" >&2
+fi
 
 #-----------------------------------------------------[ parse command line ]---
 case "$1" in
