@@ -58,7 +58,7 @@ elif [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
 fi
 
-readonly MYVERSION=8.1
+readonly MYVERSION=9.0
 SEARCHTARGET=
 ACTION=
 UPDATE=0
