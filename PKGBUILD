@@ -14,7 +14,7 @@ provides=(newpkg pkgfile)
 depends=('bash>=4')
 optdepends=('cron: For pkgfile --update entry'
             'python: For pkgconflict')
-md5sums=()
+md5sums=('5f2ba29c30c4b4b74a32633e8d07c8a3')
 
 
 build() {
