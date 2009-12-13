@@ -156,7 +156,7 @@ update () {
 
                 msg "Updating [%s] file list... " $repo
                 vmsg "Trying mirror %s... " $mirror
-                wget -q "$RATELIMIT" "$filelist" -O "$filelist" || { warn "Could not retrieve %s\n" $filelist; continue; }
+                wget -q "$RATELIMIT" "$filelist" -O "$repofile" || { warn "Could not retrieve %s\n" $filelist; continue; }
 
                 msg "Extracting [%s] file list... " $repo
                 mkdir -p "$repo.tmp" || { warn "Could not create temporary directory for %s\n" $repo; continue; }
