@@ -58,7 +58,7 @@ elif [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
 fi
 
-readonly MYVERSION=9.0
+readonly MYVERSION=10.0
 SEARCHTARGET=
 ACTION=
 UPDATE=0
@@ -362,6 +362,11 @@ while [ $# -gt 0 ]; do
                 -v|--verbose)
                         VERBOSE=1
                         ;;
+                --)
+                        # It's ok if $2 is empty here, we want null if there's nothing.
+                        [ -z "$ACTION" ] && ACTION=$DEFAULT_ACTION
+                        SEARCHTARGET="$2"; break
+                        ;;
                 *)
                         [ -z "$ACTION" ] && ACTION=$DEFAULT_ACTION
                         SEARCHTARGET="$1"
@@ -370,7 +375,7 @@ while [ $# -gt 0 ]; do
         shift
 done
 
-if [ -z "$SEARCHTARGET" ]; then
+if [ -z "$SEARCHTARGET" -a "$ACTION" != 'update' ]; then
         die 1 "No target specified to search for!\n"
 fi
 
