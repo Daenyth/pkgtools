@@ -156,7 +156,19 @@ update () {
 
                 msg "Updating [%s] file list... " $repo
                 vmsg "Trying mirror %s... " $mirror
-                wget -q "$RATELIMIT" "$filelist" -O "$repofile" || { warn "Could not retrieve %s\n" $filelist; continue; }
+                if [[ "$mirror" =~ '^file://' ]]; then
+                    localfilelist="${filelist#file://}"
+                    vmsg "File list is local at %s... " $localfilelist
+
+                    if [ ! -r "$localfilelist" ]; then
+                        warn "Cannot read local file list %s\n" $localfilelist
+                        continue
+                    else
+                        install -Dm644 "$localfilelist" "$repofile"
+                    fi
+                else
+                    wget -q "$RATELIMIT" "$filelist" -O "$repofile" || { warn "Could not retrieve %s\n" $filelist; continue; }
+                fi
 
                 msg "Extracting [%s] file list... " $repo
                 mkdir -p "$repo.tmp" || { warn "Could not create temporary directory for %s\n" $repo; continue; }
