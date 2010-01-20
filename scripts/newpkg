@@ -25,10 +25,10 @@ CONTRIB_INFO=
 BASEDIR="${HOME}/builds"
 
 if [ -r /usr/share/pkgtools/functions ]; then
-        source /usr/share/pkgtools/functions
+    source /usr/share/pkgtools/functions
 else
-        printf "Unable to source function file!\n" >&2
-        exit 1
+    printf "Unable to source function file!\n" >&2
+    exit 1
 fi
 
 ###
@@ -43,25 +43,25 @@ ACTIONS=()       # Better than $DOFOO TODO
 #ACTIONS=(pkgbuild installfile rcd abs)
 DOCOPYPKGBUILD=1 # Copy the prototype PKGBUILD
 DOCOPYINSTALL=0  # Copy the .install file
-DOABS=0          # Copy from ABS instead of normal operation TODO
+DOABS=0      # Copy from ABS instead of normal operation TODO
 ABSROOT='/var/abs'
 DOCOPYRC=0       # Copy the prototype rc.d script
-DOFORCE=0        # Overwrite existing files
+DOFORCE=0    # Overwrite existing files
 
 PROTO_PKGBUILD="${PROTODIR}/PKGBUILD.proto"
 PROTO_INSTALL="${PROTODIR}/proto.install"
 PROTO_RC="${PROTODIR}/rc-script.proto"
 
 if [ -r /etc/pkgtools/newpkg.conf ]; then
-        source /etc/pkgtools/newpkg.conf
+    source /etc/pkgtools/newpkg.conf
 fi
 if [ -r "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf" ]; then
-        source "${HOME}/pkgtools/newpkg.conf"
+    source "${HOME}/pkgtools/newpkg.conf"
 elif [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
-        source "${HOME}/.pkgtools/newpkg.conf"
-        warn 'Your newpkg.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
-        warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
-        warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
+    source "${HOME}/.pkgtools/newpkg.conf"
+    warn 'Your newpkg.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
+    warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
+    warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
 fi
 
 # {{{ usage()
@@ -69,147 +69,156 @@ function usage {
     msg "%s version %s -- A script to speed up creating new PKGBUILDs\n" "$PROGNAME" "$MYVERSION"
     msg "Usage: %s [options] PKGNAME\n" "$PROGNAME"
     msg "Options:\n"
-    msg "    -h --help          - Print this usage\n"
-    msg "    -f --force         - Overwrite existing files in the target dir\n"
+    msg "    -h --help      - Print this usage\n"
+    msg "    -f --force     - Overwrite existing files in the target dir\n"
     msg "    -i --install-file  - Copy the prototype .install file\n"
-    msg "    --rc               - Copy the protype for an rc.d script\n"
+    msg "    --rc           - Copy the protype for an rc.d script\n"
     msg "    -p --pkgbuild      - Specify the PKGBUILD file. If not absolute, the\n"
-    msg "                         filename is relative to %s.\n" "$PROGNAME"
-    msg "                         Use '-' to not copy any PKGBUILD\n"
-    msg "    --cvs              - Create a cvs PKGBUILD\n"
-    msg "    --darcs            - Create a darcs PKGBUILD\n"
-    msg "    --git              - Create a git PKGBUILD\n"
-    msg "    --svn              - Create a svn PKGBUILD\n"
+    msg "    --sf --sourceforge - Set url and source to common SourceForgeurls\n"
+    msg "             filename is relative to %s.\n" "$PROGNAME"
+    msg "             Use '-' to not copy any PKGBUILD\n"
+    msg "    --cvs          - Create a cvs PKGBUILD\n"
+    msg "    --darcs        - Create a darcs PKGBUILD\n"
+    msg "    --git          - Create a git PKGBUILD\n"
+    msg "    --svn          - Create a svn PKGBUILD\n"
     exit 0
 }
 # }}}
 
 # setpkgbuild() {{{
 setpkgbuild () {
-        if [ -z "$1" ]; then
-                die 1 "setpkgbuild() requires an argument!"
-        fi
-        case "$1" in
-                -)
-                        DOCOPYPKGBUILD=0
-                        ;;
-                /*)
-                        PROTO_PKGBUILD="$1"
-                        ;;
-                *)
-                        PROTO_PKGBUILD="${PROTODIR}/$1"
-                        ;;
-        esac
+    if [ -z "$1" ]; then
+        die 1 "setpkgbuild() requires an argument!"
+    fi
+    case "$1" in
+        -)
+            DOCOPYPKGBUILD=0
+            ;;
+        /*)
+            PROTO_PKGBUILD="$1"
+            ;;
+        *)
+            PROTO_PKGBUILD="${PROTODIR}/$1"
+            ;;
+    esac
 }
 # }}}
 
 # maketargetdir() {{{
 maketargetdir () {
-        if [ -d "$pkgdir" ]; then
-                if [ "$DOFORCE" -eq 1 ]; then
-                        warn "%s already exists in %s -- continuing anyway!\n" $pkgname $BASEDIR 
-                else
-                        die 1 "%s already exists in %s -- aborting\n" $pkgname $BASEDIR
-                fi
+    if [ -d "$pkgdir" ]; then
+        if [ "$DOFORCE" -eq 1 ]; then
+            warn "%s already exists in %s -- continuing anyway!\n" $pkgname $BASEDIR 
         else
-                mkdir -p "$pkgdir" || die 1 "Unable to create directory %s" "$pkgdir"
-                msg "Creating package dir for %s\n" $pkgname
+            die 1 "%s already exists in %s -- aborting\n" $pkgname $BASEDIR
         fi
+    else
+        mkdir -p "$pkgdir" || die 1 "Unable to create directory %s" "$pkgdir"
+        msg "Creating package dir for %s\n" $pkgname
+    fi
 }
 # }}}
 
 # copypkgbuild() {{{
 copypkgbuild () {
-        if [ -r "$PROTO_PKGBUILD" ]; then
-                msg "Copying prototype PKGBUILD\n"
-                cp "$PROTO_PKGBUILD" ./PKGBUILD || die 1 "Unable to copy PKGBUILD prototype\n"
-                sed -i "s#^pkgname=.*#pkgname=$pkgname#" PKGBUILD
+    if [ -r "$PROTO_PKGBUILD" ]; then
+        msg "Copying prototype PKGBUILD\n"
+        cp "$PROTO_PKGBUILD" ./PKGBUILD || die 1 "Unable to copy PKGBUILD prototype\n"
+        sed -i "s#^pkgname=.*#pkgname=$pkgname#" PKGBUILD
 
-                sed -i '/^# This is an example PKGBUILD/d' PKGBUILD
-                sed -i '/^# and remove these comments/d' PKGBUILD
-                sed -i '/^# NOTE: Please fill out/d' PKGBUILD
-                sed -i '/^# then please put/d' PKGBUILD
+        sed -i '/^# This is an example PKGBUILD/d' PKGBUILD
+        sed -i '/^# and remove these comments/d' PKGBUILD
+        sed -i '/^# NOTE: Please fill out/d' PKGBUILD
+        sed -i '/^# then please put/d' PKGBUILD
 
-                [ -n "$CONTRIB_INFO" ] && sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
-        else
-                warn "Could not find prototype PKGBUILD '%s'\n" "$PROTO_PKGBUILD"
+        [ -n "$CONTRIB_INFO" ] && sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
+
+        if [ "$SFURL" -eq 1 ]; then
+            sed -i 's#$pkgname-$pkgver.tar.gz#http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz#' $pkgdir/PKGBUILD
+            sed -i 's#url=""#url="http://$pkgname.sourceforge.net"#' $pkgdir/PKGBUILD
         fi
+    else
+        warn "Could not find prototype PKGBUILD '%s'\n" "$PROTO_PKGBUILD"
+    fi
 }
 # }}}
 
 # copyinstallfile() {{{
 copyinstallfile () {
-        if [ -r "$PROTO_INSTALL" ]; then 
-                msg "Copying prototype .install file\n"
-                cp "$PROTO_INSTALL" "./${pkgname}.install"
-                if [ -w PKGBUILD ]; then
-                        sed -i "s#^install=.*#install='${pkgname}.install'#" PKGBUILD
-                fi
-        else
-                warn "Could not find prototype .install\n"
+    if [ -r "$PROTO_INSTALL" ]; then 
+        msg "Copying prototype .install file\n"
+        cp "$PROTO_INSTALL" "./${pkgname}.install"
+        if [ -w PKGBUILD ]; then
+            sed -i "s#^install=.*#install='${pkgname}.install'#" PKGBUILD
         fi
+    else
+        warn "Could not find prototype .install\n"
+    fi
 }
 # }}}
 
 # copyrcd() {{{
 copyrcd () {
-        if [ -r "$PROTO_RC" ]; then 
-                msg "Copying prototype rc.d script\n"
-                cp "$PROTO_RC" "./${pkgname}.rc.d"
-                sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
-                if [ -w PKGBUILD ]; then
-                        sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
-                fi
-        else
-                warn "Could not find prototype rc.d script\n"
+    if [ -r "$PROTO_RC" ]; then 
+        msg "Copying prototype rc.d script\n"
+        cp "$PROTO_RC" "./${pkgname}.rc.d"
+        sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
+        if [ -w PKGBUILD ]; then
+            sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
         fi
+    else
+        warn "Could not find prototype rc.d script\n"
+    fi
 }
 # }}}
 
 if [ -z "$1" ]; then
-        usage
+    usage
 fi
 
 while [ "$#" -ne 0 ]; do
-        case $1 in
-                -h|--help) 
-                        usage
-                        ;;
-                -i|--install-file)     
-                        DOCOPYINSTALL=1
-                        ;;
-                --rc)
-                        DOCOPYRC=1
-                        ;;
-                -f|--force)
-                        DOFORCE=1
-                        ;;
-                -p|--pkgbuild)
-                        if [ -z "$2" ]; then
-                                die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
-                        fi
-                        setpkgbuild "$2"; shift
-                        ;;
-                --cvs)
-                        setpkgbuild "PKGBUILD-cvs.proto"
-                        ;;
-                --darcs)
-                        setpkgbuild "PKGBUILD-darcs.proto"
-                        ;;
-                --git)
-                        setpkgbuild "PKGBUILD-git.proto"
-                        ;;
-                --svn)
-                        setpkgbuild "PKGBUILD-svn.proto"
-                        ;;
-                -*)
-                        die 1 "Unrecognized option %s\n" "$1"
-                        ;;
-                *)      
-                        pkgname=$(echo $1 | sed 's; ;;g' | sed 's;/$;;')
-                        ;;
-        esac
-        shift
+    case $1 in
+        -h|--help) 
+            usage
+            ;;
+        -i|--install-file)     
+            DOCOPYINSTALL=1
+            ;;
+        --rc)
+            DOCOPYRC=1
+            ;;
+        -f|--force)
+            DOFORCE=1
+            ;;
+        -p|--pkgbuild)
+            if [ -z "$2" ]; then
+                die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
+            fi
+            setpkgbuild "$2"; shift
+            ;;
+        --sf|--sourceforge)
+            SFURL=1
+            ;;
+        --cvs)
+            setpkgbuild "PKGBUILD-cvs.proto"
+            ;;
+        --darcs)
+            setpkgbuild "PKGBUILD-darcs.proto"
+            ;;
+        --git)
+            setpkgbuild "PKGBUILD-git.proto"
+            ;;
+        --svn)
+            setpkgbuild "PKGBUILD-svn.proto"
+            ;;
+        -*)
+            die 1 "Unrecognized option %s\n" "$1"
+            ;;
+        *)      
+            pkgname=$(echo $1 | sed 's; ;;g' | sed 's;/$;;')
+            ;;
+    esac
+    shift
 done
 
 [ -z "$pkgname" ] && die 1 "No package name supplied\n"
@@ -219,15 +228,15 @@ maketargetdir
 cd "$pkgdir" || die 1 "Unable to change directory to %s\n" "$pkgdir"
 
 if [ "$DOCOPYPKGBUILD" -eq 1 ]; then
-        copypkgbuild 
+    copypkgbuild
 fi
 
 if [ "$DOCOPYINSTALL" -eq 1 ]; then
-        copyinstallfile
+    copyinstallfile
 fi
 
 if [ "$DOCOPYRC" -eq 1 ]; then
-        copyrcd
+    copyrcd
 fi
 
 msg "All done! New package prepared in %s\n" $pkgdir
