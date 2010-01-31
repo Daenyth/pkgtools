@@ -56,7 +56,7 @@ if [ -r /etc/pkgtools/newpkg.conf ]; then
     source /etc/pkgtools/newpkg.conf
 fi
 if [ -r "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf" ]; then
-    source "${HOME}/pkgtools/newpkg.conf"
+    source "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf"
 elif [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
     source "${HOME}/.pkgtools/newpkg.conf"
     warn 'Your newpkg.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
