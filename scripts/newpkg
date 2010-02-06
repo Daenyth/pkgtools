@@ -69,18 +69,19 @@ function usage {
     msg "%s version %s -- A script to speed up creating new PKGBUILDs\n" "$PROGNAME" "$MYVERSION"
     msg "Usage: %s [options] PKGNAME\n" "$PROGNAME"
     msg "Options:\n"
-    msg "    -h --help      - Print this usage\n"
-    msg "    -f --force     - Overwrite existing files in the target dir\n"
+    msg "    -h --help          - Print this usage\n"
+    msg "    -f --force         - Overwrite existing files in the target dir\n"
     msg "    -i --install-file  - Copy the prototype .install file\n"
-    msg "    --rc           - Copy the protype for an rc.d script\n"
+    msg "    --rc               - Copy the protype for an rc.d script\n"
     msg "    -p --pkgbuild      - Specify the PKGBUILD file. If not absolute, the\n"
-    msg "    --sf --sourceforge - Set url and source to common SourceForgeurls\n"
-    msg "             filename is relative to %s.\n" "$PROGNAME"
-    msg "             Use '-' to not copy any PKGBUILD\n"
-    msg "    --cvs          - Create a cvs PKGBUILD\n"
-    msg "    --darcs        - Create a darcs PKGBUILD\n"
-    msg "    --git          - Create a git PKGBUILD\n"
-    msg "    --svn          - Create a svn PKGBUILD\n"
+    msg "                         filename is relative to %s.\n" "$PROGNAME"
+    msg "                         Use '-' to not copy any PKGBUILD\n"
+    msg "    --sf --sourceforge - Set url and source to common Sourceforge urls\n"
+    msg "    --split            - Create a split PKGBUILD\n"
+    msg "    --cvs              - Create a cvs PKGBUILD\n"
+    msg "    --darcs            - Create a darcs PKGBUILD\n"
+    msg "    --git              - Create a git PKGBUILD\n"
+    msg "    --svn              - Create a svn PKGBUILD\n"
     exit 0
 }
 # }}}
@@ -130,6 +131,10 @@ copypkgbuild () {
         sed -i '/^# and remove these comments/d' PKGBUILD
         sed -i '/^# NOTE: Please fill out/d' PKGBUILD
         sed -i '/^# then please put/d' PKGBUILD
+        sed -i '/^# This is an example of a/d' PKGBUILD
+        sed -i '/^# start to creating your/d' PKGBUILD
+        sed -i "/^# see 'man PKGBUILD'. NOTE/d" PKGBUILD
+        sed -i '/^# If it is unknown, then/d' PKGBUILD
 
         [ -n "$CONTRIB_INFO" ] && sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
 
@@ -198,6 +203,9 @@ while [ "$#" -ne 0 ]; do
             ;;
         --sf|--sourceforge)
             SFURL=1
+            ;;
+        --split)
+            setpkgbuild "PKGBUILD-split.proto"
             ;;
         --cvs)
             setpkgbuild "PKGBUILD-cvs.proto"
