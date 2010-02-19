@@ -65,5 +65,8 @@ build() {
 
   # whoneeds
   install -Dm755 "scripts/whoneeds.bash"   "${pkgdir}/usr/bin/whoneeds"
+
+  # pkgclean
+  install -Dm755 "scripts/pkgclean"        "${pkgdir}/usr/bin/pkgclean"
 }
 # vim:set ts=2 sw=2 et:
