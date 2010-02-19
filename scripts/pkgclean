@@ -1,0 +1,98 @@
+#!/bin/bash
+###
+# pkgclean - Tidy up a PKGBUILD directory
+# This program is a part of pkgtools
+
+# Copyright (C) 2010 Daenyth <Daenyth+Arch _AT_ gmail _DOT_ com>
+#
+# Pkgtools is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# Pkgtools is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+
+PKGTOOLS_DIR='/usr/share/pkgtools/'
+CONFIG_DIR='/etc/pkgtools/'
+
+if [ -r "$PKGTOOLS_DIR/functions" ]; then
+    source "$PKGTOOLS_DIR/functions"
+else
+    printf "Unable to source function file!\n" >&2
+    exit 1
+fi
+
+clean_makedirs () {
+    [[ -d pkg ]] && rm -rf pkg
+    [[ -d src ]] && rm -rf src
+}
+
+clean_srcpkgs () {
+    . /etc/makepkg.conf
+    if [[ -n $SRCDEST ]]; then
+        mv -f *"$SRCEXT" "$SRCDEST"
+    elif [[ $PURGE ]]; then
+        rm -f *"$SRCEXT"
+    else
+        return 1
+    fi
+}
+
+clean_pkgs () {
+    . /etc/makepkg.conf
+    if [[ -n $PKGDEST ]]; then
+        mv -f *"$PKGEXT" "$PKGDEST"
+    elif [[ $PURGE ]]; then
+        rm -f *"$PKGEXT"
+    else
+        return 1
+    fi
+}
+
+clean_downloads () {
+    . PKGBUILD
+    for file in "${source[@]}" "$install"; do
+        if echo $file | grep -qv '://'; then
+            file=$(echo $file | sed 's/::.*//')
+            rm -f "$file"
+        fi
+    done
+}
+
+clean_cruft () {
+    [[ $PURGE ]] || return 1
+
+    . PKGBUILD
+    declare -A noremove
+    for file in "${source[@]}" "$install"; do
+        noremove["$file"]=1
+    done
+
+    for file in *; do
+        if [[ ${noremove["$file"]} != 1 ]]; then
+            rm -f "$file"
+        fi
+    done
+}
+
+clean_all () {
+    clean_makedirs
+    clean_pkgs
+    clean_srcpkgs
+    clean_downloads
+    clean_cruft
+}
+
+[[ $1 == '--purge' ]] && PURGE=1
+[[ -f PKGBUILD ]] || die "Not a PKGBUILD dir!"
+clean_all
+
+# vim: set ts=4 sw=4 et :
