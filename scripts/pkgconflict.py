@@ -5,7 +5,7 @@
 # existing packages.
 # This program is a part of pkgtools
 
-# Copyright (C) 2009 Chris Brannon <cmbrannon79 _AT_ gmail _DOT_ com>
+# Copyright (C) 2009-2010 Chris Brannon <cmbrannon79 _AT_ gmail _DOT_ com>
 #
 # Pkgtools is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
