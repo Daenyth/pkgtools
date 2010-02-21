@@ -60,9 +60,10 @@ clean_pkgs () {
 clean_downloads () {
     . PKGBUILD
     for file in "${source[@]}" "$install"; do
-        if echo $file | grep -qv '://'; then
-            file=$(echo $file | sed 's/::.*//')
-            rm -f "$file"
+        if echo $file | grep -q '://'; then
+            file=$(echo $file | sed 's|::.*$||') # If file was renamed by makepkg, get the real name
+            file=$(echo $file | sed 's|^.*/||')  # Remove URL bits to get filename
+            [ -f "$file" ] && rm -f "$file"
         fi
     done
 }
