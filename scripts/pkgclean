@@ -31,34 +31,47 @@ else
 fi
 
 clean_makedirs () {
+    vmsg "Cleaning leftover makepkg directories... "
     [[ -d pkg ]] && rm -rf pkg
     [[ -d src ]] && rm -rf src
+    vmsg "Done.\n"
 }
 
 clean_srcpkgs () {
     . /etc/makepkg.conf
+    vmsg "Cleaning source packages... "
     if [[ -n $SRCDEST ]]; then
+        vmsg "Moving to \$SRCDEST... "
         mv -f *"$SRCEXT" "$SRCDEST"
     elif [[ $PURGE ]]; then
+        vmsg "Purging... "
         rm -f *"$SRCEXT"
     else
+        vmsg "Aborted.\n"
         return 1
     fi
+    vmsg "Done.\n"
 }
 
 clean_pkgs () {
     . /etc/makepkg.conf
+    vmsg "Cleaning built packages... "
     if [[ -n $PKGDEST ]]; then
+        vmsg "Moving to \$PKGDEST... "
         mv -f *"$PKGEXT" "$PKGDEST"
     elif [[ $PURGE ]]; then
+        vmsg "Purging... "
         rm -f *"$PKGEXT"
     else
+        vmsg "Aborted.\n"
         return 1
     fi
+    vmsg "Done.\n"
 }
 
 clean_downloads () {
     . PKGBUILD
+    vmsg "Cleaning downloaded source files... "
     for file in "${source[@]}" "$install"; do
         if echo $file | grep -q '://'; then
             file=$(echo $file | sed 's|::.*$||') # If file was renamed by makepkg, get the real name
@@ -66,10 +79,12 @@ clean_downloads () {
             [ -f "$file" ] && rm -f "$file"
         fi
     done
+    vmsg "Done.\n"
 }
 
 clean_cruft () {
     [[ $PURGE ]] || return 1
+    vmsg "Purging all non-required files... "
 
     . PKGBUILD
     declare -A noremove
@@ -82,6 +97,7 @@ clean_cruft () {
             rm -f "$file"
         fi
     done
+    vmsg "Done.\n"
 }
 
 clean_all () {
