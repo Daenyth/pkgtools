@@ -29,6 +29,7 @@ else
     printf "Unable to source function file!\n" >&2
     exit 1
 fi
+VERBOSE=0
 
 clean_makedirs () {
     vmsg "Cleaning leftover makepkg directories... "
