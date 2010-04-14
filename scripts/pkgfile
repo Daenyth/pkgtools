@@ -25,7 +25,8 @@
 ##
 PKGTOOLS_DIR='/usr/share/pkgtools/'
 CONFIG_DIR='/etc/pkgtools/'
-FILELIST_DIR="/var/cache/pkgtools/lists"
+FILELIST_DIR='/var/cache/pkgtools/lists'
+LOCKFILE='/var/lock/pkgfile'
 RATELIMIT= # Argument to wget's --limit-rate flag
 
 if [ -r "$PKGTOOLS_DIR/functions" ]; then
@@ -58,7 +59,7 @@ elif [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
         warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
 fi
 
-readonly MYVERSION=10.0
+readonly MYVERSION=10.1
 SEARCHTARGET=
 ACTION=
 UPDATE=0
@@ -135,8 +136,28 @@ usage () {
 }
 # }}}
 
+# lock() -- lock a file at $1 or die {{{
+lock() {
+        if [[ -f $LOCKFILE ]]; then
+                die 1 "Unable to take lock at %s [pid %d]!\n" "$LOCKFILE" "$(cat "$LOCKFILE")"
+        fi
+        echo $$ > "$LOCKFILE"
+}
+# }}}
+
+# unlock() -- remove lock file at $1 {{{
+unlock() {
+        rm -f "$LOCKFILE"
+}
+# }}}
+
 # update() -- update the package file list {{{
 update () {
+        lock || return 1 # Yeah so lock() dies on fail right now, but maybe not later
+        # Ensure that we don't suck when exiting in a non-normal way
+        trap 'unlock; die 1 "Caught SIGINT -- aborting!\n"' SIGINT
+        trap 'unlock; die 1 "Killed!\n"' SIGTERM
+
         local target_repo="$1"
         cd_filelist_dir
         local repo_done=()
@@ -182,6 +203,7 @@ update () {
 
                 [ $DEBUG -ge 2 ] && set +x
         done
+        unlock || warn "Failed to unlock %s" "$LOCKFILE"
         quit 0
 }
 # }}}
