@@ -69,17 +69,18 @@ umask 0022 # This will ensure that any files we create are readable by normal us
 
 # cd_filelist_dir() {{{
 cd_filelist_dir () {
-        [ 'noempty' != "$1" ] && check_filelist_dir
+        [[ 'noempty' != "$1" ]] && check_filelist_dir
 
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
-        if [[ 'noempty' == "$1" ]]; then
+        if [[ $1 == 'noempty' ]]; then
                 # */* expanded is really ugly
-                [ $DEBUG -ge 2 ] && set +x
+                (( DEBUG >= 2 )) && set +x
+                # TODO: De-uglify
                 if echo */* | grep -q '^\*/\*$'; then
                         die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
                 fi
         fi
-        [ $DEBUG -ge 2 ] && set -x
+        (( DEBUG >= 2 )) && set -x
 }
 # }}}
 
@@ -166,11 +167,11 @@ update () {
                 | sed "s|.*adding new server URL to database '\(.*\)': \(.*\)|\1 \2|g"
                 ) | while read repo mirror
 	do
-                [ $DEBUG -ge 2 ] && set -x
+                (( DEBUG >= 2 )) && set -x
 
-                [ -n "$target_repo" ] && [ "$repo" != "$target_repo" ] && continue
+                [[ -n $target_repo ]] && [[ $repo != $target_repo ]] && continue
                 in_array "$repo" "${repo_done[@]}" && continue
-                [ -n "$REPOS" ] && ! in_array "$repo" "${REPOS[@]}" && continue
+                [[ -n $REPOS ]] && ! in_array "$repo" "${REPOS[@]}" && continue
 
                 repofile="${repo}.files.tar.gz"
                 filelist="${mirror}/${repofile}"
@@ -201,7 +202,7 @@ update () {
                 repo_done=( "${repo_done[@]}" "$repo" )
                 msg "Done\n"
 
-                [ $DEBUG -ge 2 ] && set +x
+                (( DEBUG >= 2 )) && set +x
         done
         unlock || warn "Failed to unlock %s" "$LOCKFILE"
         quit 0
@@ -210,7 +211,7 @@ update () {
 
 # search() -- find which package owns a file {{{
 search () {
-        (( DEBUG > 2 )) && set -x
+        (( DEBUG >= 2 )) && set -x
 
         local GREP_ARGS=
         (( ! CASE_SENSITIVE )) && GREP_ARGS='-i'
@@ -261,12 +262,12 @@ search () {
         if (( ! VERBOSE )); then
                 local sedstring='s#-[0-9.A-Za-z_]*-[0-9.]*/files:.*##'
         else
-                local sedstring='s#-\([0-9.A-Za-z_]*-[0-9.]*\)/files:# (\1) : /#' 
+                local sedstring='s#-\([0-9.A-Za-z_]*-[0-9.]*\)/files:# (\1) : /#'
         fi
 
         # */* expanded is really ugly
-        [ $DEBUG -ge 2 ] && set +x
-        [ $DEBUG -ge 1 ] && echo "\$fname = '$fname'"
+        (( DEBUG )) && echo "\$fname = '$fname'"
+        (( DEBUG >= 2 )) && set +x
         grep $GREP_ARGS -R -E --include="files" "$fname" * | sed "$sedstring" | uniq
 
         quit 0
@@ -290,10 +291,10 @@ listfiles () {
         fi
 
         cd_filelist_dir noempty
-        pkg_escaped=$(regex_escape "$pkg") 
+        pkg_escaped=$(regex_escape "$pkg")
         for repo in *; do
-                [ -d $repo ] || continue
-                [ $DEBUG -ge 2 ] && set -x
+                [[ -d $repo ]] || continue
+                (( DEBUG >= 2 )) && set -x
                 local findarg="$repo/$pkg_escaped-[^-]+-[^-]+$"
                 local findresult="$(\
                         find "$repo" -type d -regex "$findarg" | while read line; do
@@ -309,7 +310,7 @@ listfiles () {
                         fi
 
                 fi
-                [ $DEBUG -ge 2 ] && set +x
+                (( DEBUG >= 2 )) && set +x
         done
         if (( ! FOUNDFILE )); then
                 msg "Package '%s' not found\n" "$pkg"
@@ -398,11 +399,11 @@ while [[ $# -gt 0 ]]; do
                         ;;
                 --)
                         # It's ok if $2 is empty here, we want null if there's nothing.
-                        [ -z "$ACTION" ] && ACTION=$DEFAULT_ACTION
+                        [[ -z $ACTION ]] && ACTION=$DEFAULT_ACTION
                         SEARCHTARGET="$2"; break
                         ;;
                 *)
-                        [ -z "$ACTION" ] && ACTION=$DEFAULT_ACTION
+                        [[ -z $ACTION ]] && ACTION=$DEFAULT_ACTION
                         SEARCHTARGET="$1"
                         ;;
         esac
