@@ -136,7 +136,7 @@ usage () {
 }
 # }}}
 
-# lock() -- lock a file at $1 or die {{{
+# lock() -- lock $LOCKFILE or die {{{
 lock() {
         if [[ -f $LOCKFILE ]]; then
                 die 1 "Unable to take lock at %s [pid %d]!\n" "$LOCKFILE" "$(cat "$LOCKFILE")"
@@ -145,7 +145,7 @@ lock() {
 }
 # }}}
 
-# unlock() -- remove lock file at $1 {{{
+# unlock() -- remove $LOCKFILE {{{
 unlock() {
         rm -f "$LOCKFILE"
 }
