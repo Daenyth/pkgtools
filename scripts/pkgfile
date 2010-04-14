@@ -29,7 +29,7 @@ FILELIST_DIR='/var/cache/pkgtools/lists'
 LOCKFILE='/var/lock/pkgfile'
 RATELIMIT= # Argument to wget's --limit-rate flag
 
-if [ -r "$PKGTOOLS_DIR/functions" ]; then
+if [[ -r $PKGTOOLS_DIR/functions ]]; then
         source "$PKGTOOLS_DIR/functions"
 else
         printf "Unable to source function file!\n" >&2
@@ -47,12 +47,12 @@ GLOBBING=0 # Allow a search to use globs; * and ? as basic wildcards
 CASE_SENSITIVE=0 # Case sensitive filename searching?
 DEFAULT_ACTION=search
 
-if [ -r "$CONFIG_DIR/pkgfile.conf" ]; then
+if [[ -r $CONFIG_DIR/pkgfile.conf ]]; then
         source "$CONFIG_DIR/pkgfile.conf"
 fi
-if [ -r "${XDG_CONFIG_HOME}/pkgtools/pkgfile.conf" ]; then
+if [[ -r ${XDG_CONFIG_HOME}/pkgtools/pkgfile.conf ]]; then
         source "${XDG_CONFIG_HOME}/pkgtools/pkgfile.conf"
-elif [ -r "${HOME}/.pkgtools/pkgfile.conf" ]; then
+elif [[ -r ${HOME}/.pkgtools/pkgfile.conf ]]; then
         source "${HOME}/.pkgtools/pkgfile.conf"
         warn 'Your pkgfile.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
         warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
@@ -72,7 +72,7 @@ cd_filelist_dir () {
         [ 'noempty' != "$1" ] && check_filelist_dir
 
         cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
-        if [ 'noempty' == "$1" ]; then
+        if [[ 'noempty' == "$1" ]]; then
                 # */* expanded is really ugly
                 [ $DEBUG -ge 2 ] && set +x
                 if echo */* | grep -q '^\*/\*$'; then
@@ -85,11 +85,11 @@ cd_filelist_dir () {
 
 # check_filelist_dir() -- Check for existance and correct pemissions for $FILELIST_DIR {{{
 check_filelist_dir () {
-                if [ ! -d "$FILELIST_DIR" ]; then
+                if [[ ! -d "$FILELIST_DIR" ]]; then
                         warn "%s does not exist -- creating " $FILELIST_DIR
                         mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
                 fi
-                if [ ! -w "$FILELIST_DIR" ];then
+                if [[ ! -w "$FILELIST_DIR" ]];then
                         die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
                 fi
 }
@@ -97,7 +97,7 @@ check_filelist_dir () {
 
 # regex_escape() -- Takes a string and returns an version with regex metacharacters escaped (For grep -E) {{{
 regex_escape () {
-        if [ $GLOBBING -eq 1 ]; then
+        if (( GLOBBING )); then
                 echo "$1" | sed -e 's|[].+$^{}\|[]|\\&|g' -e 's|[*]|[^/]*|g; s|[?]|.|g'
         else
                 echo "$1" | sed -e 's|[].+*?$^{}\|[]|\\&|g'
@@ -181,7 +181,7 @@ update () {
                     localfilelist="${filelist#file://}"
                     vmsg "File list is local at %s... " $localfilelist
 
-                    if [ ! -r "$localfilelist" ]; then
+                    if [[ ! -r "$localfilelist" ]]; then
                         warn "Cannot read local file list %s\n" $localfilelist
                         continue
                     else
@@ -210,34 +210,34 @@ update () {
 
 # search() -- find which package owns a file {{{
 search () {
-        [ $DEBUG -ge 2 ] && set -x
+        (( DEBUG > 2 )) && set -x
 
         local GREP_ARGS=
-        [ $CASE_SENSITIVE -eq 0 ] && GREP_ARGS='-i'
+        (( ! CASE_SENSITIVE )) && GREP_ARGS='-i'
 
-        if [ $REMOTE_SEARCH -eq 0  -a "$ACTION" != 'regex' ]; then
-                if [ "${1:0:1}" = '/' ]; then
-                        if [ -e "$1" -a -d "$1" ]; then
+        if (( ! REMOTE_SEARCH )) && [[ $ACTION != 'regex' ]]; then
+                if [[ ${1:0:1} == '/' ]]; then
+                        if [[ -e $1 && ! -d $1 ]]; then
                                 local target="$1"
                         fi
-                elif [ $BINARIES -eq 1 ]; then
+                elif (( BINARIES )); then
                         if which "$1" &>/dev/null; then
                                 local target="$(which "$1")"
                         fi
                 fi
-                if [ -n "$target" ]; then
+                if [[ -n $target ]]; then
                         local owner # split this on two lines so `local` doesn't hijack $?
                         owner=$(pacman -Qqo "$target" 2>&1)
                         local ret=$?
-                        if [ $ret -eq 0 ]; then
+                        if (( ret == 0 )); then
                                 echo "local/$owner"
                         fi
                         quit $ret
                 fi
         fi
 
-        if [ "$ACTION" = 'regex' ]; then
-                [ $BINARIES -eq 1 ] && warn "Warning: Binary searching cannot be combined with regex search. Ignoring this option\n"
+        if [[ $ACTION = 'regex' ]]; then
+                (( BINARIES )) && warn "Warning: Binary searching cannot be combined with regex search. Ignoring this option\n"
                 local fname="$1"
         else
                 local fname="$(regex_escape "$1")"
@@ -247,8 +247,8 @@ search () {
                 # This will fix grep's regex to prevent false positives
 
                 # Only search for binaries when we are not given an absolute path, and do not have globbing on.
-                if [ $BINARIES -eq 1 -a "${fname:0:1}" != '^' ]; then
-                        if [ $GLOBBING -eq 0 ]; then
+                if (( BINARIES )) && [[ ${fname:0:1} != '^' ]]; then
+                        if (( ! GLOBBING )); then
                                 fname="$(echo $fname | sed 's|^/|/s?bin/|')"
                         else
                                 warn "Warning: Binary searching cannot be combined with glob search. Ignoring this option\n"
@@ -258,7 +258,7 @@ search () {
 
         cd_filelist_dir noempty
 
-        if [ "$VERBOSE" -eq 0 ]; then
+        if (( ! VERBOSE )); then
                 local sedstring='s#-[0-9.A-Za-z_]*-[0-9.]*/files:.*##'
         else
                 local sedstring='s#-\([0-9.A-Za-z_]*-[0-9.]*\)/files:# (\1) : /#' 
@@ -278,9 +278,9 @@ listfiles () {
         local pkg="$1"
         local FOUNDFILE=0
 
-        if [ $REMOTE_SEARCH -eq 0 ]; then
+        if (( ! REMOTE_SEARCH )); then
                 if pacman -Q "$pkg" &> /dev/null; then
-                        if [ $BINARIES -eq 0 ]; then
+                        if (( ! BINARIES )); then
                                 pacman -Ql "$pkg"
                         else
                                 pacman -Ql "$pkg" | grep -E '/s?bin/.'
@@ -300,9 +300,9 @@ listfiles () {
                                 filelist="$line/files"
                                 sed -n "1d;s|^|$pkg /|p" "$filelist" | sort # Give it output like pacman -Ql
                         done)"
-                if [ -n "$findresult" ]; then
+                if [[ -n $findresult ]]; then
                         FOUNDFILE=1
-                        if [ $BINARIES -eq 0 ]; then
+                        if (( ! BINARIES )); then
                                 echo "$findresult"
                         else
                                 echo "$findresult" | grep -E '/s?bin/.'
@@ -311,7 +311,7 @@ listfiles () {
                 fi
                 [ $DEBUG -ge 2 ] && set +x
         done
-        if [ "$FOUNDFILE" -eq 0 ]; then
+        if (( ! FOUNDFILE )); then
                 msg "Package '%s' not found\n" "$pkg"
                 return 1
         fi
@@ -322,11 +322,11 @@ listfiles () {
 # pkgquery() -- similar to rpm -Qf {{{
 pkgquery () {
         local fname="$1"
-        
+
         # If the file is local we can take some shortcuts to improve speed.
-        if [ -e "$fname" -a $REMOTE_SEARCH -eq 0 ]; then
+        if [[ -e $fname ]] && (( ! REMOTE_SEARCH )); then
                 local pkgname=$(LC_ALL=C pacman -Qqo "$fname" 2>&1)
-                if [[ "$pkgname" =~ 'error: ' ]]; then
+                if [[ $pkgname =~ 'error: ' ]]; then
                         die 1 'Unable to find package info for file %s\n' "$fname"
                 fi
                 pkgname=$(echo $pkgname | cut -d' ' -f1)
@@ -338,7 +338,7 @@ pkgquery () {
 }
 # }}}
 
-if [ -z "$1" ]; then
+if [[ -z $1 ]]; then
         usage
 fi
 
@@ -350,12 +350,12 @@ OPT_TEMP="$(getopt -o "$OPT_SHORT" -l "$OPT_LONG" -n "$PROGNAME" -- "$@" || echo
 if echo "$OPT_TEMP" | grep -q 'GETOPT GO BANG!'; then
         # This is a small hack to stop the script bailing with 'set -e'
         echo
-        usage 1 
+        usage 1
 fi
 eval set -- "$OPT_TEMP"
 unset OPT_SHORT OPT_LONG OPT_TEMP
 
-while [ $# -gt 0 ]; do
+while [[ $# -gt 0 ]]; do
         case "$1" in
                 -b|--binaries)
                         BINARIES=1
@@ -409,11 +409,11 @@ while [ $# -gt 0 ]; do
         shift
 done
 
-if [ -z "$SEARCHTARGET" -a "$ACTION" != 'update' ]; then
+if [[ -z $SEARCHTARGET && $ACTION != 'update' ]]; then
         die 1 "No target specified to search for!\n"
 fi
 
-if [ -n "$RATELIMIT" ]; then
+if [[ -n $RATELIMIT ]]; then
         RATELIMIT="--limit-rate='$RATELIMIT'"
 fi
 
