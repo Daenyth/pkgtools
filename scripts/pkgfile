@@ -245,7 +245,7 @@ search () {
         # */* expanded is really ugly
         [ $DEBUG -ge 2 ] && set +x
         [ $DEBUG -ge 1 ] && echo "\$fname = '$fname'"
-        grep $GREP_ARGS -R -E "$fname" */* | sed "$sedstring" | uniq
+        grep $GREP_ARGS -R -E --include="files" "$fname" * | sed "$sedstring" | uniq
 
         quit 0
 }
