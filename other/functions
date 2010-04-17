@@ -1,40 +1,40 @@
 #!/bin/bash
 
 die () {
-        local ret=$1; 
-        local warning="$2"; shift 2
-        warn "${warning:-Unknown error}" "$@"
-        quit ${ret:-1}
+    local ret=$1; 
+    local warning="$2"; shift 2
+    warn "${warning:-Unknown error}" "$@"
+    quit ${ret:-1}
 }
 
 warn () {
-        local message="$1"; shift
-        printf "$message" "$@" 1>&2
+    local message="$1"; shift
+    printf "$message" "$@" 1>&2
 }
 
 quit () {
-        exit ${1:-0}
+    exit ${1:-0}
 }
 
 msg  () {
-        local message="$1"
-        shift
-        printf "$message" $@
+    local message="$1"
+    shift
+    printf "$message" $@
 }
 
 vmsg () {
-        [ $VERBOSE -ge 1 ] && msg "$@"
+    [ $VERBOSE -ge 1 ] && msg "$@"
 }
 
 in_array() {
-        [ $# -lt 2 ] && return 1
-        needle=$1
-        shift
-        for item
-        do 
-                [ "$item" = "$needle" ] && return 0
-        done
-        return 1
+    [ $# -lt 2 ] && return 1
+    needle=$1
+    shift
+    for item
+    do 
+        [ "$item" = "$needle" ] && return 0
+    done
+    return 1
 }
 
 load_config() {
@@ -53,4 +53,4 @@ load_config() {
     fi
 }
 
-# vim: set ts=8 et:
+# vim: set ts=4 sw=4 et:
