@@ -32,6 +32,12 @@ else
     printf "Unable to source function file!\n" >&2
     exit 1
 fi
+if [ -r /usr/share/pkgtools/functions.newpkg ]; then
+    source /usr/share/pkgtools/functions.newpkg
+else
+    printf "Unable to source newpkg function file!\n" >&2
+    exit 1
+fi
 
 ###
 # Lines below this point should not need to be edited.
@@ -50,11 +56,8 @@ ABSROOT='/var/abs'
 DOCOPYRC=0       # Copy the prototype rc.d script
 DOFORCE=0    # Overwrite existing files
 
-PROTO_PKGBUILD="${PROTODIR}/PKGBUILD.proto"
-PROTO_INSTALL="${PROTODIR}/proto.install"
-PROTO_RC="${PROTODIR}/rc-script.proto"
-
 load_config 'newpkg.conf'
+
 
 # {{{ usage()
 function usage {
@@ -75,25 +78,6 @@ function usage {
     msg "    --git              - Create a git PKGBUILD\n"
     msg "    --svn              - Create a svn PKGBUILD\n"
     exit 0
-}
-# }}}
-
-# setpkgbuild() {{{
-setpkgbuild () {
-    if [ -z "$1" ]; then
-        die 1 "setpkgbuild() requires an argument!"
-    fi
-    case "$1" in
-        -)
-            DOCOPYPKGBUILD=0
-            ;;
-        /*)
-            PROTO_PKGBUILD="$1"
-            ;;
-        *)
-            PROTO_PKGBUILD="${PROTODIR}/$1"
-            ;;
-    esac
 }
 # }}}
 
@@ -150,21 +134,6 @@ copyinstallfile () {
         fi
     else
         warn "Could not find prototype .install\n"
-    fi
-}
-# }}}
-
-# copyrcd() {{{
-copyrcd () {
-    if [ -r "$PROTO_RC" ]; then 
-        msg "Copying prototype rc.d script\n"
-        cp "$PROTO_RC" "./${pkgname}.rc.d"
-        sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
-        if [ -w PKGBUILD ]; then
-            sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
-        fi
-    else
-        warn "Could not find prototype rc.d script\n"
     fi
 }
 # }}}

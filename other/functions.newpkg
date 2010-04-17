@@ -1,0 +1,33 @@
+# setpkgbuild() {{{
+setpkgbuild () {
+    if [ -z "$1" ]; then
+        die 1 "setpkgbuild() requires an argument!"
+    fi
+    case "$1" in
+        -)
+            DOCOPYPKGBUILD=0
+            ;;
+        /*)
+            PROTO_PKGBUILD="$1"
+            ;;
+        *)
+            PROTO_PKGBUILD="${PROTODIR}/$1"
+            ;;
+    esac
+}
+# }}}
+
+# copyrcd() {{{
+copyrcd () {
+    if [ -r "$PROTO_RC" ]; then 
+        msg "Copying prototype rc.d script\n"
+        cp "$PROTO_RC" "./${pkgname}.rc.d"
+        sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
+        if [ -w PKGBUILD ]; then
+            sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
+        fi
+    else
+        warn "Could not find prototype rc.d script\n"
+    fi
+}
+# }}}
