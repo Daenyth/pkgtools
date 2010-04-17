@@ -34,7 +34,7 @@ fi
 ###
 # Lines below this point should not need to be edited.
 ##
-MYVERSION=4.0
+MYVERSION=5.0
 PROGNAME="$(basename $0)"
 
 PROTODIR='/usr/share/pacman'
