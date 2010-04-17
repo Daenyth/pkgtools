@@ -47,17 +47,7 @@ GLOBBING=0 # Allow a search to use globs; * and ? as basic wildcards
 CASE_SENSITIVE=0 # Case sensitive filename searching?
 DEFAULT_ACTION=search
 
-if [[ -r $CONFIG_DIR/pkgfile.conf ]]; then
-        source "$CONFIG_DIR/pkgfile.conf"
-fi
-if [[ -r ${XDG_CONFIG_HOME}/pkgtools/pkgfile.conf ]]; then
-        source "${XDG_CONFIG_HOME}/pkgtools/pkgfile.conf"
-elif [[ -r ${HOME}/.pkgtools/pkgfile.conf ]]; then
-        source "${HOME}/.pkgtools/pkgfile.conf"
-        warn 'Your pkgfile.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
-        warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
-        warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
-fi
+load_config 'pkgfile.conf'
 
 readonly MYVERSION=11.0
 SEARCHTARGET=

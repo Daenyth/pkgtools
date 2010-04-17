@@ -37,5 +37,20 @@ in_array() {
         return 1
 }
 
+load_config() {
+    local conffile="$1"
+
+    if [[ -r $CONFIG_DIR/$conffile ]]; then
+        source "$CONFIG_DIR/$conffile"
+    fi
+    if [[ -r ${XDG_CONFIG_HOME}/pkgtools/$conffile ]]; then
+        source "${XDG_CONFIG_HOME}/pkgtools/$conffile"
+    elif [[ -r ${HOME}/.pkgtools/$conffile ]]; then
+        source "${HOME}/.pkgtools/$conffile"
+        warn 'Your %s is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n' "$conffile"
+        warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
+        warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
+    fi
+}
 
 # vim: set ts=8 et:
