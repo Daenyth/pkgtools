@@ -23,9 +23,11 @@
 
 CONTRIB_INFO=
 BASEDIR="${HOME}/builds"
+CONFIG_DIR='/etc/pkgtools/'
+PKGTOOLS_DIR='/usr/share/pkgtools/'
 
-if [ -r /usr/share/pkgtools/functions ]; then
-    source /usr/share/pkgtools/functions
+if [[ -r $PKGTOOLS_DIR/functions ]]; then
+    . $PKGTOOLS_DIR/functions
 else
     printf "Unable to source function file!\n" >&2
     exit 1
@@ -52,17 +54,7 @@ PROTO_PKGBUILD="${PROTODIR}/PKGBUILD.proto"
 PROTO_INSTALL="${PROTODIR}/proto.install"
 PROTO_RC="${PROTODIR}/rc-script.proto"
 
-if [ -r /etc/pkgtools/newpkg.conf ]; then
-    source /etc/pkgtools/newpkg.conf
-fi
-if [ -r "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf" ]; then
-    source "${XDG_CONFIG_HOME}/pkgtools/newpkg.conf"
-elif [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
-    source "${HOME}/.pkgtools/newpkg.conf"
-    warn 'Your newpkg.conf is located in ~/.pkgtools. Pkgtools now uses $XDG_CONFIG_HOME.\n'
-    warn 'Make sure $XDG_CONFIG_DIR is set, then mv ~/.pkgtools into it\n'
-    warn '    mv ~/.pkgtools "$XDG_CONFIG_HOME/pkgtools"\n\n'
-fi
+load_config 'newpkg.conf'
 
 # {{{ usage()
 function usage {
