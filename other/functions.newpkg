@@ -1,0 +1,46 @@
+# setpkgbuild() {{{
+setpkgbuild () {
+    if [ -z "$1" ]; then
+        die 1 "setpkgbuild() requires an argument!"
+    fi
+    case "$1" in
+        /*)
+            PROTO_PKGBUILD="$1"
+            ;;
+        *)
+            PROTO_PKGBUILD="${PROTODIR}/$1"
+            ;;
+    esac
+}
+# }}}
+
+# add_action {{{
+add_action() {
+    ACTIONS[$1]=${2:-1}
+}
+# }}}
+
+# add_copy {{{
+add_copy() {
+    local from="$1"
+    local to="$2"
+    if [[ ! -r $from ]]; then
+        warn "Can't read %s, cancelling copy!\n" "$from"
+    fi
+    COPIES[$to]="$from"
+}
+# }}}
+
+# add_mod() {{{
+add_mod() {
+    local mod="$1"
+    MODIFICATIONS=("${MODIFICATIONS[@]}" "$1")
+}
+# }}}
+
+# set_url {{{
+set_url() {
+    sed -i 's#url=.*#url="http://$pkgname.sourceforge.net"#' PKGBUILD
+}
+# }}}
+

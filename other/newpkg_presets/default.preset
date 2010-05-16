@@ -1,0 +1,4 @@
+# Default newpkg preset. Equivalent to running "newpkg fooname" in v4.0
+
+[[ -z $PROTO_PKGBUILD ]] && setpkgbuild 'PKGBUILD.proto'
+add_action pkgbuild

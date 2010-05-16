@@ -1,0 +1,26 @@
+add_copy "$PROTO_PKGBUILD" PKGBUILD
+add_mod _strip_proto_comments
+add_mod _set_contributor
+add_mod _set_pkgname
+
+_strip_proto_comments() {
+    sed -i '/^# This is an example PKGBUILD/d' PKGBUILD
+    sed -i '/^# and remove these comments/d' PKGBUILD
+    sed -i '/^# NOTE: Please fill out/d' PKGBUILD
+    sed -i '/^# then please put/d' PKGBUILD
+    sed -i '/^# This is an example of a/d' PKGBUILD
+    sed -i '/^# start to creating your/d' PKGBUILD
+    sed -i "/^# see 'man PKGBUILD'. NOTE/d" PKGBUILD
+    sed -i '/^# If it is unknown, then/d' PKGBUILD
+    sed -i '1{/^$/d;}' PKGBUILD # Delete line 1, if it's empty
+}
+
+_set_contributor() {
+    [ -n "$CONTRIB_INFO" ] && sed -i "s/^# Contributor: .*/# Contributor: $CONTRIB_INFO/" PKGBUILD
+}
+
+_set_pkgname() {
+    sed -i "s#^pkgname=.*#pkgname=$pkgname#" PKGBUILD
+}
+
+

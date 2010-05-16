@@ -1,0 +1,7 @@
+add_copy "$PROTO_RC" "$pkgname.rc.d"
+add_mod _set_rcd
+
+_set_rcd() {
+    sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
+    sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
+}
