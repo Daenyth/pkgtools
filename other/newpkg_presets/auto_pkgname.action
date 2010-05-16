@@ -1,0 +1,19 @@
+# If the pkgname has a -vcs suffix, set the PKGBUILD proto to the right one automatically
+
+case "$pkgname" in
+    *-git)
+        setpkgbuild 'PKGBUILD-git.proto'
+        ;;
+    *-svn)
+        setpkgbuild 'PKGBUILD-svn.proto'
+        ;;
+    *-cvs)
+        setpkgbuild 'PKGBUILD-cvs.proto'
+        ;;
+    *-darcs)
+        setpkgbuild 'PKGBUILD-darcs.proto'
+        ;;
+    *-hg)
+        setpkgbuild 'PKGBUILD-hg.proto'
+        ;;
+esac
