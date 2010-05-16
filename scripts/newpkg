@@ -26,6 +26,7 @@ BASEDIR="${HOME}/builds"
 CONFIG_DIR='/etc/pkgtools/'
 PKGTOOLS_DIR='/usr/share/pkgtools/'
 PRESET_DIR="$PKGTOOLS_DIR/newpkg/presets"
+VERBOSE=0
 
 if [[ -r $PKGTOOLS_DIR/functions ]]; then
     . $PKGTOOLS_DIR/functions
@@ -72,6 +73,7 @@ function usage {
     msg "    -P --preset        - Use the specified modular preset\n"
     msg "    --sf --sourceforge - Set url and source to common Sourceforge urls\n"
     msg "    --split            - Create a split PKGBUILD\n"
+    msg "    -v --verbose       - Print more verbose messages\n"
     exit 0
 }
 # }}}
@@ -79,7 +81,7 @@ function usage {
 # make_pkgdir() {{{
 make_pkgdir () {
     mkdir -p "$pkgdir" || die 1 "Unable to create directory %s" "$pkgdir"
-    msg "Creating package dir for %s\n" $pkgname
+    vmsg "Creating package dir for %s\n" $pkgname
 
     cd "$pkgdir" || die 1 "Can't cd to %s!\n" "$pkgdir"
 }
@@ -87,6 +89,7 @@ make_pkgdir () {
 
 # copy_files() {{{
 copy_files() {
+    vmsg "Copying files to pkgdir"
     for file in "${!COPIES[@]}"; do
         cp "${COPIES[$file]}" "$file"
     done
@@ -95,6 +98,7 @@ copy_files() {
 
 # modify_files() {{{
 modify_files() {
+    vmsg "Running modifications"
     for mod in "${MODIFICATIONS[@]}"; do
         [[ $(type -t $mod) == 'function' ]] || continue
         $mod
@@ -141,6 +145,9 @@ while (( $# != 0 )); do
             ;;
         --split)
             setpkgbuild "PKGBUILD-split.proto"
+            ;;
+        -v|--verbose)
+            VERBOSE=1
             ;;
         -*)
             die 1 "Unrecognized option %s\n" "$1"
