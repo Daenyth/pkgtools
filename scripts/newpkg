@@ -72,10 +72,6 @@ function usage {
     msg "    -P --preset        - Use the specified modular preset\n"
     msg "    --sf --sourceforge - Set url and source to common Sourceforge urls\n"
     msg "    --split            - Create a split PKGBUILD\n"
-    msg "    --cvs              - Create a cvs PKGBUILD\n"
-    msg "    --darcs            - Create a darcs PKGBUILD\n"
-    msg "    --git              - Create a git PKGBUILD\n"
-    msg "    --svn              - Create a svn PKGBUILD\n"
     exit 0
 }
 # }}}
@@ -145,18 +141,6 @@ while (( $# != 0 )); do
             ;;
         --split)
             setpkgbuild "PKGBUILD-split.proto"
-            ;;
-        --cvs)
-            setpkgbuild "PKGBUILD-cvs.proto"
-            ;;
-        --darcs)
-            setpkgbuild "PKGBUILD-darcs.proto"
-            ;;
-        --git)
-            setpkgbuild "PKGBUILD-git.proto"
-            ;;
-        --svn)
-            setpkgbuild "PKGBUILD-svn.proto"
             ;;
         -*)
             die 1 "Unrecognized option %s\n" "$1"
