@@ -4,9 +4,6 @@ setpkgbuild () {
         die 1 "setpkgbuild() requires an argument!"
     fi
     case "$1" in
-        -)
-            DOCOPYPKGBUILD=0
-            ;;
         /*)
             PROTO_PKGBUILD="$1"
             ;;
@@ -17,17 +14,33 @@ setpkgbuild () {
 }
 # }}}
 
-# copyrcd() {{{
-copyrcd () {
-    if [ -r "$PROTO_RC" ]; then 
-        msg "Copying prototype rc.d script\n"
-        cp "$PROTO_RC" "./${pkgname}.rc.d"
-        sed -i "s#daemon_name=.*#daemon_name=$pkgname#" "${pkgname}.rc.d"
-        if [ -w PKGBUILD ]; then
-            sed -i "s#^source=(\(.*\))#source=(\1 ${pkgname}.rc.d)#" PKGBUILD
-        fi
-    else
-        warn "Could not find prototype rc.d script\n"
-    fi
+# add_action {{{
+add_action() {
+    ACTIONS[$1]=${2:-1}
 }
 # }}}
+
+# add_copy {{{
+add_copy() {
+    local from="$1"
+    local to="$2"
+    if [[ ! -r $from ]]; then
+        warn "Can't read %s, cancelling copy!\n" "$from"
+    fi
+    COPIES[$to]="$from"
+}
+# }}}
+
+# add_mod() {{{
+add_mod() {
+    local mod="$1"
+    MODIFICATIONS=("${MODIFICATIONS[@]}" "$1")
+}
+# }}}
+
+# set_url {{{
+set_url() {
+    sed -i 's#url=.*#url="http://$pkgname.sourceforge.net"#' PKGBUILD
+}
+# }}}
+

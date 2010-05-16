@@ -1,0 +1,6 @@
+add_mod _sourceforge_url
+
+_sourceforge_url() {
+    sed -i 's#$pkgname-$pkgver.tar.gz#http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz#' PKGBUILD
+    set_url "http://$pkgname.sourceforge.net"
+}
