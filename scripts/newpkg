@@ -55,6 +55,7 @@ declare -A COPIES
 PRESET=default
 DOABS=0      # Copy from ABS instead of normal operation TODO
 ABSROOT='/var/abs'
+EDIT=0
 
 load_config 'newpkg.conf'
 
@@ -65,6 +66,7 @@ function usage {
     msg "Options:\n"
     msg "    -a --action        - Add a modular action to the creation.\n"
     msg "                         Call multiple times for multiple actions\n"
+    msg "    -e --edit          - Call \$EDITOR on the PKGBUILD at the end\n"
     msg "    -h --help          - Print this usage\n"
     msg "    -i --install-file  - Copy the prototype .install file\n"
     msg "    --rc               - Copy the protype for an rc.d script\n"
@@ -118,6 +120,9 @@ while (( $# != 0 )); do
                 die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
             fi
             add_action $2
+            ;;
+        -e|--edit)
+            EDIT=1
             ;;
         -h|--help)
             usage
@@ -179,6 +184,7 @@ done
 make_pkgdir
 copy_files
 modify_files
+(( EDIT )) && ${EDITOR:-${VISUAL:-vi}} PKGBUILD
 
 msg "All done! New package prepared in %s\n" $pkgdir
 quit 0
