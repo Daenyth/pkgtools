@@ -24,7 +24,7 @@
 CONTRIB_INFO=
 BASEDIR="${HOME}/builds"
 CONFIG_DIR='/etc/pkgtools/'
-PKGTOOLS_DIR='/usr/share/pkgtools/'
+PKGTOOLS_DIR='/usr/share/pkgtools'
 PRESET_DIR="$PKGTOOLS_DIR/newpkg/presets"
 VERBOSE=0
 
