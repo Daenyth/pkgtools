@@ -22,6 +22,7 @@ install:
 
 	# newpkg
 	$(INSTALL_PROGRAM) scripts/newpkg $(DESTDIR)$(bindir)/newpkg
+	$(INSTALL_DATA) other/functions.newpkg $(DESTDIR)$(sharedir)/functions.newpkg
 	$(INSTALL_DATA) confs/newpkg.conf $(DESTDIR)$(confdir)/pkgtools/newpkg.conf
 	$(INSTALL) -d $(DESTDIR)$(sharedir)/newpkg/presets/
 	$(INSTALL) -m644 other/newpkg_presets/* $(DESTDIR)$(sharedir)/newpkg/presets/
