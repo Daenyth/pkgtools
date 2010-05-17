@@ -91,7 +91,7 @@ make_pkgdir () {
 
 # copy_files() {{{
 copy_files() {
-    vmsg "Copying files to pkgdir"
+    vmsg "Copying files to pkgdir\n"
     for file in "${!COPIES[@]}"; do
         cp "${COPIES[$file]}" "$file"
     done
@@ -100,7 +100,7 @@ copy_files() {
 
 # modify_files() {{{
 modify_files() {
-    vmsg "Running modifications"
+    vmsg "Running modifications\n"
     for mod in "${MODIFICATIONS[@]}"; do
         [[ $(type -t $mod) == 'function' ]] || continue
         $mod
