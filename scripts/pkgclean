@@ -33,20 +33,36 @@ VERBOSE=0
 
 clean_makedirs () {
     vmsg "Cleaning leftover makepkg directories... "
-    [[ -d pkg ]] && rm -rf pkg
-    [[ -d src ]] && rm -rf src
+    for dir in pkg src; do
+        if [[ -d $dir ]]; then
+            if (( LIST )); then
+                echo "$dir/"
+            else
+                rm -rf "$dir"
+            fi
+        fi
+    done
     vmsg "Done.\n"
 }
 
 clean_srcpkgs () {
     . /etc/makepkg.conf
     vmsg "Cleaning source packages... "
+    SRCPKGS=(*"$SRCEXT")
+    if [[ ! -f ${SRCPKGS[0]} ]]; then
+        vmsg "Empty."
+        return 0
+    fi
+    if (( LIST )); then
+        echo "${SRCPKGS[@]}"
+        return 0
+    fi
     if [[ -n $SRCDEST ]]; then
         vmsg "Moving to \$SRCDEST... "
-        mv -f *"$SRCEXT" "$SRCDEST"
+        mv -f "${SRCPKGS[@]}" "$SRCDEST"
     elif [[ $PURGE ]]; then
         vmsg "Purging... "
-        rm -f *"$SRCEXT"
+        rm -f "${SRCPKGS[@]}"
     else
         vmsg "Aborted.\n"
         return 1
@@ -57,12 +73,21 @@ clean_srcpkgs () {
 clean_pkgs () {
     . /etc/makepkg.conf
     vmsg "Cleaning built packages... "
+    PKGS=(*"$PKGEXT")
+    if [[ ! -f ${PKGS[0]} ]]; then
+        vmsg "Empty."
+        return 0
+    fi
+    if (( LIST )); then
+        echo "${PKGS[@]}"
+        return 0
+    fi
     if [[ -n $PKGDEST ]]; then
         vmsg "Moving to \$PKGDEST... "
-        mv -f *"$PKGEXT" "$PKGDEST"
+        mv -f "${PKGS[@]}" "$PKGDEST"
     elif [[ $PURGE ]]; then
         vmsg "Purging... "
-        rm -f *"$PKGEXT"
+        rm -f "${PKGS[@]}"
     else
         vmsg "Aborted.\n"
         return 1
@@ -77,7 +102,13 @@ clean_downloads () {
         if echo $file | grep -q '://'; then
             file=$(echo $file | sed 's|::.*$||') # If file was renamed by makepkg, get the real name
             file=$(echo $file | sed 's|^.*/||')  # Remove URL bits to get filename
-            [ -f "$file" ] && rm -f "$file"
+            if [[ -f $file ]]; then
+                if (( LIST )); then
+                    echo "$file"
+                else
+                    rm -f "$file"
+                fi
+            fi
         fi
     done
     vmsg "Done.\n"
@@ -95,7 +126,11 @@ clean_cruft () {
 
     for file in *; do
         if [[ ${noremove["$file"]} != 1 ]]; then
-            rm -f "$file"
+            if (( LIST )); then
+                echo "$file"
+            else
+                rm -f "$file"
+            fi
         fi
     done
     vmsg "Done.\n"
@@ -109,8 +144,19 @@ clean_all () {
     clean_cruft
 }
 
-[[ $1 == '--purge' ]] && PURGE=1
-[[ -f PKGBUILD ]] || die "Not a PKGBUILD dir!"
+while [[ $# > 0 ]]; do
+    case "$1" in
+        --purge) PURGE=1 ;;
+        -l|--list) LIST=1 ;;
+        -v|--verbose)
+            VERBOSE=1
+            ;;
+    esac
+    shift
+done
+
+[[ -f PKGBUILD ]] || die 1 "Not a PKGBUILD dir!\n"
+
 clean_all
 
 # vim: set ts=4 sw=4 et :
