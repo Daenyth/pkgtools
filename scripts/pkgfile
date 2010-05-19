@@ -67,7 +67,8 @@ cd_filelist_dir () {
                 (( DEBUG >= 2 )) && set +x
                 # TODO: De-uglify
                 if echo */* | grep -q '^\*/\*$'; then
-                        die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
+                    unlock || warn "Failed to unlock %s" "$LOCKFILE"
+                    die 1 "%s appears to be empty! Did you run %s --update?\n" "$FILELIST_DIR" "$PROGNAME"
                 fi
         fi
         (( DEBUG >= 2 )) && set -x
