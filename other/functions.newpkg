@@ -40,7 +40,8 @@ add_mod() {
 
 # set_url {{{
 set_url() {
-    sed -i 's#url=.*#url="http://$pkgname.sourceforge.net"#' PKGBUILD
+    local url=$1
+    sed -i "s#url=.*#url=\"$1\"#" PKGBUILD
 }
 # }}}
 
