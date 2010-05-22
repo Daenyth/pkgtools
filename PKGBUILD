@@ -2,7 +2,7 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
 pkgver=19
-pkgrel=1
+pkgrel=2
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=(any)
 url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
