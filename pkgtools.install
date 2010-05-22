@@ -12,10 +12,11 @@ _MSG_HOOK=" - pkgfile includes a \"command not found\" hook for both zsh and bas
      source /etc/profile"
 
 is_update_from() {
-  if [ `vercmp $1 $2` -eq -1 ]; then
-    return 0
-  fi
-  return 1
+  res="`vercmp $1 $2`"
+  case $res in
+    '-1'|'0') return 0;;
+    '1') return 1;;
+  esac
 }
 
 ## arg 1:  the new package version
