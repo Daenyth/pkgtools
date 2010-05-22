@@ -1,0 +1,93 @@
+#!/bin/bash
+###
+# pkgclean - Tidy up a PKGBUILD directory
+# This program is a part of pkgtools
+
+# Copyright (C) 2010 Daenyth <Daenyth+Arch _AT_ gmail _DOT_ com>
+#
+# Pkgtools is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# Pkgtools is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+
+PKGTOOLS_DIR='/usr/share/pkgtools/'
+CONFIG_DIR='/etc/pkgtools/'
+
+if [ -r "$PKGTOOLS_DIR/functions" ]; then
+    source "$PKGTOOLS_DIR/functions"
+else
+    printf "Unable to source function file!\n" >&2
+    exit 1
+fi
+VERBOSE=0
+readonly MYVERSION=1.0
+
+# usage() {{{
+usage () {
+#           |--------------------------------------------------------------------------------| 80 Characters
+        msg "%s version %s -- Set maintainer information in a PKGBUILD\n" "$PROGNAME" $MYVERSION
+        msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
+        msg "  -h --help       - Print this help.\n"
+        msg "  -v --verbose    - Enable verbose output.\n"
+#           |--------------------------------------------------------------------------------| 80 Characters
+        quit ${1:-0}
+}
+# }}}
+
+get_maint_line() {
+    line=$(grep -m1 -nF '# Maintainer:' PKGBUILD | cut -d: -f1)
+    if [[ -z $line ]]; then
+        line=$(grep -m1 -nF '# Contributor:' PKGBUILD | cut -d: -f1)
+        if [[ -z $line ]]; then
+            line=1
+        fi
+    fi
+    echo $line
+}
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -v|--verbose)
+            VERBOSE=1
+            ;;
+    esac
+    shift
+done
+
+if [[ ! -r PKGBUILD ]]; then
+    die 1 "Can't read PKGBUILD file!\n"
+fi
+
+vmsg "Getting packager setting... "
+PACKAGER=$(. /etc/makepkg.conf; echo "$PACKAGER")
+vmsg "$PACKAGER\n"
+
+if grep -q "^# Maintainer: $PACKAGER" PKGBUILD; then
+    msg "PKGBUILD maintainer already set.\n"
+    quit 0
+fi
+
+new_maint_line=$(get_maint_line)
+
+vmsg "Changing old maintainers to contributors\n"
+sed -i 's/Maintainer:/Contributor:/' PKGBUILD
+
+vmsg "Inserting new maintainer line\n"
+sed -i "${new_maint_line}i\\
+# Maintainer: $PACKAGER" PKGBUILD
+msg "Maintainer set!\n"
+
+# vim: set ts=4 sw=4 fdm=marker et :

@@ -52,6 +52,9 @@ install:
 	# pkgclean
 	$(INSTALL_PROGRAM) scripts/pkgclean $(DESTDIR)$(bindir)/pkgclean
 
+	# maintpkg
+	$(INSTALL_PROGRAM) scripts/maintpkg $(DESTDIR)$(bindir)/maintpkg
+
 uninstall:
 	rm -Rf $(DESTDIR)$(sharedir)
 	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean}
