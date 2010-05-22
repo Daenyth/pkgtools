@@ -47,6 +47,8 @@ post_upgrade() {
     echo " ! This version contains an important bugfix for pkgfile. Previously, package updates would cause the pkgfile --update cron job to"
     echo "   regain +x mode, causing updates to run even when manually disabled. This version disables the cronjob by setting UPDATE_CRON=0"
     echo "   in /etc/pkgtools/pkgfile.conf"
+    echo " - This version of pkgtools contains a new tool called 'maintpkg'"
+    echo "   It sets the Maintainer in a PKGBUILD to your PACKAGER while preserving old Contributors"
   fi
 }
 
