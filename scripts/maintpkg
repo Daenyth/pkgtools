@@ -1,6 +1,6 @@
 #!/bin/bash
 ###
-# pkgclean - Tidy up a PKGBUILD directory
+# maintpkg - set a PKGBUILD's Maintainer line to yours
 # This program is a part of pkgtools
 
 # Copyright (C) 2010 Daenyth <Daenyth+Arch _AT_ gmail _DOT_ com>
