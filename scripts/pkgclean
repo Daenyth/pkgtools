@@ -121,7 +121,7 @@ clean_cruft () {
 
     . PKGBUILD
     declare -A noremove
-    for file in "${source[@]}" "$install"; do
+    for file in "${source[@]}" "$install" PKGBUILD; do
         noremove["$file"]=1
     done
 
