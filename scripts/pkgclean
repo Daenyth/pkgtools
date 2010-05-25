@@ -152,7 +152,7 @@ usage () {
         msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
         msg "  -h --help    - Print this help.\n"
         msg "  -l --list    - List files instead of deleting\n"
-        msg "  --purge      - Delete built packages\n"
+        msg "  --purge      - Delete *ALL* non-required files.\n"
         msg "  -v --verbose - Enable verbose output.\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
         quit ${1:-0}
