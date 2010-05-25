@@ -22,6 +22,7 @@
 
 PKGTOOLS_DIR='/usr/share/pkgtools/'
 CONFIG_DIR='/etc/pkgtools/'
+readonly MYVERSION=1.1
 
 if [ -r "$PKGTOOLS_DIR/functions" ]; then
     source "$PKGTOOLS_DIR/functions"
@@ -144,9 +145,24 @@ clean_all () {
     clean_cruft
 }
 
+usage () {
+
+#           |--------------------------------------------------------------------------------| 80 Characters
+        msg "%s version %s -- Clean files from a PKGBUILD directory\n" "$PROGNAME" $MYVERSION
+        msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
+        msg "  -h --help    - Print this help.\n"
+        msg "  -l --list    - List files instead of deleting\n"
+        msg "  --purge      - Delete built packages\n"
+        msg "  -v --verbose - Enable verbose output.\n"
+#           |--------------------------------------------------------------------------------| 80 Characters
+        quit ${1:-0}
+}
+
+
 while [[ $# > 0 ]]; do
     case "$1" in
-        --purge) PURGE=1 ;;
+        -h|--help) usage  ;;
+        --purge) PURGE=1  ;;
         -l|--list) LIST=1 ;;
         -v|--verbose)
             VERBOSE=1
