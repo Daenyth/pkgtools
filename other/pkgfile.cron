@@ -2,6 +2,6 @@
 
 . /etc/pkgtools/pkgfile.conf
 
-if [[ $UPDATE_CRON ]]; then
+if (( $UPDATE_CRON )); then
     /usr/bin/pkgfile --update >/dev/null
 fi
