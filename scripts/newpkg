@@ -49,7 +49,7 @@ PROGNAME="$(basename $0)"
 
 PROTODIR='/usr/share/pacman'
 
-declare -A ACTIONS
+declare -a ACTIONS
 declare -a MODIFICATIONS
 declare -A COPIES
 PRESET=default
@@ -173,7 +173,7 @@ else
     die 1 "Can't read preset '%s' in '%s'\n" "$PRESET" "$PRESET_DIR"
 fi
 
-for act in ${!ACTIONS[@]}; do
+for act in ${ACTIONS[@]}; do
     if [[ -r $PRESET_DIR/$act.action ]]; then
         . "$PRESET_DIR/$act.action"
     else

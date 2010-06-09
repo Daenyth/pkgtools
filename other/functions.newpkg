@@ -16,7 +16,7 @@ setpkgbuild () {
 
 # add_action {{{
 add_action() {
-    ACTIONS[$1]=${2:-1}
+    ACTIONS=(${ACTIONS[@]} $1)
 }
 # }}}
 
