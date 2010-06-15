@@ -268,8 +268,10 @@ search () {
 # listfiles() {{{
 listfiles () {
         local _repo=""
+        # If given foo/bar, assume 'bar' package in 'foo' repo.
         [[ "$1" != "${1///}" ]] && _repo="${1%/*}"
         local pkg="${1#*/}"
+
         local FOUNDFILE=0
         if (( ! REMOTE_SEARCH )) && [[ ! $_repo ]]; then
                 if pacman -Q "$pkg" &> /dev/null; then
@@ -306,7 +308,11 @@ listfiles () {
                 (( DEBUG >= 2 )) && set +x
         done
         if (( ! FOUNDFILE )); then
-                msg "Package '%s' not found\n" "$pkg"
+                msg "Package '%s' not found" "$pkg"
+                if [[ $_repo ]]; then
+                    msg " in repo '%s'" "$_repo"
+                fi
+                msg "\n"
                 return 1
         fi
         return 0
