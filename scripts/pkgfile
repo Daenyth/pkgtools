@@ -267,10 +267,11 @@ search () {
 
 # listfiles() {{{
 listfiles () {
-        local pkg="$1"
+        local _repo=""
+        [[ "$1" != "${1///}" ]] && _repo="${1%/*}"
+        local pkg="${1#*/}"
         local FOUNDFILE=0
-
-        if (( ! REMOTE_SEARCH )); then
+        if (( ! REMOTE_SEARCH )) && [[ ! $_repo ]]; then
                 if pacman -Q "$pkg" &> /dev/null; then
                         if (( ! BINARIES )); then
                                 pacman -Ql "$pkg"
@@ -284,6 +285,7 @@ listfiles () {
         cd_filelist_dir noempty
         pkg_escaped=$(regex_escape "$pkg")
         for repo in *; do
+                [[ ! $_repo || $_repo = $repo ]] || continue
                 [[ -d $repo ]] || continue
                 (( DEBUG >= 2 )) && set -x
                 local findarg="$repo/$pkg_escaped-[^-]+-[^-]+$"
