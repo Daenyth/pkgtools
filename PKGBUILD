@@ -14,7 +14,7 @@ provides=(newpkg pkgfile)
 depends=('bash>=4')
 optdepends=('cron: For pkgfile --update entry'
             'python: For pkgconflict')
-md5sums=()
+md5sums=('cc512f71cef9dfbfb05afa615496e0a3')
 
 build() {
   cd "$srcdir/Daenyth-$pkgname"-*
