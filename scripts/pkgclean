@@ -32,6 +32,7 @@ else
     exit 1
 fi
 VERBOSE=0
+LIST=1
 
 clean_makedirs () {
     vmsg "Cleaning leftover makepkg directories... "
@@ -151,10 +152,12 @@ usage () {
 #           |--------------------------------------------------------------------------------| 80 Characters
         msg "%s version %s -- Clean files from a PKGBUILD directory\n" "$PROGNAME" $MYVERSION
         msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
+        msg "  -c --clean   - Clean the directory of unneeded files.\n"
+        msg "                 The default is to list files to be cleaned.\n"
         msg "  -h --help    - Print this help.\n"
-        msg "  -l --list    - List files instead of deleting\n"
         msg "  --purge      - Delete *ALL* non-required files.\n"
         msg "  -v --verbose - Enable verbose output.\n"
+        msg "\nWARNING: This tool can be very destructive. Use at your own risk!\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
         quit ${1:-0}
 }
@@ -162,9 +165,9 @@ usage () {
 
 while [[ $# > 0 ]]; do
     case "$1" in
-        -h|--help) usage  ;;
-        --purge) PURGE=1  ;;
-        -l|--list) LIST=1 ;;
+        -c|--clean) LIST=0 ;;
+        -h|--help) usage   ;;
+        --purge) PURGE=1   ;;
         -v|--verbose)
             VERBOSE=1
             ;;
