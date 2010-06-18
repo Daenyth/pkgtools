@@ -23,6 +23,7 @@
 PKGTOOLS_DIR='/usr/share/pkgtools/'
 CONFIG_DIR='/etc/pkgtools/'
 readonly MYVERSION=1.1
+readonly PROGNAME=$(basename $0)
 
 if [ -r "$PKGTOOLS_DIR/functions" ]; then
     source "$PKGTOOLS_DIR/functions"
