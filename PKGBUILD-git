@@ -24,7 +24,7 @@ build() {
   msg "Connecting to GIT server...."
 
   if [ -d ${srcdir}/$_gitname ] ; then
-    cd $_gitname && git pull origin
+    cd $srcdir/$_gitname && git pull origin
     msg "The local files are updated."
   else
     git clone $_gitroot
@@ -33,10 +33,10 @@ build() {
   msg "GIT checkout done or server timeout"
   msg "Starting make..."
 
-  rm -r ${srcdir}/$_gitname-build
+  [[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
   cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
   cd ${srcdir}/$_gitname-build
 
-  make DESTDIR=${pkgdir} install || return 1
+  make DESTDIR=${pkgdir} install
 }
 # vim:set ts=2 sw=2 et:
