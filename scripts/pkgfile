@@ -414,7 +414,7 @@ if [[ -z $SEARCHTARGET && $ACTION != 'update' ]]; then
 fi
 
 if [[ -n $RATELIMIT ]]; then
-        RATELIMIT="--limit-rate='$RATELIMIT'"
+        RATELIMIT="--limit-rate=$RATELIMIT"
 fi
 
 case $ACTION in
