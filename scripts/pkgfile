@@ -61,7 +61,10 @@ umask 0022 # This will ensure that any files we create are readable by normal us
 cd_filelist_dir () {
         [[ 'noempty' != "$1" ]] && check_filelist_dir
 
-        cd "$FILELIST_DIR" || die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+        if ! cd "$FILELIST_DIR"; then
+            unlock || warn "Failed to unlock %s" "$LOCKFILE"
+            die 1 "Unable to change directory to %s\n" $FILELIST_DIR
+        fi
         if [[ $1 == 'noempty' ]]; then
                 # */* expanded is really ugly
                 (( DEBUG >= 2 )) && set +x
@@ -79,9 +82,13 @@ cd_filelist_dir () {
 check_filelist_dir () {
                 if [[ ! -d "$FILELIST_DIR" ]]; then
                         warn "%s does not exist -- creating " $FILELIST_DIR
-                        mkdir -p "$FILELIST_DIR" || die 1 "Could not create %s\n" $FILELIST_DIR
+                        if ! mkdir -p "$FILELIST_DIR"; then
+                                unlock || warn "Failed to unlock %s" "$LOCKFILE"
+                                die 1 "Could not create %s\n" $FILELIST_DIR
+                        fi
                 fi
                 if [[ ! -w "$FILELIST_DIR" ]];then
+                        unlock || warn "Failed to unlock %s" "$LOCKFILE"
                         die 1 "No write permission to %s, try somewhere else\n" "$FILELIST_DIR"
                 fi
 }
