@@ -62,7 +62,9 @@ fi
 walk_nodes $1
 echo "Packages that depend on [$query]"
 if [[ -n "${!root_packages[*]}" ]]; then
-    echo "  ${!root_packages[@]}"
+    for pkg in "${!root_packages[@]}"; do
+        echo "  $pkg"
+    done | sort
     exit 0
 fi
 echo "  None"
