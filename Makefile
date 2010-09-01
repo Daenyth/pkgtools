@@ -7,6 +7,7 @@ prefix = /usr
 exec_prefix = $(prefix)
 confdir = /etc
 bindir = $(exec_prefix)/bin
+libdir = $(prefix)/lib
 sharedir = $(prefix)/share/pkgtools
 cachedir = /var/cache/pkgtools/lists
 profiledir = $(confdir)/profile.d
@@ -29,7 +30,8 @@ install:
 
 	# pkgfile
 	$(INSTALL) -d $(DESTDIR)$(cachedir)
-	$(INSTALL_PROGRAM) scripts/pkgfile $(DESTDIR)$(bindir)/pkgfile
+	$(INSTALL_PROGRAM) scripts/pkgfile.py $(DESTDIR)$(bindir)/pkgfile
+	$(INSTALL_PROGRAM) scripts/alpm2sqlite.py $(DESTDIR)$(libdir)/python2.6/site-packages/alpm2sqlite.py
 	$(INSTALL_DATA) confs/pkgfile.conf $(DESTDIR)$(confdir)/pkgtools/pkgfile.conf
 	$(INSTALL_CRON) other/pkgfile.cron $(DESTDIR)$(crondir)/pkgfile
 	# Loads shell hooks
