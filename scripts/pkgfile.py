@@ -34,6 +34,7 @@ import subprocess
 import urllib
 import alpm2sqlite
 import tarfile
+import time
 
 VERSION = '22'
 CONFIG_DIR = '/etc/pkgtools'
@@ -148,6 +149,16 @@ def print_pkg(pkg):
             print '%s: %s' % (field, value)
     print
 
+def timestamp_fromstring(s):
+    '''return Unix timestamp converted from a string time'''
+    return time.mktime(time.strptime(s, '%a, %d %b %Y %H:%M:%S %Z'))
+
+def is_update_available(local_mtime, url):
+    '''compare local mtime with the last-modified "mtime" of the url file'''
+    remote_mtime_string = urllib.urlopen(url).info()['last-modified']
+    remote_mtime = timestamp_fromstring(remote_mtime_string)
+    return not remote_mtime == local_mtime
+
 def update_repo(options, target_repo=None):
     '''download .files.tar.gz for each repo found in pacman config or the one specified and convert them to a sqlite3 db'''
 
@@ -181,27 +192,43 @@ def update_repo(options, target_repo=None):
         if target_repo is not None and repo != target_repo:
             continue
         if repo not in repo_done:
-            print ':: Downloading [%s] file list ...' % repo
+            print ':: Checking [%s] for files list ...' % repo
             repofile = '%s.files.tar.gz' % repo
-            filelist = os.path.join(mirror, repofile)
+            fileslist = os.path.join(mirror, repofile)
 
             try:
                 if options.verbose:
                     print 'Trying mirror %s ...' % mirror
-                filename, headers = urllib.urlretrieve(filelist)
-                # tmp file will be automatically deleted after the process dies
-
-                print ':: Converting [%s] file list ...' % repo
-                # TODO: catch error better
+                dbfile = '%s/%s.db' % (FILELIST_DIR, repo)
                 try:
-                    alpm2sqlite.convert(filename, '%s/%s.db' % (FILELIST_DIR, repo), options)
+                    # try to get mtime of dbfile
+                    local_mtime = os.path.getmtime(dbfile)
+                    update = is_update_available(local_mtime, fileslist)
+                except os.error:
+                    # dbfile is not there
+                    update = True
+                if update:
+                    print ':: Downloading %s ...' % fileslist
+                    filename, headers = urllib.urlretrieve(fileslist)
+                    # tmp file will be automatically deleted after the process dies
+
+                    print ':: Converting [%s] file list ...' % repo
+                    # TODO: catch error better
+                    try:
+                        alpm2sqlite.convert(filename, dbfile , options)
+                        repo_done.append(repo)
+                        print 'Done'
+                        # touch the dbfile with mtime of the fileslist we just retrieved
+                        mtime = timestamp_fromstring(headers['last-modified'])
+                        os.utime(dbfile, (mtime, mtime))
+                    except tarfile.TarError:
+                        # error already printed in convert
+                        pass
+                else:
+                    print 'No update available'
                     repo_done.append(repo)
-                    print 'Done'
-                except tarfile.TarError:
-                    # error already printed in convert
-                    pass
             except IOError:
-                print >> sys.stderr, 'Warning: could not retrieve %s' % filelist
+                print >> sys.stderr, 'Warning: could not retrieve %s' % fileslist
                 continue
 
     local_db = os.path.join(FILELIST_DIR, 'local.db')
