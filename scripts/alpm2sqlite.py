@@ -180,6 +180,9 @@ def open_db(dbfile):
     # do not sync to disk. If the OS crashes, the db could be corrupted.
     conn.execute('PRAGMA SYNCHRONOUS=0')
 
+    # try to get speed. Useless ?
+    conn.execute('PRAGMA journal_mode=PERSIST')
+
     # create the db if it's not already there
     conn.execute('''CREATE TABLE IF NOT EXISTS pkg(
         name        TEXT,
@@ -405,6 +408,8 @@ def convert(path, dbfile, verbose):
                 update_repo_from_tarball(tf, conn, cur, verbose)
             else:
                 update_repo_from_dir(path, conn, cur, verbose)
+            # compact the db
+            cur.execute('VACUUM;');
         else:
             # else make the conversion
             if tf is not None:
