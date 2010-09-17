@@ -354,6 +354,8 @@ def query_pkg(filename, options):
         while pkgfiles != []:
             for n, v, fls in pkgfiles:
                 matches = [f for f in sorted(fls) if filematch.match('/'+f)]
+                if options.binaries:
+                    matches = [f for f in matches if '/sbin/' in f or '/bin/' in f]
                 if matches != []:
                     if options.info:
                         res.append((n, matches))
