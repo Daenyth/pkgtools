@@ -215,7 +215,7 @@ def update_repo(options, target_repo=None):
                     print ':: Converting [%s] file list ...' % repo
                     # TODO: catch error better
                     try:
-                        alpm2sqlite.convert(filename, dbfile , options)
+                        alpm2sqlite.convert(filename, dbfile , options.verbose)
                         repo_done.append(repo)
                         print 'Done'
                         # touch the dbfile with mtime of the fileslist we just retrieved

@@ -210,19 +210,19 @@ def open_db(dbfile):
 
     return (conn, cur)
 
-def commit_pkg(pkg, conn, cur, options):
+def commit_pkg(pkg, conn, cur, verbose):
     '''add a pkg to the sqlite3 db (or update it if already there)'''
 
     try:
         row = cur.execute('SELECT rowid FROM pkg WHERE name=?', (pkg['name'],)).fetchone()
         if row is not None:
-            #if options.verbose:
+            #if verbose:
             #    # we could only show the pkgname because convert_tarball pass only
             #    # incomplete pkg dict
             #    print ':: Updating %s' % pkg['name']
             cur.execute('UPDATE pkg SET '+','.join('%s=:%s' % (p,p) for p in pkg)+ ' WHERE name=:name', pkg)
         else:
-            #if options.verbose:
+            #if verbose:
             #    # same remark as above
             #    print ':: Adding %s' % pkg['name']
             cur.execute('INSERT INTO pkg ('+','.join(p for p in pkg)+') VALUES('+ ','.join(':%s' % p for p in pkg)+')', pkg)
@@ -230,7 +230,7 @@ def commit_pkg(pkg, conn, cur, options):
     except sqlite3.Error as e:
         die(1, 'SQLite3 %s' % e)
 
-def convert_tarball(tf, conn, cur, options):
+def convert_tarball(tf, conn, cur, verbose):
     '''convert a .files.tar.gz to a sqlite3 db'''
 
     # Do not try to create a complete pkg dict
@@ -252,9 +252,9 @@ def convert_tarball(tf, conn, cur, options):
             parsers[fname](pkg, f)
             f.close()
 
-            commit_pkg(pkg, conn, cur, options)
+            commit_pkg(pkg, conn, cur, verbose)
 
-def convert_dir(path, conn, cur, options):
+def convert_dir(path, conn, cur, verbose):
     '''convert a repo dir "pacman style" to a sqlite3 db'''
 
     for pkgdir in sorted(os.listdir(path)):
@@ -269,9 +269,9 @@ def convert_dir(path, conn, cur, options):
                 with open(pathfile) as f:
                     parsers[fname](pkg, f)
 
-        commit_pkg(pkg, conn, cur, options)
+        commit_pkg(pkg, conn, cur, verbose)
 
-def update_repo_from_tarball(tf, conn, cur, options):
+def update_repo_from_tarball(tf, conn, cur, verbose):
     '''update sqlite db from a repo directory
     This function avoids parsing unnecessary files'''
 
@@ -292,7 +292,7 @@ def update_repo_from_tarball(tf, conn, cur, options):
         elif oldpkg['version'] != pkgver:
             update = 2
         if update > 0:
-            if options.verbose:
+            if verbose:
                 if update == 1:
                     print ':: Adding %s-%s' % (pkgname, pkgver)
                 elif update == 2:
@@ -308,7 +308,7 @@ def update_repo_from_tarball(tf, conn, cur, options):
                 except KeyError:
                     pass
 
-            commit_pkg(pkg, conn, cur, options)
+            commit_pkg(pkg, conn, cur, verbose)
 
     # check for removed package
     rows = cur.execute('SELECT name,version FROM pkg')
@@ -320,13 +320,13 @@ def update_repo_from_tarball(tf, conn, cur, options):
             # look for the directory in our self-made list
             d = '%s-%s' %( pkgname, pkgver)
             if d not in dirs:
-                if options.verbose:
+                if verbose:
                     print ':: Removing %s-%s' % (pkgname, pkgver)
                 cur.execute('DELETE FROM pkg WHERE name=?', (pkgname,))
                 conn.commit()
         pkgs = rows.fetchmany()
 
-def update_repo_from_dir(path, conn, cur, options):
+def update_repo_from_dir(path, conn, cur, verbose):
     '''update sqlite db from a repo directory
     This function avoids parsing unnecessary files and a lot of I/O'''
 
@@ -344,7 +344,7 @@ def update_repo_from_dir(path, conn, cur, options):
         elif oldpkg['version'] != pkgver:
             update = 2
         if update > 0:
-            if options.verbose:
+            if verbose:
                 if update == 1:
                     print ':: Adding %s-%s' % (pkgname, pkgver)
                 elif update == 2:
@@ -359,7 +359,7 @@ def update_repo_from_dir(path, conn, cur, options):
                     with open(pathfile) as f:
                         parsers[fname](pkg, f)
 
-            commit_pkg(pkg, conn, cur, options)
+            commit_pkg(pkg, conn, cur, verbose)
 
     # check for removed package
     rows = cur.execute('SELECT name,version FROM pkg')
@@ -371,13 +371,13 @@ def update_repo_from_dir(path, conn, cur, options):
             # look for the directory in the alpm db
             d = os.path.join(path, '%s-%s' %( pkgname, pkgver))
             if not os.path.isdir(d):
-                if options.verbose:
+                if verbose:
                     print ':: Removing %s-%s' % (pkgname, pkgver)
                 cur.execute('DELETE FROM pkg WHERE name=?', (pkgname,))
                 conn.commit()
         pkgs = rows.fetchmany()
 
-def convert(path, dbfile, options):
+def convert(path, dbfile, verbose):
     '''wrapper around convert_dir and convert_tarball'''
 
     tf = None
@@ -394,15 +394,15 @@ def convert(path, dbfile, options):
         if update:
             # update db if it exists already
             if tf is not None:
-                update_repo_from_tarball(tf, conn, cur, options)
+                update_repo_from_tarball(tf, conn, cur, verbose)
             else:
-                update_repo_from_dir(path, conn, cur, options)
+                update_repo_from_dir(path, conn, cur, verbose)
         else:
             # else make the conversion
             if tf is not None:
-                convert_tarball(tf, conn, cur, options)
+                convert_tarball(tf, conn, cur, verbose)
             else:
-                convert_dir(path, conn, cur, options)
+                convert_dir(path, conn, cur, verbose)
         cur.close()
         conn.close()
     except sqlite3.OperationalError as e:
@@ -425,4 +425,4 @@ Convert an alpm directory or a .files.tar.gz file to a sqlite db file''' % sys.a
             dbfile = path+'.db' # ??
         print ':: converting %s file into %s' % (path, dbfile)
 
-    sys.exit(convert(path, dbfile))
+    sys.exit(convert(path, dbfile, True))
