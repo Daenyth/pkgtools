@@ -381,11 +381,19 @@ def convert(path, dbfile, verbose):
     '''wrapper around convert_dir and convert_tarball'''
 
     tf = None
-    if os.path.isfile(path):
+    if isinstance(path, str):
+        if os.path.isfile(path):
+            try:
+                tf = tarfile.open(path)
+            except tarfile.TarError as t:
+                print >> sys.stderr, 'Error: Unable to open %s' % path
+                raise t
+    else:
+        # if it's a file like object
         try:
-            tf = tarfile.open(path)
+            tf = tarfile.open(fileobj=path)
         except tarfile.TarError as t:
-            print >> sys.stderr, 'Error: Unable to open %s' % path
+            print >> sys.stderr, 'Error: Not a tar file'
             raise t
 
     try:

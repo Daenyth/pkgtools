@@ -28,13 +28,13 @@ import os
 import re
 import atexit
 import sys
-import os.path
 import optparse
 import subprocess
-import urllib
+import urllib2
 import alpm2sqlite
 import tarfile
 import time
+import cStringIO
 
 VERSION = '22'
 CONFIG_DIR = '/etc/pkgtools'
@@ -149,16 +149,6 @@ def print_pkg(pkg):
             print '%s: %s' % (field, value)
     print
 
-def timestamp_fromstring(s):
-    '''return Unix timestamp converted from a string time'''
-    return time.mktime(time.strptime(s, '%a, %d %b %Y %H:%M:%S %Z'))
-
-def is_update_available(local_mtime, url):
-    '''compare local mtime with the last-modified "mtime" of the url file'''
-    remote_mtime_string = urllib.urlopen(url).info()['last-modified']
-    remote_mtime = timestamp_fromstring(remote_mtime_string)
-    return not remote_mtime == local_mtime
-
 def update_repo(options, target_repo=None):
     '''download .files.tar.gz for each repo found in pacman config or the one specified and convert them to a sqlite3 db'''
 
@@ -203,29 +193,32 @@ def update_repo(options, target_repo=None):
                 try:
                     # try to get mtime of dbfile
                     local_mtime = os.path.getmtime(dbfile)
-                    update = is_update_available(local_mtime, fileslist)
                 except os.error:
-                    # dbfile is not there
-                    update = True
-                if update:
+                    local_mtime = 0 # fake a very old date if dbfile doesn't exist
+                # Initiate connexion to get 'Last-Modified' header
+                conn = urllib2.urlopen(fileslist)
+                remote_mtime = time.mktime(conn.info().getdate('last-modified'))
+                if remote_mtime > local_mtime:
                     print ':: Downloading %s ...' % fileslist
-                    filename, headers = urllib.urlretrieve(fileslist)
-                    # tmp file will be automatically deleted after the process dies
+                    # Saving data to tmp file
+                    tmp = cStringIO.StringIO(conn.read())
+                    conn.close()
 
                     print ':: Converting [%s] file list ...' % repo
                     # TODO: catch error better
                     try:
-                        alpm2sqlite.convert(filename, dbfile , options.verbose)
+                        alpm2sqlite.convert(tmp, dbfile, options.verbose)
+                        tmp.close()
                         repo_done.append(repo)
                         print 'Done'
                         # touch the dbfile with mtime of the fileslist we just retrieved
-                        mtime = timestamp_fromstring(headers['last-modified'])
-                        os.utime(dbfile, (mtime, mtime))
+                        os.utime(dbfile, (remote_mtime, remote_mtime))
                     except tarfile.TarError:
                         # error already printed in convert
                         pass
                 else:
                     print 'No update available'
+                    conn.close()
                     repo_done.append(repo)
             except IOError:
                 print >> sys.stderr, 'Warning: could not retrieve %s' % fileslist
