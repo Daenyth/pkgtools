@@ -1,3 +1,4 @@
+#include <Python.h>
 #define _GNU_SOURCE 1
 #include <archive.h>
 #include <archive_entry.h>
@@ -9,16 +10,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #define ABUFLEN 1024
-#define FBUFLEN 10240
 
-cookie_io_functions_t archive_stream_funcs = {
+static cookie_io_functions_t archive_stream_funcs = {
 .read = archive_read_data,
 .write = NULL,
 .seek = NULL,
 .close = NULL
 };
 
-FILE *open_archive_stream(struct archive *archive) {
+static FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
@@ -27,7 +27,7 @@ FILE *open_archive_stream(struct archive *archive) {
  * The names must either match completely,
  * or m must match the portion of f after the last /
  */
-int match_filename(char *f, const char *m) {
+static int simple_match(const char *f, const char *m) {
   char *mb;
 
   if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
@@ -40,23 +40,28 @@ int match_filename(char *f, const char *m) {
   return 0;
 }
 
-void search_file(const char *repo, const char *pattern) {
+static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(const char *dbfile, const char *pattern)) {
+  const char *filename, *pattern;
   struct archive *a;
   struct archive_entry *entry;
   struct stat st;
-  char pname[ABUFLEN], *fname, *dname, filename[ABUFLEN];
+  char pname[ABUFLEN], *fname, *dname;
   char *l = NULL;
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
+  PyObject *ret, *dict, *pystr;
+
   pname[ABUFLEN-1]='\0';
-  strncpy(filename, repo, ABUFLEN);
-  strncat(filename, ".files.tar.gz", ABUFLEN);
-  filename[ABUFLEN-1]='\0';
+  PyArg_ParseTuple(args, "ss", &filename, &pattern);
 
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
-    fprintf(stderr, "File does not exist: %s\n", filename);
-    return;
+    PyErr_Format(PyExc_RuntimeError, "File does not exist: %s\n", filename);
+    return NULL;
+  }
+  ret = PyList_New(0);
+  if(ret == NULL) {
+    return NULL;
   }
 
   a = archive_read_new();
@@ -79,8 +84,10 @@ void search_file(const char *repo, const char *pattern) {
     
     stream = open_archive_stream(a);
     if (!stream) {
-      fprintf(stderr, "Unable to open archive stream.\n");
-      exit(1);
+      PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
+      Py_DECREF(ret);
+      archive_read_finish(a);
+      return NULL;
     }
 
     while((nread = getline(&l, &n, stream)) != -1) {
@@ -88,8 +95,19 @@ void search_file(const char *repo, const char *pattern) {
       /* So I'm assuming that nread > 0. */
       if(l[nread - 1] == '\n')
         l[nread - 1] = '\0';	/* Clobber trailing newline. */
-      if(strcmp(l, "%FILES%") && match_filename(l, pattern))
-        printf("%s/%s: %s\n", repo, dname, l);
+      if(strcmp(l, "%FILES%") && match_func(l, pattern)) {
+        dict = PyDict_New();
+
+        pystr = PyString_FromString(dname);
+        PyDict_SetItemString(dict, "package", pystr);
+        Py_DECREF(pystr);
+        pystr = PyString_FromString(l);
+        PyDict_SetItemString(dict, "file", pystr);
+        Py_DECREF(pystr);
+
+        PyList_Append(ret, dict);
+        Py_DECREF(dict);
+      }
     }
     fclose(stream);
   }
@@ -98,16 +116,27 @@ void search_file(const char *repo, const char *pattern) {
     free(l);
 
   archive_read_finish(a);
+  return ret;
 }
 
-int main(int argc, char *argv[]) {
-  const char *repos[] = { "testing", "core", "extra", "community", "community-testing", NULL };
-  const char **repo;
-  if(argc<1) {
-    fprintf(stderr, "Usage: %s pattern\n", argv[0]);
-    return -1;
-  }
-  for(repo=&repos[0]; *repo!=NULL; repo++)
-    search_file(*repo, argv[1]);
-  return 0;
+static PyObject *search(PyObject *self, PyObject *args) {
+  return search_file(self, args, &simple_match);
+}
+
+static PyObject *search_regex(PyObject *self, PyObject *args) {
+  /*return search_file(self, args, &regex_match);*/
+  PyErr_SetString(PyExc_NotImplementedError, "Regex searching is not implemented yet.");
+  return NULL;
+}
+
+static PyMethodDef PkgfileMethods[] = {
+  { "search", (PyCFunction)&search, METH_VARARGS, "foo" },
+  { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "foo" },
+  {NULL, NULL, 0, NULL}
+};
+
+PyMODINIT_FUNC
+initpkgfile(void)
+{
+  (void) Py_InitModule("pkgfile", PkgfileMethods);
 }
