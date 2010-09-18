@@ -197,8 +197,14 @@ def update_repo(options, target_repo=None):
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
                 # Initiate connexion to get 'Last-Modified' header
                 conn = urllib2.urlopen(fileslist)
-                remote_mtime = time.mktime(conn.info().getdate('last-modified'))
-                if remote_mtime > local_mtime:
+                last_modified = conn.info().getdate('last-modified')
+                if last_modified is None:
+                    update = True
+                    remote_mtime = time.time() # use current time instead
+                else:
+                    remote_mtime = time.mktime(last_modified)
+                    update = remote_mtime > local_mtime
+                if update:
                     print ':: Downloading %s ...' % fileslist
                     # Saving data to tmp file
                     tmp = cStringIO.StringIO(conn.read())
