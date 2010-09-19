@@ -224,7 +224,7 @@ static PyObject *search_pcre(PyObject *self, PyObject *args) {
     return NULL;
   }
   d.re_extra = pcre_study(d.re, 0, &error);
-  if(d.re_extra == NULL) {
+  if(error != NULL) {
     PyErr_Format(PyExc_RuntimeError, "Could not study regex: %s", error);
     pcre_free(d.re);
     return NULL;
