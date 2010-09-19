@@ -113,7 +113,7 @@ static PyObject *search_file(PyObject *self, PyObject *args,
 static int simple_match(const char *f, const char *m, void *d) {
   char *mb;
 
-  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
+  if(f==NULL || strlen(f)<=0 || m==NULL || strlen(m)<=0)
     return 0;
   if((m[0]=='/' && !strcmp(f,m+1)) || !strcmp(f, m))
     return 1;
@@ -130,7 +130,7 @@ static PyObject *search(PyObject *self, PyObject *args) {
 static int shell_match(const char *f, const char *m, void *d) {
   char *mb;
 
-  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
+  if(f==NULL || strlen(f)<=0 || m==NULL || strlen(m)<=0)
     return 0;
   mb = rindex(f, '/');
   if(mb != NULL)
@@ -143,6 +143,8 @@ static PyObject *search_shell(PyObject *self, PyObject *args) {
 }
 
 static int regex_match(const char *f, const char *m, void *d) {
+  if(f==NULL || strlen(f)<=0)
+    return 0;
   return !regexec((regex_t*)d, f, (size_t)0, NULL, 0);
 }
 
