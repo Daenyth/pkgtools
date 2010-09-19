@@ -25,10 +25,9 @@ static FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
-static PyObject *search_file(PyObject *self, PyObject *args,
-                             int (*match_func)(const char *dbfile, const char *pattern, void *data),
+static PyObject *search_file(const char *filename,
+                             int (*match_func)(const char *dbfile, void *data),
                              void *data) {
-  const char *filename, *pattern;
   struct archive *a;
   struct archive_entry *entry;
   struct stat st;
@@ -40,9 +39,6 @@ static PyObject *search_file(PyObject *self, PyObject *args,
   PyObject *ret, *dict, *pystr;
 
   pname[ABUFLEN-1]='\0';
-  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
-    return NULL;
-
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
     PyErr_Format(PyExc_RuntimeError, "File does not exist: %s\n", filename);
     return NULL;
@@ -85,7 +81,7 @@ static PyObject *search_file(PyObject *self, PyObject *args,
       /* So I'm assuming that nread > 0. */
       if(l[nread - 1] == '\n')
         l[nread - 1] = '\0';	/* Clobber trailing newline. */
-      if(strcmp(l, "%FILES%") && match_func(l, pattern, data)) {
+      if(strcmp(l, "%FILES%") && match_func(l, data)) {
         dict = PyDict_New();
 
         pystr = PyString_FromString(dname);
@@ -114,10 +110,11 @@ static PyObject *search_file(PyObject *self, PyObject *args,
  * The names must either match completely,
  * or m must match the portion of f after the last /
  */
-static int simple_match(const char *f, const char *m, void *d) {
+static int simple_match(const char *f, void *d) {
   char *mb;
+  const char *m = (const char*)d;
 
-  if(f==NULL || strlen(f)<=0 || m==NULL || strlen(m)<=0)
+  if(f==NULL || strlen(f)<=0)
     return 0;
   if((m[0]=='/' && !strcmp(f,m+1)) || !strcmp(f, m))
     return 1;
@@ -128,13 +125,22 @@ static int simple_match(const char *f, const char *m, void *d) {
 }
 
 static PyObject *search(PyObject *self, PyObject *args) {
-  return search_file(self, args, &simple_match, NULL);
+  char *filename, *pattern;
+
+  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
+    return NULL;
+  if(pattern == NULL || strlen(pattern)<=0) {
+    PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
+    return NULL;
+  }
+  return search_file(filename, &simple_match, pattern);
 }
 
-static int shell_match(const char *f, const char *m, void *d) {
+static int shell_match(const char *f, void *d) {
   char *mb;
+  const char *m = (const char*)d;
 
-  if(f==NULL || strlen(f)<=0 || m==NULL || strlen(m)<=0)
+  if(f==NULL || strlen(f)<=0)
     return 0;
   mb = rindex(f, '/');
   if(mb != NULL)
@@ -143,10 +149,18 @@ static int shell_match(const char *f, const char *m, void *d) {
 }
 
 static PyObject *search_shell(PyObject *self, PyObject *args) {
-  return search_file(self, args, &shell_match, NULL);
+  char *filename, *pattern;
+
+  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
+    return NULL;
+  if(pattern == NULL || strlen(pattern)<=0) {
+    PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
+    return NULL;
+  }
+  return search_file(filename, &shell_match, pattern);
 }
 
-static int regex_match(const char *f, const char *m, void *d) {
+static int regex_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
   return !regexec((regex_t*)d, f, (size_t)0, NULL, 0);
@@ -163,12 +177,12 @@ static PyObject *search_regex(PyObject *self, PyObject *args) {
     PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
     return NULL;
   }
-  ret = search_file(self, args, &regex_match, (void *)&re);
+  ret = search_file(filename, &regex_match, (void *)&re);
   regfree(&re);
   return ret;
 }
 
-static int pcre_match(const char *f, const char *m, void *d) {
+static int pcre_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
   return pcre_exec((pcre*)d, NULL, f, strlen(f), 0, 0, NULL, 0) >= 0;
@@ -189,7 +203,7 @@ static PyObject *search_pcre(PyObject *self, PyObject *args) {
     PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
     return NULL;
   }
-  ret = search_file(self, args, &pcre_match, (void*)re);
+  ret = search_file(filename, &pcre_match, (void*)re);
 
   pcre_free(re);
   return ret;
