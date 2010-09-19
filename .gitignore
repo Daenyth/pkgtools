@@ -1,2 +1,3 @@
 *.files.*
-pkgfile2
+pkgfile.so
+*.o
