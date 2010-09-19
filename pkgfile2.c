@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fnmatch.h>
 #define ABUFLEN 1024
 
 static cookie_io_functions_t archive_stream_funcs = {
@@ -37,6 +38,17 @@ static int simple_match(const char *f, const char *m) {
   mb = rindex(f, '/');
   if(mb != NULL && !strcmp(mb+1,m))
     return 1;
+  return 0;
+}
+
+static int shell_match(const char *f, const char *m) {
+  char *mb;
+
+  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
+    return 0;
+  mb = rindex(f, '/');
+  if(mb != NULL)
+    return !fnmatch(m, mb+1, 0);
   return 0;
 }
 
@@ -123,6 +135,10 @@ static PyObject *search(PyObject *self, PyObject *args) {
   return search_file(self, args, &simple_match);
 }
 
+static PyObject *search_shell(PyObject *self, PyObject *args) {
+  return search_file(self, args, &shell_match);
+}
+
 static PyObject *search_regex(PyObject *self, PyObject *args) {
   /*return search_file(self, args, &regex_match);*/
   PyErr_SetString(PyExc_NotImplementedError, "Regex searching is not implemented yet.");
@@ -131,6 +147,7 @@ static PyObject *search_regex(PyObject *self, PyObject *args) {
 
 static PyMethodDef PkgfileMethods[] = {
   { "search", (PyCFunction)&search, METH_VARARGS, "foo" },
+  { "search_shell", (PyCFunction)&search_shell, METH_VARARGS, "foo" },
   { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "foo" },
   {NULL, NULL, 0, NULL}
 };
