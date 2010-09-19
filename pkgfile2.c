@@ -23,7 +23,10 @@ static FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
-static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(const char *dbfile, const char *pattern)) {
+static PyObject *search_file(PyObject *self, PyObject *args,
+                             void* (*match_init)(const char *pattern),
+                             int (*match_func)(const char *dbfile, const char *pattern, void *data),
+                             void (*match_uninit)(void *data)) {
   const char *filename, *pattern;
   struct archive *a;
   struct archive_entry *entry;
@@ -33,6 +36,7 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
+  void *data = NULL;
   PyObject *ret, *dict, *pystr;
 
   pname[ABUFLEN-1]='\0';
@@ -46,6 +50,9 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
   if(ret == NULL) {
     return NULL;
   }
+
+  if(match_init != NULL)
+    data = match_init(pattern);
 
   a = archive_read_new();
   archive_read_support_compression_all(a);
@@ -70,6 +77,8 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
       PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
       Py_DECREF(ret);
       archive_read_finish(a);
+      if(match_uninit != NULL)
+        match_uninit(data);
       return NULL;
     }
 
@@ -78,7 +87,7 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
       /* So I'm assuming that nread > 0. */
       if(l[nread - 1] == '\n')
         l[nread - 1] = '\0';	/* Clobber trailing newline. */
-      if(strcmp(l, "%FILES%") && match_func(l, pattern)) {
+      if(strcmp(l, "%FILES%") && match_func(l, pattern, data)) {
         dict = PyDict_New();
 
         pystr = PyString_FromString(dname);
@@ -99,6 +108,8 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
     free(l);
 
   archive_read_finish(a);
+  if(match_uninit != NULL)
+    match_uninit(data);
   return ret;
 }
 
@@ -107,7 +118,7 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
  * The names must either match completely,
  * or m must match the portion of f after the last /
  */
-static int simple_match(const char *f, const char *m) {
+static int simple_match(const char *f, const char *m, void *d) {
   char *mb;
 
   if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
@@ -121,10 +132,10 @@ static int simple_match(const char *f, const char *m) {
 }
 
 static PyObject *search(PyObject *self, PyObject *args) {
-  return search_file(self, args, &simple_match);
+  return search_file(self, args, NULL, &simple_match, NULL);
 }
 
-static int shell_match(const char *f, const char *m) {
+static int shell_match(const char *f, const char *m, void *d) {
   char *mb;
 
   if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
@@ -136,7 +147,7 @@ static int shell_match(const char *f, const char *m) {
 }
 
 static PyObject *search_shell(PyObject *self, PyObject *args) {
-  return search_file(self, args, &shell_match);
+  return search_file(self, args, NULL, &shell_match, NULL);
 }
 
 static PyObject *search_regex(PyObject *self, PyObject *args) {
