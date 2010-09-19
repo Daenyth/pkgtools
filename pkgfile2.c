@@ -133,7 +133,7 @@ static PyObject *search(PyObject *self, PyObject *args) {
     PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
     return NULL;
   }
-  return search_file(filename, &simple_match, pattern);
+  return search_file(filename, &simple_match, (void*)pattern);
 }
 
 static int shell_match(const char *f, void *d) {
@@ -157,7 +157,7 @@ static PyObject *search_shell(PyObject *self, PyObject *args) {
     PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
     return NULL;
   }
-  return search_file(filename, &shell_match, pattern);
+  return search_file(filename, &shell_match, (void*)pattern);
 }
 
 static int regex_match(const char *f, void *d) {
