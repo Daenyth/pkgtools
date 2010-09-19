@@ -39,7 +39,8 @@ static PyObject *search_file(PyObject *self, PyObject *args,
   PyObject *ret, *dict, *pystr;
 
   pname[ABUFLEN-1]='\0';
-  PyArg_ParseTuple(args, "ss", &filename, &pattern);
+  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
+    return NULL;
 
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
     PyErr_Format(PyExc_RuntimeError, "File does not exist: %s\n", filename);
@@ -72,6 +73,8 @@ static PyObject *search_file(PyObject *self, PyObject *args,
     if (!stream) {
       PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
       Py_DECREF(ret);
+      if(l)
+        free(l);
       archive_read_finish(a);
       return NULL;
     }
@@ -153,7 +156,8 @@ static PyObject *search_regex(PyObject *self, PyObject *args) {
   char *filename, *pattern;
   PyObject *ret;
 
-  PyArg_ParseTuple(args, "ss", &filename, &pattern);
+  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
+    return NULL;
   if(regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB) != 0) {
     PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
     return NULL;
