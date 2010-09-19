@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fnmatch.h>
+#include <regex.h>
 #define ABUFLEN 1024
 
 static cookie_io_functions_t archive_stream_funcs = {
@@ -141,10 +142,23 @@ static PyObject *search_shell(PyObject *self, PyObject *args) {
   return search_file(self, args, &shell_match, NULL);
 }
 
+static int regex_match(const char *f, const char *m, void *d) {
+  return !regexec((regex_t*)d, f, (size_t)0, NULL, 0);
+}
+
 static PyObject *search_regex(PyObject *self, PyObject *args) {
-  /*return search_file(self, args, &regex_match);*/
-  PyErr_SetString(PyExc_NotImplementedError, "Regex searching is not implemented yet.");
-  return NULL;
+  regex_t re;
+  char *filename, *pattern;
+  PyObject *ret;
+
+  PyArg_ParseTuple(args, "ss", &filename, &pattern);
+  if(regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB) != 0) {
+    PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
+    return NULL;
+  }
+  ret = search_file(self, args, &regex_match, (void *)&re);
+  regfree(&re);
+  return ret;
 }
 
 static PyMethodDef PkgfileMethods[] = {
