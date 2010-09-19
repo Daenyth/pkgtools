@@ -72,8 +72,6 @@ static PyObject *search_file(PyObject *self, PyObject *args,
       PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
       Py_DECREF(ret);
       archive_read_finish(a);
-      if(match_uninit != NULL)
-        match_uninit(data);
       return NULL;
     }
 
