@@ -24,9 +24,8 @@ static FILE *open_archive_stream(struct archive *archive) {
 }
 
 static PyObject *search_file(PyObject *self, PyObject *args,
-                             void* (*match_init)(const char *pattern),
                              int (*match_func)(const char *dbfile, const char *pattern, void *data),
-                             void (*match_uninit)(void *data)) {
+                             void *data) {
   const char *filename, *pattern;
   struct archive *a;
   struct archive_entry *entry;
@@ -36,7 +35,6 @@ static PyObject *search_file(PyObject *self, PyObject *args,
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
-  void *data = NULL;
   PyObject *ret, *dict, *pystr;
 
   pname[ABUFLEN-1]='\0';
@@ -50,9 +48,6 @@ static PyObject *search_file(PyObject *self, PyObject *args,
   if(ret == NULL) {
     return NULL;
   }
-
-  if(match_init != NULL)
-    data = match_init(pattern);
 
   a = archive_read_new();
   archive_read_support_compression_all(a);
@@ -108,8 +103,6 @@ static PyObject *search_file(PyObject *self, PyObject *args,
     free(l);
 
   archive_read_finish(a);
-  if(match_uninit != NULL)
-    match_uninit(data);
   return ret;
 }
 
@@ -132,7 +125,7 @@ static int simple_match(const char *f, const char *m, void *d) {
 }
 
 static PyObject *search(PyObject *self, PyObject *args) {
-  return search_file(self, args, NULL, &simple_match, NULL);
+  return search_file(self, args, &simple_match, NULL);
 }
 
 static int shell_match(const char *f, const char *m, void *d) {
@@ -147,7 +140,7 @@ static int shell_match(const char *f, const char *m, void *d) {
 }
 
 static PyObject *search_shell(PyObject *self, PyObject *args) {
-  return search_file(self, args, NULL, &shell_match, NULL);
+  return search_file(self, args, &shell_match, NULL);
 }
 
 static PyObject *search_regex(PyObject *self, PyObject *args) {
