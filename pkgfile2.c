@@ -197,14 +197,19 @@ static PyObject *search_regex(PyObject *self, PyObject *args) {
   return ret;
 }
 
+struct my_pcredata {
+  pcre *re;
+  pcre_extra *re_extra;
+};
+
 static int pcre_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
-  return pcre_exec((pcre*)d, NULL, f, strlen(f), 0, 0, NULL, 0) >= 0;
+  return pcre_exec(((struct my_pcredata*)d)->re, ((struct my_pcredata*)d)->re_extra, f, strlen(f), 0, 0, NULL, 0) >= 0;
 }
 
 static PyObject *search_pcre(PyObject *self, PyObject *args) {
-  pcre *re;
+  struct my_pcredata d;
   char *filename, *pattern;
   const char *error;
   int erroffset;
@@ -213,14 +218,21 @@ static PyObject *search_pcre(PyObject *self, PyObject *args) {
   if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
     return NULL;
 
-  re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
-  if(re == NULL) {
+  d.re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
+  if(d.re == NULL) {
     PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
     return NULL;
   }
-  ret = search_file(filename, &pcre_match, (void*)re);
+  d.re_extra = pcre_study(d.re, 0, &error);
+  if(d.re_extra == NULL) {
+    PyErr_Format(PyExc_RuntimeError, "Could not study regex: %s", error);
+    pcre_free(d.re);
+    return NULL;
+  }
+  ret = search_file(filename, &pcre_match, (void*)&d);
 
-  pcre_free(re);
+  pcre_free(d.re);
+  pcre_free(d.re_extra);
   return ret;
 }
 
