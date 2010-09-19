@@ -23,35 +23,6 @@ static FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
-/*
- * Matches the db entry f to the argument m
- * The names must either match completely,
- * or m must match the portion of f after the last /
- */
-static int simple_match(const char *f, const char *m) {
-  char *mb;
-
-  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
-    return 0;
-  if((m[0]=='/' && !strcmp(f,m+1)) || !strcmp(f, m))
-    return 1;
-  mb = rindex(f, '/');
-  if(mb != NULL && !strcmp(mb+1,m))
-    return 1;
-  return 0;
-}
-
-static int shell_match(const char *f, const char *m) {
-  char *mb;
-
-  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
-    return 0;
-  mb = rindex(f, '/');
-  if(mb != NULL)
-    return !fnmatch(m, mb+1, 0);
-  return 0;
-}
-
 static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(const char *dbfile, const char *pattern)) {
   const char *filename, *pattern;
   struct archive *a;
@@ -131,8 +102,37 @@ static PyObject *search_file(PyObject *self, PyObject *args, int (*match_func)(c
   return ret;
 }
 
+/*
+ * Matches the db entry f to the argument m
+ * The names must either match completely,
+ * or m must match the portion of f after the last /
+ */
+static int simple_match(const char *f, const char *m) {
+  char *mb;
+
+  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
+    return 0;
+  if((m[0]=='/' && !strcmp(f,m+1)) || !strcmp(f, m))
+    return 1;
+  mb = rindex(f, '/');
+  if(mb != NULL && !strcmp(mb+1,m))
+    return 1;
+  return 0;
+}
+
 static PyObject *search(PyObject *self, PyObject *args) {
   return search_file(self, args, &simple_match);
+}
+
+static int shell_match(const char *f, const char *m) {
+  char *mb;
+
+  if(f==NULL || strlen(f)<0 || m==NULL || strlen(m)<0)
+    return 0;
+  mb = rindex(f, '/');
+  if(mb != NULL)
+    return !fnmatch(m, mb+1, 0);
+  return 0;
 }
 
 static PyObject *search_shell(PyObject *self, PyObject *args) {
