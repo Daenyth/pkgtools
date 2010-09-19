@@ -111,7 +111,7 @@ static PyObject *search_file(const char *filename,
   return ret;
 
 cleanup:
-  Py_DECREF(dict)
+  Py_DECREF(dict);
 cleanup2:
   if(l)
     free(l);
