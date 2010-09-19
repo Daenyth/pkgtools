@@ -83,11 +83,17 @@ static PyObject *search_file(const char *filename,
         l[nread - 1] = '\0';	/* Clobber trailing newline. */
       if(strcmp(l, "%FILES%") && match_func(l, data)) {
         dict = PyDict_New();
+        if(dict == NULL)
+          goto cleanup2;
 
         pystr = PyString_FromString(dname);
+        if(pystr == NULL)
+          goto cleanup;
         PyDict_SetItemString(dict, "package", pystr);
         Py_DECREF(pystr);
         pystr = PyString_FromString(l);
+        if(pystr == NULL)
+          goto cleanup;
         PyDict_SetItemString(dict, "file", pystr);
         Py_DECREF(pystr);
 
@@ -103,6 +109,15 @@ static PyObject *search_file(const char *filename,
 
   archive_read_finish(a);
   return ret;
+
+cleanup:
+  Py_DECREF(dict)
+cleanup2:
+  if(l)
+    free(l);
+  archive_read_finish(a);
+  Py_DECREF(ret);
+  return NULL;
 }
 
 /*
