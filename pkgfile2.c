@@ -196,10 +196,10 @@ static PyObject *search_pcre(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef PkgfileMethods[] = {
-  { "search", (PyCFunction)&search, METH_VARARGS, "foo" },
-  { "search_shell", (PyCFunction)&search_shell, METH_VARARGS, "foo" },
-  { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "foo" },
-  { "search_pcre", (PyCFunction)&search_pcre, METH_VARARGS, "foo" },
+  { "search", (PyCFunction)&search, METH_VARARGS, "Search for a filename or pathname in a file list tarball." },
+  { "search_shell", (PyCFunction)&search_shell, METH_VARARGS, "Search for a filename in a file list tarball using shell pattern matching." },
+  { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "Search for a pathname in a file list tarball using glibc regular expressions." },
+  { "search_pcre", (PyCFunction)&search_pcre, METH_VARARGS, "Search for a pathname in a file list tarball using pcre regular expressions." },
   {NULL, NULL, 0, NULL}
 };
 
