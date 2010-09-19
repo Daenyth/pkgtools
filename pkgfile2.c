@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <fnmatch.h>
 #include <regex.h>
+#include <pcre.h>
 #define ABUFLEN 1024
 
 static cookie_io_functions_t archive_stream_funcs = {
@@ -167,10 +168,38 @@ static PyObject *search_regex(PyObject *self, PyObject *args) {
   return ret;
 }
 
+static int pcre_match(const char *f, const char *m, void *d) {
+  if(f==NULL || strlen(f)<=0)
+    return 0;
+  return pcre_exec((pcre*)d, NULL, f, strlen(f), 0, 0, NULL, 0) >= 0;
+}
+
+static PyObject *search_pcre(PyObject *self, PyObject *args) {
+  pcre *re;
+  char *filename, *pattern;
+  const char *error;
+  int erroffset;
+  PyObject *ret;
+
+  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
+    return NULL;
+
+  re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
+  if(re == NULL) {
+    PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
+    return NULL;
+  }
+  ret = search_file(self, args, &pcre_match, (void*)re);
+
+  pcre_free(re);
+  return ret;
+}
+
 static PyMethodDef PkgfileMethods[] = {
   { "search", (PyCFunction)&search, METH_VARARGS, "foo" },
   { "search_shell", (PyCFunction)&search_shell, METH_VARARGS, "foo" },
   { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "foo" },
+  { "search_pcre", (PyCFunction)&search_pcre, METH_VARARGS, "foo" },
   {NULL, NULL, 0, NULL}
 };
 
