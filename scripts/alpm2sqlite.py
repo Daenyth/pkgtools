@@ -180,9 +180,6 @@ def open_db(dbfile):
     # do not sync to disk. If the OS crashes, the db could be corrupted.
     conn.execute('PRAGMA SYNCHRONOUS=0')
 
-    # try to get speed. Useless ?
-    conn.execute('PRAGMA journal_mode=PERSIST')
-
     # create the db if it's not already there
     conn.execute('''CREATE TABLE IF NOT EXISTS pkg(
         name        TEXT,
