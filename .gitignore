@@ -3,3 +3,6 @@ pkg
 *pkg.tar.*
 pkgtools.tar.gz
 .*.swp
+*.files.*
+pkgfile.so
+*.o

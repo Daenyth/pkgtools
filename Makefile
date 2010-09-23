@@ -3,6 +3,9 @@ INSTALL_DATA = $(INSTALL) -Dm644
 INSTALL_PROGRAM = $(INSTALL) -Dm755
 INSTALL_CRON = $(INSTALL) -Dm744
 
+CC=gcc
+CFLAGS ?= -Wall -O2 -pipe
+
 prefix = /usr
 exec_prefix = $(prefix)
 confdir = /etc
@@ -16,6 +19,7 @@ mandir = $(prefix)/share/man
 
 .PHONY: install uninstall
 
+all: pkgfile.so
 
 install:
 	# Common functions needed by all scripts
@@ -65,3 +69,12 @@ uninstall:
 	rm -Rf $(DESTDIR)$(confdir)/pkgtools
 	rm $(DESTDIR)$(mandir)/man8/spec2arch.8
 	rm $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
+
+pkgfile2.o: pkgfile2.c
+	$(CC) -c $(CFLAGS) -I/usr/include/python2.6 -fPIC pkgfile2.c
+
+pkgfile.so: pkgfile2.o
+	$(CC) $(LDFLAGS) -shared -fPIC -larchive -lpcre pkgfile2.o -o pkgfile.so
+
+clean:
+	rm -f pkgfile.so pkgfile2.o
