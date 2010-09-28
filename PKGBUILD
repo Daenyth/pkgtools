@@ -19,6 +19,7 @@ md5sums=('cc512f71cef9dfbfb05afa615496e0a3')
 build() {
   cd "$srcdir/Daenyth-$pkgname"-*
 
+  make
   make DESTDIR="$pkgdir" install
 }
 

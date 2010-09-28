@@ -3,9 +3,6 @@ INSTALL_DATA = $(INSTALL) -Dm644
 INSTALL_PROGRAM = $(INSTALL) -Dm755
 INSTALL_CRON = $(INSTALL) -Dm744
 
-CC=gcc
-CFLAGS ?= -Wall -O2 -pipe
-
 prefix = /usr
 exec_prefix = $(prefix)
 confdir = /etc
@@ -35,9 +32,10 @@ install:
 	# pkgfile
 	$(INSTALL) -d $(DESTDIR)$(cachedir)
 	$(INSTALL_PROGRAM) scripts/pkgfile.py $(DESTDIR)$(bindir)/pkgfile
-	$(INSTALL_PROGRAM) scripts/alpm2sqlite.py $(DESTDIR)$(libdir)/python2.6/site-packages/alpm2sqlite.py
 	$(INSTALL_DATA) confs/pkgfile.conf $(DESTDIR)$(confdir)/pkgtools/pkgfile.conf
 	$(INSTALL_CRON) other/pkgfile.cron $(DESTDIR)$(crondir)/pkgfile
+	# install pkgfile.so module
+	(cd modules; python ./setup.py install --root=$(DESTDIR))
 	# Loads shell hooks
 	$(INSTALL_PROGRAM) other/pkgfile-hook.sh $(DESTDIR)$(profiledir)/pkgfile-hook.sh
 	$(INSTALL_DATA) other/pkgfile-hook.zsh $(DESTDIR)$(sharedir)/pkgfile-hook.zsh
@@ -70,11 +68,8 @@ uninstall:
 	rm $(DESTDIR)$(mandir)/man8/spec2arch.8
 	rm $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
 
-pkgfile2.o: pkgfile2.c
-	$(CC) -c $(CFLAGS) -I/usr/include/python2.6 -fPIC pkgfile2.c
-
-pkgfile.so: pkgfile2.o
-	$(CC) $(LDFLAGS) -shared -fPIC -larchive -lpcre pkgfile2.o -o pkgfile.so
+pkgfile.so:
+	(cd modules; python ./setup.py build)
 
 clean:
-	rm -f pkgfile.so pkgfile2.o
+	(rm -rf modules/build)
