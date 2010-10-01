@@ -3,20 +3,15 @@
 # This script will look-up command in the database and suggest
 # installation of packages available from the repository
 #
-function preexec() {
-  command="${1%% *}"
-}
- 
-function precmd() {
-  (($?)) && [ -n "$command" ] && [ -x /usr/bin/pkgfile ] && {
-    which -- "$command" >& /dev/null 
-    if [ $? -ne 0 ]; then
+function command_not_found_handler() {
+  local command="$1"
+  [ -n "$command" ] && [ -x /usr/bin/pkgfile ] && {
+      echo -e "searching for \"$command\" in repos..."
       local pkgs="$(pkgfile -b -v "$command")"
       if [ ! -z "$pkgs" ]; then
         echo -e "\"$command\" may be found in the following packages:\n\n${pkgs}\n"
       fi
-    fi
-    unset command
   }
+  return 1
 }
 # vim: set filetype=zsh :
