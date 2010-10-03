@@ -36,7 +36,7 @@ static PyObject *search_file(const char *filename,
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
-  PyObject *ret, *dict, *pystr;
+  PyObject *ret, *dict, *pystr, *files;
 
   pname[ABUFLEN-1]='\0';
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
@@ -45,6 +45,12 @@ static PyObject *search_file(const char *filename,
   }
   ret = PyList_New(0);
   if(ret == NULL) {
+    return NULL;
+  }
+
+  files = PyList_New(0);
+  if(files == NULL) {
+    Py_DECREF(ret);
     return NULL;
   }
 
@@ -69,11 +75,7 @@ static PyObject *search_file(const char *filename,
     stream = open_archive_stream(a);
     if (!stream) {
       PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
-      Py_DECREF(ret);
-      if(l)
-        free(l);
-      archive_read_finish(a);
-      return NULL;
+      goto cleanup;
     }
 
     while((nread = getline(&l, &n, stream)) != -1) {
@@ -82,28 +84,39 @@ static PyObject *search_file(const char *filename,
       if(l[nread - 1] == '\n')
         l[nread - 1] = '\0';	/* Clobber trailing newline. */
       if(strcmp(l, "%FILES%") && match_func(l, data)) {
-        dict = PyDict_New();
-        if(dict == NULL)
-          goto cleanup2;
-
-        pystr = PyString_FromString(dname);
-        if(pystr == NULL)
-          goto cleanup;
-        PyDict_SetItemString(dict, "package", pystr);
-        Py_DECREF(pystr);
         pystr = PyString_FromString(l);
         if(pystr == NULL)
           goto cleanup;
-        PyDict_SetItemString(dict, "file", pystr);
+        PyList_Append(files, pystr);
         Py_DECREF(pystr);
-
-        PyList_Append(ret, dict);
-        Py_DECREF(dict);
       }
+    }
+
+    if(PyList_Size(files) > 0) {
+      pystr = PyString_FromString(dname);
+      if(pystr == NULL)
+        goto cleanup;
+      dict = PyDict_New();
+      if(dict == NULL) {
+        Py_DECREF(pystr);
+        goto cleanup;
+      }
+      PyDict_SetItemString(dict, "package", pystr);
+      Py_DECREF(pystr);
+      PyDict_SetItemString(dict, "files", files);
+      Py_DECREF(files);
+
+      PyList_Append(ret, dict);
+      Py_DECREF(dict);
+
+      files = PyList_New(0);
+      if(files == NULL)
+        goto cleanup_nofiles;
     }
     fclose(stream);
   }
 
+  Py_DECREF(files);
   if(l)
     free(l);
 
@@ -111,8 +124,8 @@ static PyObject *search_file(const char *filename,
   return ret;
 
 cleanup:
-  Py_DECREF(dict);
-cleanup2:
+  Py_DECREF(files);
+cleanup_nofiles:
   if(l)
     free(l);
   archive_read_finish(a);
