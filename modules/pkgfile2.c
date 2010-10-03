@@ -152,18 +152,6 @@ static int simple_match(const char *f, void *d) {
   return 0;
 }
 
-static PyObject *search(PyObject *self, PyObject *args) {
-  char *filename, *pattern;
-
-  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
-    return NULL;
-  if(pattern == NULL || strlen(pattern)<=0) {
-    PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
-    return NULL;
-  }
-  return search_file(filename, &simple_match, (void*)pattern);
-}
-
 static int shell_match(const char *f, void *d) {
   char *mb;
   const char *m = (const char*)d;
@@ -176,38 +164,10 @@ static int shell_match(const char *f, void *d) {
   return 0;
 }
 
-static PyObject *search_shell(PyObject *self, PyObject *args) {
-  char *filename, *pattern;
-
-  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
-    return NULL;
-  if(pattern == NULL || strlen(pattern)<=0) {
-    PyErr_SetString(PyExc_RuntimeError, "Empty pattern given");
-    return NULL;
-  }
-  return search_file(filename, &shell_match, (void*)pattern);
-}
-
 static int regex_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
   return !regexec((regex_t*)d, f, (size_t)0, NULL, 0);
-}
-
-static PyObject *search_regex(PyObject *self, PyObject *args) {
-  regex_t re;
-  char *filename, *pattern;
-  PyObject *ret;
-
-  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
-    return NULL;
-  if(regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB) != 0) {
-    PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
-    return NULL;
-  }
-  ret = search_file(filename, &regex_match, (void *)&re);
-  regfree(&re);
-  return ret;
 }
 
 struct my_pcredata {
@@ -221,44 +181,213 @@ static int pcre_match(const char *f, void *d) {
   return pcre_exec(((struct my_pcredata*)d)->re, ((struct my_pcredata*)d)->re_extra, f, strlen(f), 0, 0, NULL, 0) >= 0;
 }
 
-static PyObject *search_pcre(PyObject *self, PyObject *args) {
-  struct my_pcredata d;
-  char *filename, *pattern;
-  const char *error;
-  int erroffset;
-  PyObject *ret;
-
-  if(!PyArg_ParseTuple(args, "ss", &filename, &pattern))
-    return NULL;
-
-  d.re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
-  if(d.re == NULL) {
-    PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
-    return NULL;
-  }
-  d.re_extra = pcre_study(d.re, 0, &error);
-  if(error != NULL) {
-    PyErr_Format(PyExc_RuntimeError, "Could not study regex: %s", error);
-    pcre_free(d.re);
-    return NULL;
-  }
-  ret = search_file(filename, &pcre_match, (void*)&d);
-
-  pcre_free(d.re);
-  pcre_free(d.re_extra);
-  return ret;
-}
-
 static PyMethodDef PkgfileMethods[] = {
-  { "search", (PyCFunction)&search, METH_VARARGS, "Search for a filename or pathname in a file list tarball." },
-  { "search_shell", (PyCFunction)&search_shell, METH_VARARGS, "Search for a filename in a file list tarball using shell pattern matching." },
-  { "search_regex", (PyCFunction)&search_regex, METH_VARARGS, "Search for a pathname in a file list tarball using glibc regular expressions." },
-  { "search_pcre", (PyCFunction)&search_pcre, METH_VARARGS, "Search for a pathname in a file list tarball using pcre regular expressions." },
   {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC
-initpkgfile(void)
-{
-  (void) Py_InitModule("pkgfile", PkgfileMethods);
+typedef enum {
+  MATCH_NONE,
+  MATCH_SIMPLE,
+  MATCH_SHELL,
+  MATCH_REGEX,
+  MATCH_PCRE
+} SearchTypes;
+
+typedef struct {
+  PyObject_HEAD
+  SearchTypes search_type;
+  int (*match_func)(const char *dbfile, void *data);
+  void *data;
+} Search;
+
+static PyObject *Search_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+  Search *self;
+
+  self = (Search*)type->tp_alloc(type, 0);
+  if (self != NULL) {
+    self->search_type = MATCH_NONE;
+    self->match_func = NULL;
+    self->data = NULL;
+  }
+
+  return (PyObject *)self;
+}
+
+static void Search_reset(Search *self) {
+  /* For PCRE only */
+  struct my_pcredata *pd;
+
+  switch(self->search_type) {
+    case MATCH_SIMPLE:
+    case MATCH_SHELL:
+      free(self->data);
+      break;
+    case MATCH_REGEX:
+      regfree(self->data);
+      free(self->data);
+      break;
+    case MATCH_PCRE:
+      pd = (struct my_pcredata*)self->data;
+      pcre_free(pd->re);
+      pcre_free(pd->re_extra);
+      free(self->data);
+      break;
+    case MATCH_NONE:
+      break;
+  }
+  self->search_type = MATCH_NONE;
+  self->match_func = NULL;
+  self->data = NULL;
+}
+
+static void Search_dealloc(Search* self) {
+  Search_reset(self);
+  self->ob_type->tp_free((PyObject*)self);
+}
+
+static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
+  long t;
+  const char *pattern;
+  /* For PCRE only */
+  struct my_pcredata *pd;
+  const char *error;
+  int erroffset;
+
+  Search_reset(self);
+  if(!PyArg_ParseTuple(args, "ls", &t, &pattern))
+    return -1;
+
+  switch(t) {
+    case MATCH_SIMPLE:
+      if(pattern != NULL && strlen(pattern)>0) {
+        self->match_func = &simple_match;
+        self->data = (void*)strdup(pattern);
+      } else {
+        PyErr_SetString(PyExc_RuntimeError, "Empty pattern given.");
+        return -1;
+      }
+      break;
+    case MATCH_SHELL:
+      if(pattern != NULL && strlen(pattern)>0) {
+        self->match_func = &shell_match;
+        self->data = (void*)strdup(pattern);
+      } else {
+        PyErr_SetString(PyExc_RuntimeError, "Empty pattern given.");
+        return -1;
+      }
+      break;
+    case MATCH_REGEX:
+      self->match_func = &regex_match;
+      self->data = malloc(sizeof(regex_t));
+      if(self->data == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to allocate memory.");
+        return -1;
+      }
+      if(regcomp(self->data, pattern, REG_EXTENDED | REG_NOSUB) != 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
+        free(self->data);
+        return -1;
+      }
+      break;
+    case MATCH_PCRE:
+      self->match_func = &pcre_match;
+      self->data = malloc(sizeof(struct my_pcredata));
+      pd = (struct my_pcredata*)self->data;
+
+      pd->re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
+      if(pd->re == NULL) {
+        PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
+        free(self->data);
+        return -1;
+      }
+      pd->re_extra = pcre_study(pd->re, 0, &error);
+      if(error != NULL) {
+        PyErr_Format(PyExc_RuntimeError, "Could not study regex: %s", error);
+        pcre_free(pd->re);
+        free(self->data);
+        return -1;
+      }
+      break;
+    default:
+      PyErr_SetString(PyExc_RuntimeError, "Invalid matching method given.");
+      return -1;
+  }
+  self->search_type = t;
+  return 0;
+}
+
+static PyObject *Search_call(Search *self, PyObject *args, PyObject *kw) {
+  const char *filename;
+  static char *kwlist[] = {"filename", NULL};
+
+  if(!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &filename))
+    return NULL;
+  if(filename == NULL || strlen(filename)<=0) {
+    PyErr_SetString(PyExc_RuntimeError, "Empty files tarball name given.");
+    return NULL;
+  }
+  if(self->search_type == MATCH_NONE || self->match_func == NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "Invalid matching function.");
+    return NULL;
+  }
+  return search_file(filename, self->match_func, self->data);
+}
+
+static PyTypeObject SearchType = {
+  PyObject_HEAD_INIT(NULL)
+  0,                          /*ob_size*/
+  "pkgfile.Search",           /*tp_name*/
+  sizeof(Search),             /*tp_basicsize*/
+  0,                          /*tp_itemsize*/
+  (destructor)Search_dealloc, /*tp_dealloc*/
+  0,                          /*tp_print*/
+  0,                          /*tp_getattr*/
+  0,                          /*tp_setattr*/
+  0,                          /*tp_compare*/
+  0,                          /*tp_repr*/
+  0,                          /*tp_as_number*/
+  0,                          /*tp_as_sequence*/
+  0,                          /*tp_as_mapping*/
+  0,                          /*tp_hash */
+  (ternaryfunc)Search_call,   /*tp_call*/
+  0,                          /*tp_str*/
+  0,                          /*tp_getattro*/
+  0,                          /*tp_setattro*/
+  0,                          /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT,         /*tp_flags*/
+  "Search object",            /* tp_doc */
+  0,                          /* tp_traverse */
+  0,                          /* tp_clear */
+  0,                          /* tp_richcompare */
+  0,                          /* tp_weaklistoffset */
+  0,                          /* tp_iter */
+  0,                          /* tp_iternext */
+  0,                          /* tp_methods */
+  0,                          /* tp_members */
+  0,                          /* tp_getset */
+  0,                          /* tp_base */
+  0,                          /* tp_dict */
+  0,                          /* tp_descr_get */
+  0,                          /* tp_descr_set */
+  0,                          /* tp_dictoffset */
+  (initproc)Search_init,      /* tp_init */
+  0,                          /* tp_alloc */
+  Search_new,                 /* tp_new */
+};
+
+PyMODINIT_FUNC initpkgfile(void) {
+  PyObject *m;
+  m = Py_InitModule("pkgfile", PkgfileMethods);
+
+  if(m == NULL)
+    return;
+
+  if (PyType_Ready(&SearchType) < 0)
+    return;
+  Py_INCREF(&SearchType);
+  PyModule_AddObject(m, "Search", (PyObject*)&SearchType);
+  PyModule_AddIntConstant(m, "MATCH_SIMPLE", MATCH_SIMPLE);
+  PyModule_AddIntConstant(m, "MATCH_SHELL", MATCH_SHELL);
+  PyModule_AddIntConstant(m, "MATCH_REGEX", MATCH_REGEX);
+  PyModule_AddIntConstant(m, "MATCH_PCRE", MATCH_PCRE);
 }
