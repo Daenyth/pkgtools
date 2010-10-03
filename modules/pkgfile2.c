@@ -15,7 +15,7 @@
 #define ABUFLEN 1024
 
 static cookie_io_functions_t archive_stream_funcs = {
-.read = archive_read_data,
+.read = (cookie_read_function_t*)archive_read_data,
 .write = NULL,
 .seek = NULL,
 .close = NULL
@@ -376,7 +376,7 @@ static PyTypeObject SearchType = {
 };
 
 PyMODINIT_FUNC initpkgfile(void) {
-  PyObject *m;
+  PyObject *m, *to;
   m = Py_InitModule("pkgfile", PkgfileMethods);
 
   if(m == NULL)
@@ -384,7 +384,8 @@ PyMODINIT_FUNC initpkgfile(void) {
 
   if (PyType_Ready(&SearchType) < 0)
     return;
-  Py_INCREF(&SearchType);
+  to = (PyObject*)&SearchType;
+  Py_INCREF(to);
   PyModule_AddObject(m, "Search", (PyObject*)&SearchType);
   PyModule_AddIntConstant(m, "MATCH_SIMPLE", MATCH_SIMPLE);
   PyModule_AddIntConstant(m, "MATCH_SHELL", MATCH_SHELL);
