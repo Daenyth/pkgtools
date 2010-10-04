@@ -40,7 +40,7 @@ static PyObject *search_file(const char *filename,
 
   pname[ABUFLEN-1]='\0';
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
-    PyErr_Format(PyExc_RuntimeError, "File does not exist: %s\n", filename);
+    PyErr_Format(PyExc_IOError, "File does not exist: %s\n", filename);
     return NULL;
   }
   ret = PyList_New(0);
@@ -263,7 +263,7 @@ static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
         self->match_func = &simple_match;
         self->data = (void*)strdup(pattern);
       } else {
-        PyErr_SetString(PyExc_RuntimeError, "Empty pattern given.");
+        PyErr_SetString(PyExc_ValueError, "Empty pattern given.");
         return -1;
       }
       break;
@@ -272,7 +272,7 @@ static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
         self->match_func = &shell_match;
         self->data = (void*)strdup(pattern);
       } else {
-        PyErr_SetString(PyExc_RuntimeError, "Empty pattern given.");
+        PyErr_SetString(PyExc_ValueError, "Empty pattern given.");
         return -1;
       }
       break;
@@ -280,7 +280,7 @@ static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
       self->match_func = &regex_match;
       self->data = malloc(sizeof(regex_t));
       if(self->data == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to allocate memory.");
+        PyErr_SetString(PyExc_MemoryError, "Unable to allocate memory.");
         return -1;
       }
       if(regcomp(self->data, pattern, REG_EXTENDED | REG_NOSUB) != 0) {
@@ -292,6 +292,10 @@ static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
     case MATCH_PCRE:
       self->match_func = &pcre_match;
       self->data = malloc(sizeof(struct my_pcredata));
+      if(self->data == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "Unable to allocate memory.");
+        return -1;
+      }
       pd = (struct my_pcredata*)self->data;
 
       pd->re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
@@ -309,7 +313,7 @@ static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
       }
       break;
     default:
-      PyErr_SetString(PyExc_RuntimeError, "Invalid matching method given.");
+      PyErr_SetString(PyExc_ValueError, "Invalid matching method given.");
       return -1;
   }
   self->search_type = t;
@@ -323,7 +327,7 @@ static PyObject *Search_call(Search *self, PyObject *args, PyObject *kw) {
   if(!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &filename))
     return NULL;
   if(filename == NULL || strlen(filename)<=0) {
-    PyErr_SetString(PyExc_RuntimeError, "Empty files tarball name given.");
+    PyErr_SetString(PyExc_ValueError, "Empty files tarball name given.");
     return NULL;
   }
   if(self->search_type == MATCH_NONE || self->match_func == NULL) {
