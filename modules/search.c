@@ -4,6 +4,7 @@
 #include <archive_entry.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 #include <libgen.h>
 #include "search.h"
 #include "match.h"
@@ -20,14 +21,22 @@ static FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
+typedef enum {
+  SEARCH_NONE,
+  SEARCH_PATH,
+  SEARCH_FILENAME,
+  SEARCH_PACKAGE
+} SearchType;
+
 static PyObject *search_file(const char *filename,
-                             int (*match_func)(const char *dbfile, void *data),
+                             MatchFunc match_func,
+                             SearchType search_type,
                              void *data) {
   struct archive *a;
   struct archive_entry *entry;
   struct stat st;
   char pname[ABUFLEN], *fname, *dname;
-  char *l = NULL;
+  char *l = NULL, *m, *p;
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
@@ -66,6 +75,18 @@ static PyObject *search_file(const char *filename,
       archive_read_data_skip(a);
       continue;
     }
+    if(search_type == SEARCH_PACKAGE) {
+      m = strdup(dname);
+      p = m + strlen(m);
+      for(--p; *p && *p != '-'; --p);
+      for(--p; *m && *p != '-'; --p);
+      if(p<=m || *p != '-' || (*p = '\0', !match_func(m, data))) {
+        free(m);
+        archive_read_data_skip(a);
+        continue;
+      }
+      free(m);
+    }
     
     stream = open_archive_stream(a);
     if (!stream) {
@@ -78,7 +99,16 @@ static PyObject *search_file(const char *filename,
       /* So I'm assuming that nread > 0. */
       if(l[nread - 1] == '\n')
         l[nread - 1] = '\0';  /* Clobber trailing newline. */
-      if(strcmp(l, "%FILES%") && match_func(l, data)) {
+      if(strcmp(l, "%FILES%") == 0)
+        continue;
+      if(search_type == SEARCH_FILENAME) {
+        m = rindex(l, '/');
+        if(m == NULL || strlen(m) == 0 || strlen(++m) == 0)
+          continue;
+      } else {
+        m = l;
+      }
+      if(search_type == SEARCH_PACKAGE || match_func(m, data)) {
         pystr = PyString_FromString(l);
         if(pystr == NULL)
           goto cleanup;
@@ -130,8 +160,9 @@ cleanup_nofiles:
 
 typedef struct {
   PyObject_HEAD
-  MatchType search_type;
-  int (*match_func)(const char *dbfile, void *data);
+  MatchType match_type;
+  MatchFunc match_func;
+  SearchType search_type;
   void *data;
 } Search;
 
@@ -140,8 +171,9 @@ static PyObject *Search_new(PyTypeObject *type, PyObject *args, PyObject *kwds) 
 
   self = (Search*)type->tp_alloc(type, 0);
   if (self != NULL) {
-    self->search_type = MATCH_NONE;
+    self->match_type = MATCH_NONE;
     self->match_func = NULL;
+    self->search_type = SEARCH_NONE;
     self->data = NULL;
   }
 
@@ -149,18 +181,30 @@ static PyObject *Search_new(PyTypeObject *type, PyObject *args, PyObject *kwds) 
 }
 
 static void Search_dealloc(Search* self) {
-  match_reset(&(self->search_type), &(self->match_func), &(self->data));
+  match_reset(&(self->match_type), &(self->match_func), &(self->data));
   self->ob_type->tp_free((PyObject*)self);
 }
 
-static int Search_init(Search *self, PyObject *args, PyObject *kwds) {
-  long t;
+static int Search_init(Search *self, PyObject *args, PyObject *kw) {
+  long mt, st;
   const char *pattern;
+  static char *kwlist[] = {"matchtype", "searchtype", "pattern"};
 
-  match_reset(&(self->search_type), &(self->match_func), &(self->data));
-  if(!PyArg_ParseTuple(args, "ls", &t, &pattern))
+  match_reset(&(self->match_type), &(self->match_func), &(self->data));
+  self->search_type = SEARCH_NONE;
+  if(!PyArg_ParseTupleAndKeywords(args, kw, "lls", kwlist, &mt, &st, &pattern))
     return -1;
-  return match_init(t, pattern, &(self->search_type), &(self->match_func), &(self->data));
+  switch(st) {
+    case SEARCH_PATH:
+    case SEARCH_PACKAGE:
+    case SEARCH_FILENAME:
+      break;
+    default:
+      PyErr_SetString(PyExc_ValueError, "Invalid search type given.");
+      return -1;
+  }
+  self->search_type = st;
+  return match_init(mt, pattern, &(self->match_type), &(self->match_func), &(self->data));
 }
 
 static PyObject *Search_call(Search *self, PyObject *args, PyObject *kw) {
@@ -173,14 +217,14 @@ static PyObject *Search_call(Search *self, PyObject *args, PyObject *kw) {
     PyErr_SetString(PyExc_ValueError, "Empty files tarball name given.");
     return NULL;
   }
-  if(self->search_type == MATCH_NONE || self->match_func == NULL) {
-    PyErr_SetString(PyExc_RuntimeError, "Invalid matching function.");
+  if(self->match_type == MATCH_NONE || self->match_func == NULL || self->search_type == SEARCH_NONE) {
+    PyErr_SetString(PyExc_RuntimeError, "Invalid matching function or search type.");
     return NULL;
   }
-  return search_file(filename, self->match_func, self->data);
+  return search_file(filename, self->match_func, self->search_type, self->data);
 }
 
-static PyTypeObject SearchType = {
+static PyTypeObject SearchPyType = {
   PyObject_HEAD_INIT(NULL)
   0,                          /*ob_size*/
   "pkgfile.Search",           /*tp_name*/
@@ -225,9 +269,12 @@ static PyTypeObject SearchType = {
 void search_pyinit(PyObject *m) {
   PyObject *to;
 
-  if (PyType_Ready(&SearchType) < 0)
+  if (PyType_Ready(&SearchPyType) < 0)
     return;
-  to = (PyObject*)&SearchType;
+  to = (PyObject*)&SearchPyType;
   Py_INCREF(to);
-  PyModule_AddObject(m, "Search", (PyObject*)&SearchType);
+  PyModule_AddObject(m, "Search", (PyObject*)&SearchPyType);
+  PyModule_AddIntConstant(m, "SEARCH_PATH", SEARCH_PATH);
+  PyModule_AddIntConstant(m, "SEARCH_FILENAME", SEARCH_FILENAME);
+  PyModule_AddIntConstant(m, "SEARCH_PACKAGE", SEARCH_PACKAGE);
 }
