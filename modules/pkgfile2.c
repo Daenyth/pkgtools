@@ -1,8 +1,10 @@
 #include <Python.h>
 #include "match.h"
 #include "search.h"
+#include "listpkg.h"
 
 static PyMethodDef PkgfileMethods[] = {
+  {"ListPackages", (PyCFunction)&list_packages, METH_VARARGS | METH_KEYWORDS, "List the packages of a file list tarball."},
   {NULL, NULL, 0, NULL}
 };
 
