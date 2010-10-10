@@ -3,6 +3,7 @@ from distutils.core import setup, Extension
 
 setup(name='pkgfile',
       version='0.1',
-      ext_modules=[Extension('pkgfile', ['pkgfile2.c'],
-          libraries=['archive', 'pcre'])],
+      ext_modules=[Extension('pkgfile', ['pkgfile2.c', 'match.c', 'search.c'],
+          libraries=['archive', 'pcre'],
+          extra_compile_args=['-Wall'])],
       )
