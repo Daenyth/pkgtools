@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 from distutils.core import setup, Extension
 
 setup(name='pkgfile',
