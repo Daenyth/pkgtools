@@ -117,7 +117,7 @@ static PyObject *search_file(const char *filename,
       }
     }
 
-    if(PyList_Size(files) > 0) {
+    if(search_type == SEARCH_PACKAGE || PyList_Size(files) > 0) {
       pystr = PyString_FromString(dname);
       if(pystr == NULL)
         goto cleanup;
