@@ -5,35 +5,16 @@
 #include <string.h>
 #include "match.h"
 
-/*
- * Matches the db entry f to the argument m
- * The names must either match completely,
- * or m must match the portion of f after the last /
- */
-static int simple_match(const char *f, void *d) {
-  char *mb;
-  const char *m = (const char*)d;
-
+static int string_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
-  if((m[0]=='/' && !strcmp(f,m+1)) || !strcmp(f, m))
-    return 1;
-  mb = rindex(f, '/');
-  if(mb != NULL && !strcmp(mb+1,m))
-    return 1;
-  return 0;
+  return !strcmp(f, d);
 }
 
 static int shell_match(const char *f, void *d) {
-  char *mb;
-  const char *m = (const char*)d;
-
   if(f==NULL || strlen(f)<=0)
     return 0;
-  mb = rindex(f, '/');
-  if(mb != NULL)
-    return !fnmatch(m, mb+1, 0);
-  return 0;
+  return !fnmatch(d, f, 0);
 }
 
 static int regex_match(const char *f, void *d) {
@@ -89,7 +70,7 @@ int match_init(MatchType arg_type, const char *pattern, MatchType* match_type, M
   switch(arg_type) {
     case MATCH_SIMPLE:
       if(pattern != NULL && strlen(pattern)>0) {
-        *match_func = &simple_match;
+        *match_func = &string_match;
         *data = (void*)strdup(pattern);
       } else {
         PyErr_SetString(PyExc_ValueError, "Empty pattern given.");
