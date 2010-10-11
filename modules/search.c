@@ -188,7 +188,7 @@ static void Search_dealloc(Search* self) {
 static int Search_init(Search *self, PyObject *args, PyObject *kw) {
   long mt, st;
   const char *pattern;
-  static char *kwlist[] = {"matchtype", "searchtype", "pattern"};
+  static char *kwlist[] = {"matchtype", "searchtype", "pattern", NULL};
 
   match_reset(&(self->match_type), &(self->match_func), &(self->data));
   self->search_type = SEARCH_NONE;
