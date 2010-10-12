@@ -8,6 +8,7 @@
 #include <libgen.h>
 #include "search.h"
 #include "match.h"
+#include "util.h"
 #define ABUFLEN 1024
 
 static cookie_io_functions_t archive_stream_funcs = {
@@ -36,11 +37,11 @@ static PyObject *search_file(const char *filename,
   struct archive_entry *entry;
   struct stat st;
   char pname[ABUFLEN], *fname, *dname;
-  char *l = NULL, *m, *p;
+  char *l = NULL, *m, *pkgname, *pkgver;
   FILE *stream = NULL;
   size_t n = 0;
   int nread;
-  PyObject *ret, *dict, *pystr, *files;
+  PyObject *ret, *dict, *pystr, *pystrname, *pystrver, *files;
 
   pname[ABUFLEN-1]='\0';
   if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
@@ -75,19 +76,19 @@ static PyObject *search_file(const char *filename,
       archive_read_data_skip(a);
       continue;
     }
+    if (splitname(dname, &pkgname, &pkgver) == -1) {
+      archive_read_data_skip(a);
+      continue;
+    }
     if(search_type == SEARCH_PACKAGE) {
-      m = strdup(dname);
-      p = m + strlen(m);
-      for(--p; *p && *p != '-'; --p);
-      for(--p; *m && *p != '-'; --p);
-      if(p<=m || *p != '-' || (*p = '\0', !match_func(m, data))) {
-        free(m);
+      if(!match_func(pkgname, data)) {
+        free(pkgname);
+        free(pkgver);
         archive_read_data_skip(a);
         continue;
       }
-      free(m);
     }
-    
+
     stream = open_archive_stream(a);
     if (!stream) {
       PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
@@ -118,16 +119,27 @@ static PyObject *search_file(const char *filename,
     }
 
     if(search_type == SEARCH_PACKAGE || PyList_Size(files) > 0) {
-      pystr = PyString_FromString(dname);
-      if(pystr == NULL)
-        goto cleanup;
-      dict = PyDict_New();
-      if(dict == NULL) {
-        Py_DECREF(pystr);
+      pystrname = PyString_FromString(pkgname);
+      free(pkgname);
+      if(pystrname == NULL) {
+        free(pkgver);
         goto cleanup;
       }
-      PyDict_SetItemString(dict, "package", pystr);
-      Py_DECREF(pystr);
+      pystrver = PyString_FromString(pkgver);
+      free(pkgver);
+      if(pystrver == NULL)
+        goto cleanup;
+
+      dict = PyDict_New();
+      if(dict == NULL) {
+        Py_DECREF(pystrname);
+        Py_DECREF(pystrver);
+        goto cleanup;
+      }
+      PyDict_SetItemString(dict, "name", pystrname);
+      Py_DECREF(pystrname);
+      PyDict_SetItemString(dict, "version", pystrver);
+      Py_DECREF(pystrver);
       PyDict_SetItemString(dict, "files", files);
       Py_DECREF(files);
 

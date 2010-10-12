@@ -4,7 +4,7 @@
 #include "listpkg.h"
 
 static PyMethodDef PkgfileMethods[] = {
-  {"ListPackages", (PyCFunction)&list_packages, METH_VARARGS | METH_KEYWORDS, "List the packages of a file list tarball."},
+  {"list_packages", (PyCFunction)&list_packages, METH_VARARGS | METH_KEYWORDS, "List the packages of a file list tarball."},
   {NULL, NULL, 0, NULL}
 };
 

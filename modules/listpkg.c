@@ -3,6 +3,7 @@
 #include <archive_entry.h>
 #include <libgen.h>
 #include "listpkg.h"
+#include "util.h"
 #define ABUFLEN 1024
 
 PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
@@ -11,8 +12,8 @@ PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
   struct archive *a;
   struct archive_entry *entry;
   struct stat st;
-  char pname[ABUFLEN], *fname, *dname;
-  PyObject *ret, *pystr;
+  char pname[ABUFLEN], *fname, *dname, *pkgname, *pkgver;
+  PyObject *ret, *dict, *pystr;
 
   if(!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &filename))
     return NULL;
@@ -43,11 +44,31 @@ PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
     fname = basename(pname);
     dname = dirname(pname);
     if(strcmp(fname, "files") == 0) {
-      pystr = PyString_FromString(dname);
+      if (splitname(dname, &pkgname, &pkgver) == -1) {
+        archive_read_data_skip(a);
+        continue;
+      }
+      dict = PyDict_New();
+      if(dict == NULL) {
+        goto cleanup_nodict;
+      }
+      pystr = PyString_FromString(pkgname);
+      free(pkgname);
+      if(pystr == NULL) {
+        free(pkgver);
+        goto cleanup;
+      }
+      PyDict_SetItemString(dict, "name", pystr);
+      Py_DECREF(pystr);
+      pystr = PyString_FromString(pkgver);
+      free(pkgver);
       if(pystr == NULL)
         goto cleanup;
-      PyList_Append(ret, pystr);
+      PyDict_SetItemString(dict, "version", pystr);
       Py_DECREF(pystr);
+
+      PyList_Append(ret, dict);
+      Py_DECREF(dict);
     }
     archive_read_data_skip(a);
   }
@@ -55,6 +76,8 @@ PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
   return ret;
 
 cleanup:
+  Py_DECREF(dict);
+cleanup_nodict:
   archive_read_finish(a);
   Py_DECREF(ret);
   return NULL;
