@@ -5,6 +5,8 @@
 #include <string.h>
 #include "match.h"
 
+extern PyObject *RegexError;
+
 static int string_match(const char *f, void *d) {
   if(f==NULL || strlen(f)<=0)
     return 0;
@@ -94,7 +96,7 @@ int match_init(MatchType arg_type, const char *pattern, MatchType* match_type, M
         return -1;
       }
       if(regcomp(*data, pattern, REG_EXTENDED | REG_NOSUB) != 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not compile regex.");
+        PyErr_SetString(RegexError, "Could not compile regex.");
         free(*data);
         return -1;
       }
@@ -110,13 +112,13 @@ int match_init(MatchType arg_type, const char *pattern, MatchType* match_type, M
 
       pd->re = pcre_compile(pattern, 0, &error, &erroffset, NULL);
       if(pd->re == NULL) {
-        PyErr_Format(PyExc_RuntimeError, "Could not compile regex at %d: %s", erroffset, error);
+        PyErr_Format(RegexError, "Could not compile regex at %d: %s", erroffset, error);
         free(*data);
         return -1;
       }
       pd->re_extra = pcre_study(pd->re, 0, &error);
       if(error != NULL) {
-        PyErr_Format(PyExc_RuntimeError, "Could not study regex: %s", error);
+        PyErr_Format(RegexError, "Could not study regex: %s", error);
         pcre_free(pd->re);
         free(*data);
         return -1;

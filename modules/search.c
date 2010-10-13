@@ -91,7 +91,7 @@ static PyObject *search_file(const char *filename,
 
     stream = open_archive_stream(a);
     if (!stream) {
-      PyErr_SetString(PyExc_RuntimeError, "Unable to open archive stream.");
+      PyErr_SetString(PyExc_IOError, "Unable to open archive stream.");
       goto cleanup;
     }
 

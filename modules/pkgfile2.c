@@ -3,6 +3,8 @@
 #include "search.h"
 #include "listpkg.h"
 
+PyObject *RegexError;
+
 static PyMethodDef PkgfileMethods[] = {
   {"list_packages", (PyCFunction)&list_packages, METH_VARARGS | METH_KEYWORDS, "List the packages of a file list tarball."},
   {NULL, NULL, 0, NULL}
@@ -14,6 +16,10 @@ PyMODINIT_FUNC initpkgfile(void) {
 
   if(m == NULL)
     return;
+
+	RegexError = PyErr_NewException("pkgfile.RegexError", NULL, NULL);
+	Py_INCREF(RegexError);
+	PyModule_AddObject(m, "RegexError", RegexError);
 
   search_pyinit(m);
   match_pyinit(m);

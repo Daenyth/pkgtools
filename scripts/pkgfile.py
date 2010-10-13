@@ -259,8 +259,8 @@ def list_files(s, options):
             search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_PACKAGE, s)
         else:
             search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PACKAGE, s)
-    except RuntimeError:
-        die(1, 'Error: invalid regular expression')
+    except pkgfile.RegexError:
+        die(1, 'Error: invalid pattern or regular expression')
 
     foundpkg = False
     for dbfile in repo_list:
@@ -295,8 +295,8 @@ def query_pkg(filename, options):
             search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_FILENAME, filename)
         else:
             search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, filename)
-    except RuntimeError:
-        die(1, 'Error: invalid regular expression')
+    except pkgfile.RegexError:
+        die(1, 'Error: invalid pattern or regular expression')
 
     target_repo = options.repo
     local_db = os.path.join(FILELIST_DIR, 'local.files.tar.gz')
