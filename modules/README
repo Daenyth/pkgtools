@@ -1,0 +1,48 @@
+Python C module
+===============
+This module allow you to read the files in a *.files.tar.gz tarball without having to unpack it.
+
+Written in C, it gives us good speed when reading the tarball. It depends on libarchive and pcre libraries.
+
+Example
+-------
+Here is an usage example:
+
+  >>> import pkgfile
+  >>> search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, 'pacman')
+  >>> # this gives us an object 'search' that is callable
+  ... 
+  >>> matches = search('core.files.tar.gz')
+  >>> print matches
+  [{'files': ['etc/bash_completion.d/pacman', 'usr/bin/pacman'], 'version': '3.4.1-1', 'name': 'pacman'}]
+  
+One can also use:
+- MATCH_REGEX to match for a regex,
+- MATCH_PCRE for a pcre style regex,
+- MATCH_SHELL for shell like globing pattern (using wild-card as * and ?)
+- or MATCH_SIMPLE for a simple match (string comparison)
+
+Also you can search for a package, a filename, or a path
+- SEARCH_PACKAGE for matching against the package name
+- SEARCH_FILENAME for a filename of a package
+- SEARCH_PATH for a complete PATH without the leading /
+
+A more "elaborate" example: searching for a package with libalpm.so library
+
+  >>> import pkgfile
+  >>> print pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_PACKAGE, '.*/libalpm.so$')('core.files.tar.gz')
+
+This is also a function called list_packages that list all packages present in a given tarball. There are not guaranteed to be sorted alphabetically, even though there are most of the time, given that they are sorted that way in the tarball.
+
+  >>> import pkgfile
+  >>> print pkgfile.list_packages('extra.files.tar.gz')
+  [{'name': '3ddesktop', 'version': '0.2.9-3'},
+   {'name': 'a2ps', 'version': '4.14-1'},
+   {'name': 'a52dec', 'version': '0.7.4-4'},
+
+   # partial list removed for brevity
+
+   {'name': 'zope-interface', 'version': '3.5.3-1'},
+   {'name': 'zsh', 'version': '4.3.10-4'},
+   {'name': 'zvbi', 'version': '0.2.33-2'}]
+
