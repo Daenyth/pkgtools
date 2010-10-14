@@ -294,7 +294,10 @@ def query_pkg(filename, options):
         elif options.regex:
             search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_FILENAME, filename)
         else:
-            search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, filename)
+            if filename.startswith('/'):
+                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PATH, filename.lstrip('/'))
+            else:
+                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, filename)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
