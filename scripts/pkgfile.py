@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 ###
 # pkgfile.py -- search the arch repo to see what package owns a file
 # This program is a part of pkgtools
