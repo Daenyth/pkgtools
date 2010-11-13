@@ -18,7 +18,7 @@ static cookie_io_functions_t archive_stream_funcs = {
 .close = NULL
 };
 
-static FILE *open_archive_stream(struct archive *archive) {
+FILE *open_archive_stream(struct archive *archive) {
   return fopencookie(archive, "r", archive_stream_funcs);
 }
 
