@@ -90,7 +90,7 @@ def die(n=-1, msg='Unknown error'):
     sys.exit(n)
 
 # used below in print_pkg
-PKG_ATTRS = ('name', 'filename', 'version', 'url', 'license', 'groups', 'provides',
+PKG_ATTRS = ('name', 'version', 'url', 'license', 'groups', 'provides',
             'depends', 'optdepends', 'conflicts', 'replaces', 'isize','packager',
             'arch', 'installdate', 'builddate', 'desc')
 WIDTH = max(len(i) for i in PKG_ATTRS) + 1
@@ -112,8 +112,16 @@ def print_pkg(pkg):
             print '%s: %d k' % (field, value/1024)
         #elif p == 'force':
         #    print = '%s: %d' % (field, value)
-        elif p in ('groups', 'license', 'replaces',  'depends', 'optdepends', 'conflicts', 'provides'):
+        elif p in ('groups', 'license', 'replaces',  'depends', 'conflicts', 'provides'):
             print '%s: %s' % (field, '  '.join(value))
+        elif p == 'optdepends':
+            print '%s: %s' % (field, ('\n'+(WIDTH+2)*' ').join(value))
+        elif p == 'builddate':
+            try:
+                print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S', \
+                    time.localtime(value)))
+            except ValueError:
+                s[p] = '%s: error !' % p.ljust(22)
         elif p == 'backup':
             s = field+':'
             for i in value:
@@ -326,18 +334,16 @@ def query_pkg(filename, options):
                 files = [f for f in p['files'] if '/sbin/' in f or '/bin/' in f]
             if files != []:
                 if options.info:
-                    res.append((p['name'], files))
+                    pkg = pkgfile.pkg_info(dbfile, [p['name']])[0]
+                    print_pkg(pkg)
+                    if options.verbose:
+                        print '\n'.join('%s/%s : /%s' % (repo, n, f) for f in fls)
+                        print
                 else:
                     if options.verbose:
                         print '\n'.join('%s/%s (%s) : /%s' % (repo, p['name'], p['version'], f) for f in files)
                     else:
                         print '%s/%s' % (repo, p['name'])
-
-        for n, fls in res:
-            print "=== detailed info about pkg here ==="
-            if options.verbose:
-                print '\n'.join('%s/%s : /%s' % (repo, n, f) for f in fls) 
-                print
 
 def main():
     global FILELIST_DIR
