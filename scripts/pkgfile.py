@@ -212,7 +212,9 @@ def update_repo(options, target_repo=None):
         tf = tarfile.open(local_db, 'w:gz')
         cwd = os.getcwd() # save current working directory
         os.chdir(local_dbpath)
-        tf.add('.')
+        # we don't want a ./ prefix on all the files in the tarball
+        for i in os.listdir('.'):
+            tf.add(i)
         tf.close()
         os.chdir(cwd) # restore it
         print 'Done'
@@ -337,7 +339,7 @@ def query_pkg(filename, options):
                     pkg = pkgfile.pkg_info(dbfile, [p['name']])[0]
                     print_pkg(pkg)
                     if options.verbose:
-                        print '\n'.join('%s/%s : /%s' % (repo, n, f) for f in fls)
+                        print '\n'.join('%s/%s : /%s' % (repo, p['name'], f) for f in files)
                         print
                 else:
                     if options.verbose:
