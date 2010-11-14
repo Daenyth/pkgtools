@@ -125,6 +125,10 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 					/* we have a problem */
 					return -1;
 				}
+			} else {
+				s = PyString_FromString(strtrim(line));
+				PyDict_SetItemString(pkg, "name", s);
+				Py_DECREF(s);
 			}
 		} else if(strcmp(line, "%VERSION%") == 0) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
@@ -137,6 +141,10 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 					/* we have a problem */
 					return -1;
 				}
+			} else {
+				s = PyString_FromString(strtrim(line));
+				PyDict_SetItemString(pkg, "version", s);
+				Py_DECREF(s);
 			}
 		} else if(strcmp(line, "%FILENAME%") == 0) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
