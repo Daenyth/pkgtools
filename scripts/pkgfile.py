@@ -409,12 +409,12 @@ def main():
         try:
             list_files(args[0], options)
         except IndexError:
-            die(1, 'Error: No target specified to search for !')
+            die(1, 'Error: No target specified')
     elif options.info or options.search:
         try:
             query_pkg(args[0], options)
         except IndexError:
-            die(1, 'Error: No target specified to search for !')
+            die(1, 'Error: No target specified')
 
 if __name__ == '__main__':
     # This will ensure that any files we create are readable by normal users
