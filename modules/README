@@ -46,3 +46,53 @@ This is also a function called list_packages that list all packages present in a
    {'name': 'zsh', 'version': '4.3.10-4'},
    {'name': 'zvbi', 'version': '0.2.33-2'}]
 
+There is also a pkg_info function that returns a list of dict of information of a list of given package
+The first argument is the files.tar.gz list files, and the second a list of package name
+For example:
+
+  >>> import pkgfile
+  >>> print pkgfile.pkg_info('core.files.tar.gz', ['pacman', 'glibc'])
+  [{'replaces': ['glibc-xen'], 'builddate': 1281487826L, 'license': ['GPL', 'LGPL'], 'url': 'http://www.gnu.org/software/libc', 'md5sum': 'b5b37b0e706a788047d41edc8edcaed3', 'filename': 'glibc-2.12.1-1-i686.pkg.tar.xz', 'depends': ['linux-api-headers>=2.6.34', 'tzdata'], 'groups': ['base'], 'desc': 'GNU C Library', 'isize': 32370688L, 'arch': 'i686', 'packager': 'Allan McRae <allan@archlinux.org>', 'size': 7335640L}, {'isize': 2297856L, 'license': ['GPL'], 'optdepends': ['fakeroot: for makepkg usage as normal user', 'curl: for rankmirrors usage'], 'url': 'http://www.archlinux.org/pacman/', 'md5sum': 'dfa220d31b2017fd43ec2c5258b5ec6e', 'builddate': 1283562732L, 'filename': 'pacman-3.4.1-1-i686.pkg.tar.gz', 'depends': ['bash', 'libarchive>=2.7.1', 'libfetch>=2.25', 'pacman-mirrorlist'], 'groups': ['base'], 'packager': 'Dan McGee <dan@archlinux.org>', 'desc': 'A library-based package manager with dependency support', 'arch': 'i686', 'size': 663630L}]
+
+or better displayed like this
+
+  [{'arch': 'i686',
+    'builddate': 1281487826L,
+    'depends': ['linux-api-headers>=2.6.34', 'tzdata'],
+    'desc': 'GNU C Library',
+    'filename': 'glibc-2.12.1-1-i686.pkg.tar.xz',
+    'groups': ['base'],
+    'isize': 32370688L,
+    'license': ['GPL', 'LGPL'],
+    'md5sum': 'b5b37b0e706a788047d41edc8edcaed3',
+    'name': 'glibc',
+    'packager': 'Allan McRae <allan@archlinux.org>',
+    'replaces': ['glibc-xen'],
+    'size': 7335640L,
+    'url': 'http://www.gnu.org/software/libc',
+    'version': '2.12.1-1'},
+   {'arch': 'i686',
+    'builddate': 1283562732L,
+    'depends': ['bash',
+                'libarchive>=2.7.1',
+                'libfetch>=2.25',
+                'pacman-mirrorlist'],
+    'desc': 'A library-based package manager with dependency support',
+    'filename': 'pacman-3.4.1-1-i686.pkg.tar.gz',
+    'groups': ['base'],
+    'isize': 2297856L,
+    'license': ['GPL'],
+    'md5sum': 'dfa220d31b2017fd43ec2c5258b5ec6e',
+    'name': 'pacman',
+    'optdepends': ['fakeroot: for makepkg usage as normal user',
+                   'curl: for rankmirrors usage'],
+    'packager': 'Dan McGee <dan@archlinux.org>',
+    'size': 663630L,
+    'url': 'http://www.archlinux.org/pacman/',
+    'version': '3.4.1-1'}]
+
+And getting info about every packages is super fast
+
+  >>> print pkgfile.pkg_info('core.files.tar.gz', [p['name'] for p in pkgfile.list_packages('core.files.tar.gz')])
+  [...]
+
