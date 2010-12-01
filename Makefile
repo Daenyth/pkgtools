@@ -16,6 +16,7 @@ mandir = $(prefix)/share/man
 
 .PHONY: install uninstall
 
+all: pkgfile.so
 
 install:
 	# Common functions needed by all scripts
@@ -31,9 +32,10 @@ install:
 	# pkgfile
 	$(INSTALL) -d $(DESTDIR)$(cachedir)
 	$(INSTALL_PROGRAM) scripts/pkgfile.py $(DESTDIR)$(bindir)/pkgfile
-	$(INSTALL_PROGRAM) scripts/alpm2sqlite.py $(DESTDIR)$(libdir)/python2.6/site-packages/alpm2sqlite.py
 	$(INSTALL_DATA) confs/pkgfile.conf $(DESTDIR)$(confdir)/pkgtools/pkgfile.conf
 	$(INSTALL_CRON) other/pkgfile.cron $(DESTDIR)$(crondir)/pkgfile
+	# install pkgfile.so module
+	(cd modules; python2 ./setup.py install --root=$(DESTDIR))
 	# Loads shell hooks
 	$(INSTALL_PROGRAM) other/pkgfile-hook.sh $(DESTDIR)$(profiledir)/pkgfile-hook.sh
 	$(INSTALL_DATA) other/pkgfile-hook.zsh $(DESTDIR)$(sharedir)/pkgfile-hook.zsh
@@ -65,3 +67,9 @@ uninstall:
 	rm -Rf $(DESTDIR)$(confdir)/pkgtools
 	rm $(DESTDIR)$(mandir)/man8/spec2arch.8
 	rm $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
+
+pkgfile.so:
+	(cd modules; python2 ./setup.py build)
+
+clean:
+	(rm -rf modules/build)
