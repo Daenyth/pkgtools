@@ -14,7 +14,7 @@ profiledir = $(confdir)/profile.d
 crondir = $(confdir)/cron.daily
 mandir = $(prefix)/share/man
 
-.PHONY: install uninstall
+.PHONY: all
 
 all: pkgfile.so
 
