@@ -121,9 +121,9 @@ def print_pkg(pkg):
                 print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S',
                     time.localtime(value)))
             except ValueError:
-                s[attr] = '%s: error !' % attr.ljust(22)
+                print '%s: error !' % attr.ljust(22)
         elif attr == 'backup':
-            s = field+':'
+            s = field + ':'
             for i in value:
                 s += '\n'+': '.join(i.split('\t')) +'\n'
             else:
