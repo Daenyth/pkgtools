@@ -227,7 +227,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
             os.unlink(r)
 
 def is_binary(s):
-    return re.search(r'(?:^|/)s?bin(?:(?!/$)/)', s) != None
+    return re.search(r'(?:^|/)s?bin/.', s) != None
 
 def list_files(s, options, filelist_dir=FILELIST_DIR):
     '''list files of package matching s'''
