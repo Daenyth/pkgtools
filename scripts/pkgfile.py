@@ -46,6 +46,7 @@ def find_dbpath():
     for line in output.split('\n'):
         if line.startswith('DB Path'):
             return line.split(':')[1].strip()
+    raise RuntimeError("Unable to determine pacman DB path")
 
 def parse_config(filename, comment_char='#', option_char='='):
     '''basic function to parse a key=value config file'''
