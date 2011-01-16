@@ -13,7 +13,7 @@ install=pkgtools.install
 provides=(newpkg pkgfile)
 depends=('bash>=4' 'python2' 'pcre' 'libarchive')
 optdepends=('cron: For pkgfile --update entry')
-md5sums=()
+md5sums=('37430c4fa13b4cf4afb233100706f5ae')
 
 build() {
   cd "$srcdir/Daenyth-$pkgname"-*
