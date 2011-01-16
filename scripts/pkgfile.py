@@ -406,7 +406,7 @@ def main():
             die(1, 'Error: No target specified')
     elif options.info or options.search:
         try:
-            query_pkg(args[0], options)
+            query_pkg(args[0], options, filelist_dir=filelist_dir)
         except IndexError:
             parser.print_help()
             die(1, 'Error: No target specified')
