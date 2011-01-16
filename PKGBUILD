@@ -11,10 +11,9 @@ source=(http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 provides=(newpkg pkgfile)
-depends=('bash>=4')
-optdepends=('cron: For pkgfile --update entry'
-            'python2: For pkgconflict')
-md5sums=('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+depends=('bash>=4' 'python2' 'pcre' 'libarchive')
+optdepends=('cron: For pkgfile --update entry')
+md5sums=()
 
 build() {
   cd "$srcdir/Daenyth-$pkgname"-*
