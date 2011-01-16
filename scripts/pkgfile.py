@@ -417,11 +417,13 @@ def main():
         try:
             list_files(args[0], options)
         except IndexError:
+            parser.print_help()
             die(1, 'Error: No target specified')
     elif options.info or options.search:
         try:
             query_pkg(args[0], options)
         except IndexError:
+            parser.print_help()
             die(1, 'Error: No target specified')
 
 if __name__ == '__main__':
