@@ -135,19 +135,17 @@ def print_pkg(pkg):
             print '%s: %s' % (field, value)
     print
 
-def update_repo(options, target_repo=None):
+def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
     '''download .files.tar.gz for each repo found in pacman config or the one specified'''
 
-    if not os.path.exists(FILELIST_DIR):
-        print >> sys.stderr, 'Warning: %s does not exist. Creating it.' % FILELIST_DIR
-        try:
-            os.mkdir(FILELIST_DIR, 0755)
-        except OSError:
-            die(1, 'Error: Can\'t create %s directory' % FILELIST_DIR)
+    # XXX: This function is way too big. Needs refactoring
 
-    # check if FILELIST_DIR is writable
-    if not os.access(FILELIST_DIR, os.F_OK|os.R_OK|os.W_OK|os.X_OK):
-        die(1, 'Error: %s is not accessible' % FILELIST_DIR)
+    if not os.path.exists(filelist_dir):
+        print >> sys.stderr, 'Warning: %s does not exist. Creating it.' % filelist_dir
+        try:
+            os.mkdir(filelist_dir, 0755)
+        except OSError:
+            die(1, 'Error: Can\'t create %s directory' % filelist_dir)
 
     p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
     output = p.communicate()[0]
@@ -172,7 +170,7 @@ def update_repo(options, target_repo=None):
             try:
                 if options.verbose:
                     print '    Trying mirror %s ...' % mirror
-                dbfile = '%s/%s.files.tar.gz' % (FILELIST_DIR, repo)
+                dbfile = '%s/%s.files.tar.gz' % (filelist_dir, repo)
                 try:
                     # try to get mtime of dbfile
                     local_mtime = os.path.getmtime(dbfile)
@@ -203,7 +201,7 @@ def update_repo(options, target_repo=None):
                 print >> sys.stderr, 'Warning: could not retrieve %s' % fileslist
                 continue
 
-    local_db = os.path.join(FILELIST_DIR, 'local.files.tar.gz')
+    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
 
     if target_repo is None or target_repo == 'local':
         print ':: Converting local repo ...'
@@ -220,29 +218,19 @@ def update_repo(options, target_repo=None):
         print 'Done'
 
     # remove left-over db (for example for repo removed from pacman config)
-    repos = glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))
-    registered_repos = set(os.path.join(FILELIST_DIR, r[0]+'.files.tar.gz') for r in res)
+    repos = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
+    registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in res)
     registered_repos.add(local_db)
     for r in repos:
         if r not in registered_repos:
             print ':: Deleting %s' % r
             os.unlink(r)
 
-def check_FILELIST_DIR():
-    '''check if FILELIST_DIR exists and contais any *.files.tar.gz file'''
-
-    if not os.path.exists(FILELIST_DIR):
-        die(1, 'Error: %s does not exist. You might want to run "pkgfile -u" first.' % FILELIST_DIR)
-    if len(glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))) ==  0:
-        die(1, 'Error: You need to run "pkgfile -u" first.')
-
 def is_binary(s):
     return re.search(r'(?:^|/)s?bin/', s) != None
 
-def list_files(s, options):
+def list_files(s, options, filelist_dir=FILELIST_DIR):
     '''list files of package matching s'''
-
-    check_FILELIST_DIR()
 
     target_repo = options.repo
     if '/' in s:
@@ -255,14 +243,14 @@ def list_files(s, options):
         pkg = s
 
     res = []
-    local_db = os.path.join(FILELIST_DIR, 'local.files.tar.gz')
+    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if target_repo:
-        tmp = os.path.join(FILELIST_DIR, '%s.files.tar.gz' % target_repo)
+        tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
         if not os.path.exists(tmp):
             die(1, 'Error: %s repo does not exist' % target_repo)
         repo_list = [tmp]
     else:
-        repo_list = glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))
+        repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
         try:
             del repo_list[repo_list.index(local_db)]
         except ValueError:
@@ -301,10 +289,8 @@ def list_files(s, options):
             print ' in [%s] repo ' % target_repo,
         print
 
-def query_pkg(filename, options):
+def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
     '''search package with a file matching filename'''
-
-    check_FILELIST_DIR()
 
     try:
         if options.glob:
@@ -320,16 +306,16 @@ def query_pkg(filename, options):
         die(1, 'Error: invalid pattern or regular expression')
 
     target_repo = options.repo
-    local_db = os.path.join(FILELIST_DIR, 'local.files.tar.gz')
+    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if os.path.exists(filename) or target_repo == 'local':
         repo_list = [local_db]
     elif target_repo:
-        tmp = os.path.join(FILELIST_DIR, '%s.files.tar.gz' % target_repo)
+        tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
         if not os.path.exists(tmp):
             die(1, 'Error: %s repo does not exist' % target_repo)
         repo_list = [tmp]
     else:
-        repo_list = glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))
+        repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
         del repo_list[repo_list.index(local_db)]
 
     for dbfile in repo_list:
@@ -356,12 +342,10 @@ def query_pkg(filename, options):
                         print '%s/%s' % (repo, p['name'])
 
 def main():
-    global FILELIST_DIR
-
     # This section is here for backward compatibility
     dict_options = load_config('pkgfile.conf')
     try:
-        FILELIST_DIR = dict_options['FILELIST_DIR'].rstrip('/')
+        filelist_dir = dict_options['FILELIST_DIR'].rstrip('/')
     except KeyError:
         pass
     # PKGTOOLS_DIR is meaningless here
@@ -386,7 +370,7 @@ def main():
     actions.add_option('-s', '--search', dest='search', action='store_true',
             default=True, help='search which package owns a file')
     actions.add_option('-u', '--update', dest='update', action='count',
-            default=0, help='update to the latest filelist. This requires write permission to %s' % FILELIST_DIR)
+            default=0, help='update to the latest filelist. This requires write permission to %s' % filelist_dir)
     parser.add_option_group(actions)
 
     # options
@@ -410,12 +394,12 @@ def main():
 
     if options.update:
         try:
-            update_repo(options, target_repo=args[0])
+            update_repo(options, filelist_dir=filelist_dir, target_repo=args[0])
         except IndexError:
-            update_repo(options)
+            update_repo(options, filelist_dir=filelist_dir)
     elif options.list:
         try:
-            list_files(args[0], options)
+            list_files(args[0], options, filelist_dir=filelist_dir)
         except IndexError:
             parser.print_help()
             die(1, 'Error: No target specified')
