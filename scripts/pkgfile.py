@@ -325,22 +325,22 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         repo = os.path.basename(dbfile).replace('.files.tar.gz', '')
 
         res = []
-        for p in matches:
-            files = p['files']
+        for match in matches:
+            files = match['files']
             if options.binaries:
-                files = filter(is_binary, p['files'])
+                files = filter(is_binary, files)
             if files != []:
                 if options.info:
-                    pkg = pkgfile.pkg_info(dbfile, [p['name']])[0]
+                    pkg = pkgfile.pkg_info(dbfile, [match['name']])[0]
                     print_pkg(pkg)
                     if options.verbose:
-                        print '\n'.join('%s/%s : /%s' % (repo, p['name'], f) for f in files)
+                        print '\n'.join('%s/%s : /%s' % (repo, match['name'], f) for f in files)
                         print
                 else:
                     if options.verbose:
-                        print '\n'.join('%s/%s (%s) : /%s' % (repo, p['name'], p['version'], f) for f in files)
+                        print '\n'.join('%s/%s (%s) : /%s' % (repo, match['name'], match['version'], f) for f in files)
                     else:
-                        print '%s/%s' % (repo, p['name'])
+                        print '%s/%s' % (repo, match['name'])
 
 def main():
     # This section is here for backward compatibility
