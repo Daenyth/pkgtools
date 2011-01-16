@@ -286,7 +286,7 @@ def list_files(s, options):
             for f in sorted(m['files']):
                 if options.binaries:
                     # XXX: Duplicated code?
-                    if 'bin/' in f:
+                    if 'bin/' in f and not f.endswith('/'):
                         print '%s /%s' % (m['name'], f)
                         foundpkg = True
                 else:
