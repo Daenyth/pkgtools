@@ -99,37 +99,37 @@ def print_pkg(pkg):
     '''pretty print a pkg dict, mimicking pacman -Qi output'''
 
     # all attributes are not printed
-    for p in PKG_ATTRS:
-        field = p.capitalize().ljust(WIDTH)
+    for attr in PKG_ATTRS:
+        field = attr.capitalize().ljust(WIDTH)
         try:
-            value = pkg[p]
+            value = pkg[attr]
         except KeyError:
             continue
         if value is None:
             print '%s: --' % field
             continue
-        if p == 'csize' or p == 'isize':
+        if attr == 'csize' or attr == 'isize':
             print '%s: %d k' % (field, value/1024)
-        #elif p == 'force':
+        #elif attr == 'force':
         #    print = '%s: %d' % (field, value)
-        elif p in ('groups', 'license', 'replaces',  'depends', 'conflicts', 'provides'):
+        elif attr in ('groups', 'license', 'replaces',  'depends', 'conflicts', 'provides'):
             print '%s: %s' % (field, '  '.join(value))
-        elif p == 'optdepends':
+        elif attr == 'optdepends':
             print '%s: %s' % (field, ('\n'+(WIDTH+2)*' ').join(value))
-        elif p == 'builddate':
+        elif attr == 'builddate':
             try:
                 print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S', \
                     time.localtime(value)))
             except ValueError:
-                s[p] = '%s: error !' % p.ljust(22)
-        elif p == 'backup':
+                s[attr] = '%s: error !' % attr.ljust(22)
+        elif attr == 'backup':
             s = field+':'
             for i in value:
                 s += '\n'+': '.join(i.split('\t')) +'\n'
             else:
                 s += ' --'
             print s
-        #elif p == 'files':
+        #elif attr == 'files':
         #    print '%s: %s' % (field, '\n'+'\n'.join(value))
         else:
             print '%s: %s' % (field, value)
