@@ -42,7 +42,7 @@ FILELIST_DIR = '/var/cache/pkgtools/lists'
 def find_dbpath():
     '''find pacman dbpath'''
 
-    p = subprocess.Popen(['pacman', '-v'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['pacman', '-Tv'], stdout=subprocess.PIPE)
     output = p.communicate()[0]
     for line in output.split('\n'):
         if line.startswith('DB Path'):
@@ -149,7 +149,7 @@ def update_repo(options, target_repo=None):
     if not os.access(FILELIST_DIR, os.F_OK|os.R_OK|os.W_OK|os.X_OK):
         die(1, 'Error: %s is not accessible' % FILELIST_DIR)
 
-    p = subprocess.Popen(['pacman', '--debug'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
     output = p.communicate()[0]
 
     # get a list of repo and mirror
@@ -417,11 +417,13 @@ def main():
         try:
             list_files(args[0], options)
         except IndexError:
+            parser.print_help()
             die(1, 'Error: No target specified')
     elif options.info or options.search:
         try:
             query_pkg(args[0], options)
         except IndexError:
+            parser.print_help()
             die(1, 'Error: No target specified')
 
 if __name__ == '__main__':

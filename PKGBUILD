@@ -7,7 +7,7 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('i686' 'x86_64')
 url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-source=(http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
+source=(v$pkgver::http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 provides=(newpkg pkgfile)
