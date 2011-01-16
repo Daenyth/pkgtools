@@ -236,6 +236,9 @@ def check_FILELIST_DIR():
     if len(glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))) ==  0:
         die(1, 'Error: You need to run "pkgfile -u" first.')
 
+def is_binary(s):
+    return re.search(r'(?:^|/)s?bin/', s) != None
+
 def list_files(s, options):
     '''list files of package matching s'''
 
@@ -285,8 +288,7 @@ def list_files(s, options):
         for m in sorted(matches):
             for f in sorted(m['files']):
                 if options.binaries:
-                    # XXX: Duplicated code?
-                    if 'bin/' in f and not f.endswith('/'):
+                    if is_binary(f):
                         print '%s /%s' % (m['name'], f)
                         foundpkg = True
                 else:
@@ -339,10 +341,7 @@ def query_pkg(filename, options):
         for p in matches:
             files = p['files']
             if options.binaries:
-                # Search for 'bin/' vs '/bin/', '/sbin/' because the file list
-                # does not have a leading '/' character, and trying to match it
-                # would cause searching to fail for files in /bin, /sbin
-                files = [f for f in p['files'] if 'bin/' in f]
+                files = filter(is_binary, p['files'])
             if files != []:
                 if options.info:
                     pkg = pkgfile.pkg_info(dbfile, [p['name']])[0]
