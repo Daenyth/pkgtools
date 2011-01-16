@@ -357,6 +357,23 @@ def query_pkg(filename, options):
 def main():
     global FILELIST_DIR
 
+    # This section is here for backward compatibility
+    dict_options = load_config('pkgfile.conf')
+    try:
+        FILELIST_DIR = dict_options['FILELIST_DIR'].rstrip('/')
+    except KeyError:
+        pass
+    # PKGTOOLS_DIR is meaningless here
+    # CONFIG_DIR is useless
+    # RATELIMIT is not used yet
+    # options are:
+    #   * use wget
+    #   * make a throttling urlretrieve
+    #   * use urlgrabber
+    #   * use pycurl
+    # CMD_SEARCH_ENABLED is not used here
+    # UPDATE_CRON neither
+
     usage = '%prog [ACTIONS] [OPTIONS] filename'
     parser = optparse.OptionParser(usage=usage, version='%%prog %s' % VERSION)
     # actions
@@ -386,23 +403,6 @@ def main():
             default=False, help='enable verbose output')
 
     (options, args) = parser.parse_args()
-
-    # This section is here for backward compatibility
-    dict_options = load_config('pkgfile.conf')
-    try:
-        FILELIST_DIR = dict_options['FILELIST_DIR'].rstrip('/')
-    except KeyError:
-        pass
-    # PKGTOOLS_DIR is meaningless here
-    # CONFIG_DIR is useless
-    # RATELIMIT is not used yet
-    # options are:
-    #   * use wget
-    #   * make a throttling urlretrieve
-    #   * use urlgrabber
-    #   * use pycurl
-    # CMD_SEARCH_ENABLED is not used here
-    # UPDATE_CRON neither 
 
     if options.glob and options.regex:
         die(1, 'Error: -g/--glob and -r/--regex are exclusive.')
