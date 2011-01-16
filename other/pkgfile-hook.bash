@@ -6,5 +6,6 @@ command_not_found_handle () {
 		echo -e "\n$command may be found in the following packages:\n$pkgs"
 		return 0
 	fi
-	printf "bash: $(gettext bash "%s: command not found")\n" $command
+	printf "bash: $(gettext bash "%s: command not found")\n" $command >&2
+	return 127
 }
