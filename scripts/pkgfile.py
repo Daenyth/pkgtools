@@ -263,7 +263,7 @@ def list_files(s, options):
         try:
             del repo_list[repo_list.index(local_db)]
         except ValueError:
-            # XXX: Replace with custom NoFileDBError class
+            # TODO: Replace with custom NoFileDBError class
             raise RuntimeError("No local file db found. Run --update")
 
     try:
@@ -281,9 +281,11 @@ def list_files(s, options):
         repo = os.path.basename(dbfile).replace('.files.tar.gz', '')
 
         matches = search(dbfile)
+        # XXX: nested loop, investigate options
         for m in sorted(matches):
             for f in sorted(m['files']):
                 if options.binaries:
+                    # XXX: Duplicated code?
                     if '/sbin/' in f or '/bin/' in f:
                         print '%s /%s' % (m['name'], f)
                         foundpkg = True
@@ -425,6 +427,7 @@ def main():
 
 if __name__ == '__main__':
     # This will ensure that any files we create are readable by normal users
+    # TODO: Move to more relevent section
     os.umask(0022)
 
     try:
