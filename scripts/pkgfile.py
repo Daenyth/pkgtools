@@ -26,7 +26,6 @@
 import re
 import glob
 import os
-import atexit
 import sys
 import optparse
 import subprocess
