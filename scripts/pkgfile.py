@@ -171,7 +171,7 @@ def update_repo(options, target_repo=None):
 
             try:
                 if options.verbose:
-                    print 'Trying mirror %s ...' % mirror
+                    print '    Trying mirror %s ...' % mirror
                 dbfile = '%s/%s.files.tar.gz' % (FILELIST_DIR, repo)
                 try:
                     # try to get mtime of dbfile
