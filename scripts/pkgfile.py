@@ -337,7 +337,10 @@ def query_pkg(filename, options):
         for p in matches:
             files = p['files']
             if options.binaries:
-                files = [f for f in p['files'] if '/sbin/' in f or '/bin/' in f]
+                # Search for 'bin/' vs '/bin/', '/sbin/' because the file list
+                # does not have a leading '/' character, and trying to match it
+                # would cause searching to fail for files in /bin, /sbin
+                files = [f for f in p['files'] if 'bin/' in f]
             if files != []:
                 if options.info:
                     pkg = pkgfile.pkg_info(dbfile, [p['name']])[0]
