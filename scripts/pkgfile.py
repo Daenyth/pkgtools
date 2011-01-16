@@ -177,7 +177,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                 except os.error:
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
                 # Initiate connexion to get 'Last-Modified' header
-                conn = urllib2.urlopen(fileslist)
+                conn = urllib2.urlopen(fileslist, timeout=30)
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
                     update = True
