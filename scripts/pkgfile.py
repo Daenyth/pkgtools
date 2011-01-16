@@ -260,7 +260,11 @@ def list_files(s, options):
         repo_list = [tmp]
     else:
         repo_list = glob.glob(os.path.join(FILELIST_DIR, '*.files.tar.gz'))
-        del repo_list[repo_list.index(local_db)]
+        try:
+            del repo_list[repo_list.index(local_db)]
+        except ValueError:
+            # XXX: Replace with custom NoFileDBError class
+            raise RuntimeError("No local file db found. Run --update")
 
     try:
         if options.glob:
