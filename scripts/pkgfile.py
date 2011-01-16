@@ -259,11 +259,12 @@ def list_files(s, options, filelist_dir=FILELIST_DIR):
 
     try:
         if options.glob:
-            search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_PACKAGE, s)
+            match_type = pkgfile.MATCH_SHELL
         elif options.regex:
-            search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_PACKAGE, s)
+            match_type = pkgfile.MATCH_REGEX
         else:
-            search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PACKAGE, s)
+            match_type = pkgfile.MATCH_SIMPLE
+        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, s)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
