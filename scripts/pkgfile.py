@@ -237,8 +237,7 @@ def check_FILELIST_DIR():
         die(1, 'Error: You need to run "pkgfile -u" first.')
 
 def is_binary(s):
-    # hard to find a good regex for that
-    return not s.endswith('/') and ('/sbin/' in s or '/bin/' in s or s.startswith('sbin/') or s.startswith('bin/'))
+    return re.search(r'(?:^|/)s?bin/', s) != None
 
 def list_files(s, options):
     '''list files of package matching s'''
