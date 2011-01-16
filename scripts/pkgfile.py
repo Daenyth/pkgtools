@@ -89,14 +89,13 @@ def die(n=-1, msg='Unknown error'):
     print >> sys.stderr, msg
     sys.exit(n)
 
-# used below in print_pkg
-PKG_ATTRS = ('name', 'version', 'url', 'license', 'groups', 'provides',
-            'depends', 'optdepends', 'conflicts', 'replaces', 'isize','packager',
-            'arch', 'installdate', 'builddate', 'desc')
-WIDTH = max(len(i) for i in PKG_ATTRS) + 1
-
 def print_pkg(pkg):
     '''pretty print a pkg dict, mimicking pacman -Qi output'''
+
+    PKG_ATTRS = ('name', 'version', 'url', 'license', 'groups', 'provides',
+            'depends', 'optdepends', 'conflicts', 'replaces',
+            'isize','packager', 'arch', 'installdate', 'builddate', 'desc')
+    WIDTH = max(len(i) for i in PKG_ATTRS) + 1
 
     # all attributes are not printed
     for attr in PKG_ATTRS:
@@ -108,6 +107,7 @@ def print_pkg(pkg):
         if value is None:
             print '%s: --' % field
             continue
+
         if attr == 'csize' or attr == 'isize':
             print '%s: %d k' % (field, value/1024)
         #elif attr == 'force':
@@ -118,7 +118,7 @@ def print_pkg(pkg):
             print '%s: %s' % (field, ('\n'+(WIDTH+2)*' ').join(value))
         elif attr == 'builddate':
             try:
-                print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S', \
+                print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S',
                     time.localtime(value)))
             except ValueError:
                 s[attr] = '%s: error !' % attr.ljust(22)
