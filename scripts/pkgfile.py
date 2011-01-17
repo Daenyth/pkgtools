@@ -308,13 +308,13 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
 
     target_repo = options.repo
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
-    if os.path.exists(filename) or target_repo == 'local':
-        repo_list = [local_db]
-    elif target_repo:
+    if target_repo:
         tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
         if not os.path.exists(tmp):
             die(1, 'Error: %s repo does not exist' % target_repo)
         repo_list = [tmp]
+    elif os.path.exists(filename) or target_repo == 'local':
+        repo_list = [local_db]
     else:
         repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
         del repo_list[repo_list.index(local_db)]
