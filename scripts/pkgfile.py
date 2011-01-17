@@ -347,7 +347,7 @@ def main():
     try:
         filelist_dir = dict_options['FILELIST_DIR'].rstrip('/')
     except KeyError:
-        pass
+        filelist_dir = FILELIST_DIR
     # PKGTOOLS_DIR is meaningless here
     # CONFIG_DIR is useless
     # RATELIMIT is not used yet
