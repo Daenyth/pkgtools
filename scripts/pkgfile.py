@@ -324,7 +324,6 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         matches = search(dbfile)
         repo = os.path.basename(dbfile).replace('.files.tar.gz', '')
 
-        res = []
         for match in matches:
             files = match['files']
             if options.binaries:
