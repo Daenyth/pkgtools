@@ -102,7 +102,13 @@ static PyObject *search_file(const char *filename,
         l[nread - 1] = '\0';  /* Clobber trailing newline. */
       if(strcmp(l, "%FILES%") == 0)
         continue;
-      m = l;
+      if(search_type == SEARCH_FILENAME) {
+        m = rindex(l, '/');
+        if(m == NULL || strlen(m) == 0 || strlen(++m) == 0)
+          continue;
+      } else {
+        m = l;
+      }
       if(search_type == SEARCH_PACKAGE || match_func(m, data)) {
         pystr = PyString_FromString(l);
         if(pystr == NULL)
