@@ -297,7 +297,7 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         if options.glob:
             search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_FILENAME, filename)
         elif options.regex:
-            search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_FILENAME, filename)
+            search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_PATH, filename)
         else:
             if filename.startswith('/'):
                 search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PATH, filename.lstrip('/'))
