@@ -87,6 +87,7 @@ def load_config(conf_file, options=None):
     return options
 
 def die(n=-1, msg='Unknown error'):
+    # TODO: All calls to die() should probably just be exceptions
     print >> sys.stderr, msg
     sys.exit(n)
 
@@ -184,13 +185,13 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                 conn = urllib2.urlopen(fileslist, timeout=30)
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
-                    update = True
+                    should_update = True
                     remote_mtime = time.time() # use current time instead
                 else:
                     remote_mtime = time.mktime(last_modified)
-                    update = remote_mtime > local_mtime
+                    should_update = remote_mtime > local_mtime
 
-                if update or options.update > 1:
+                if should_update or options.update > 1:
                     if options.verbose:
                         print '    Downloading %s ...' % fileslist
                     f = open(dbfile, 'w')
@@ -222,6 +223,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
         print 'Done'
 
     # remove left-over db (for example for repo removed from pacman config)
+    # XXX: This should probably be in some type of behavior like pacman -Scc (pkgfile -c[c]?)
     repos = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
     registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in mirror_list)
     registered_repos.add(local_db)
@@ -276,7 +278,7 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
-    foundpkg = False
+    found_pkg = False
     for dbfile in repo_list:
         repo = os.path.basename(dbfile).replace('.files.tar.gz', '')
 
@@ -287,12 +289,12 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
                 if options.binaries:
                     if is_binary(file_):
                         print '%s /%s' % (match['name'], file_)
-                        foundpkg = True
+                        found_pkg = True
                 else:
                     print '%s /%s' % (match['name'], file_)
-                    foundpkg = True
+                    found_pkg = True
 
-    if not foundpkg:
+    if not found_pkg:
         print 'Package "%s" not found' % pkg,
         if target_repo != '':
             print ' in [%s] repo ' % target_repo,
