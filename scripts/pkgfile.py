@@ -294,15 +294,17 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
     '''search package with a file matching filename'''
 
     try:
+        search_type = pkgfile.SEARCH_FILENAME
         if options.glob:
-            search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_FILENAME, filename)
+            match_type = pkgfile.MATCH_SHELL
         elif options.regex:
-            search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_FILENAME, filename)
+            match_type = pkgfile.MATCH_REGEX
         else:
+            match_type = pkgfile.MATCH_SIMPLE
             if filename.startswith('/'):
-                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PATH, filename.lstrip('/'))
-            else:
-                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, filename)
+                search_type = pkgfile.SEARCH_PATH
+                filename = filename.lstrip('/')
+        search = pkgfile.Search(match_type, search_type, filename)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
