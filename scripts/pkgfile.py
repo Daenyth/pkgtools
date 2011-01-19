@@ -232,18 +232,21 @@ def is_binary(s):
     """Utility function used to determine whether a file should be displayed under -b"""
     return re.search(r'(?:^|/)s?bin/.', s) != None
 
-def list_files(s, options, filelist_dir=FILELIST_DIR):
-    '''list files of package matching s'''
+def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
+    '''list files of package matching pkgname'''
 
     target_repo = options.repo
-    if '/' in s:
-        res = s.split('/')
+    if '/' in pkgname:
+        res = pkgname.split('/')
         if len(res) > 2:
+            # XXX: This behavior seems to duplicate the -R switch. Maybe we
+            #  should pick one and forbid the other. Probably this is the
+            #  behavior that should be removed
             print >> sys.stderr, 'If given foo/bar, assume "bar" package in "foo" repo'
             return
         target_repo, pkg = res
     else:
-        pkg = s
+        pkg = pkgname
 
     res = []
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
@@ -267,7 +270,7 @@ def list_files(s, options, filelist_dir=FILELIST_DIR):
             match_type = pkgfile.MATCH_REGEX
         else:
             match_type = pkgfile.MATCH_SIMPLE
-        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, s)
+        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkgname)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
