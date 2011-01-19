@@ -48,12 +48,14 @@ def find_dbpath():
             return line.split(':')[1].strip()
     raise RuntimeError("Unable to determine pacman DB path")
 
-def parse_config(filename, comment_char='#', option_char='='):
+def parse_config(filename, options=None, comment_char='#', option_char='='):
     '''basic function to parse a key=value config file'''
     # Borrowed at http://www.decalage.info/en/python/configparser
     # another option is http://mail.python.org/pipermail/python-dev/2002-November/029987.html
 
-    options = {}
+    if options is None:
+        options = {}
+
     try:
         with open(filename) as f:
             for line in f:
@@ -72,10 +74,10 @@ def parse_config(filename, comment_char='#', option_char='='):
         pass
     return options
 
-def load_config(conf_file):
+def load_config(conf_file, options=None):
     '''load main config file and try in XDG_CONFIG_HOME too'''
 
-    options = parse_config(os.path.join(CONFIG_DIR, conf_file))
+    options = parse_config(os.path.join(CONFIG_DIR, conf_file), options=options)
     XDG_CONFIG_HOME = os.getenv('XDG_CONFIG_HOME')
     if  XDG_CONFIG_HOME is not None:
         xdg_conf_file = os.path.join(XDG_CONFIG_HOME, 'pkgtools', conf_file)
