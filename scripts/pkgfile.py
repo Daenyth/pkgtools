@@ -229,6 +229,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
             os.unlink(r)
 
 def is_binary(s):
+    """Utility function used to determine whether a file should be displayed under -b"""
     return re.search(r'(?:^|/)s?bin/.', s) != None
 
 def list_files(s, options, filelist_dir=FILELIST_DIR):
