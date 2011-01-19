@@ -82,9 +82,8 @@ def load_config(conf_file, options=None):
     if  XDG_CONFIG_HOME is not None:
         xdg_conf_file = os.path.join(XDG_CONFIG_HOME, 'pkgtools', conf_file)
         if os.path.exists(xdg_conf_file):
-            tmp = parse_config(xdg_conf_file)
-            for k in tmp:
-                options[k] = os.path.expanduser(tmp[k])
+            local_options = parse_config(xdg_conf_file)
+            options.update(local_options)
     return options
 
 def die(n=-1, msg='Unknown error'):
