@@ -295,7 +295,7 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
 
     try:
         if options.glob:
-            search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_FILENAME, filename)
+            search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_PATH, filename)
         elif options.regex:
             search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_PATH, filename)
         else:
