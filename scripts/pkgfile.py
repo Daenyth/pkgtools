@@ -186,7 +186,6 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
                     should_update = True
-                    remote_mtime = time.time() # use current time instead
                 else:
                     remote_mtime = time.mktime(last_modified)
                     should_update = remote_mtime > local_mtime
