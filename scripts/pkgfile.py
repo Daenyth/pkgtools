@@ -136,6 +136,19 @@ def print_pkg(pkg):
             print '%s: %s' % (field, value)
     print
 
+def get_mirrorlist():
+    """Return a list of (reponame, mirror_url) for all mirrors known to pacman"""
+    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
+    output = p.communicate()[0]
+
+    mirrors = []
+    server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
+    for line in output.split('\n'):
+        m = server.match(line)
+        if m:
+            mirrors.append((m.group(1), m.group(2)))
+    return mirrors
+
 def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
     '''download .files.tar.gz for each repo found in pacman config or the one specified'''
 
@@ -148,19 +161,9 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
         except OSError:
             die(1, 'Error: Can\'t create %s directory' % filelist_dir)
 
-    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
-    output = p.communicate()[0]
-
-    # get a list of repo and mirror
-    res = []
-    server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
-    for line in output.split('\n'):
-        m = server.match(line)
-        if m:
-            res.append((m.group(1), m.group(2)))
-
+    mirror_list = get_mirrorlist()
     repo_done = []
-    for repo, mirror in res:
+    for repo, mirror in mirror_list:
         if target_repo is not None and repo != target_repo:
             continue
         if repo not in repo_done:
@@ -177,7 +180,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                     local_mtime = os.path.getmtime(dbfile)
                 except os.error:
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
-                # Initiate connexion to get 'Last-Modified' header
+                # Initiate connection to get 'Last-Modified' header
                 conn = urllib2.urlopen(fileslist, timeout=30)
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
@@ -188,14 +191,14 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                     update = remote_mtime > local_mtime
 
                 if update or options.update > 1:
-                    print ':: Downloading %s ...' % fileslist
-                    # Saving data to local file
+                    if options.verbose:
+                        print '    Downloading %s ...' % fileslist
                     f = open(dbfile, 'w')
                     f.write(conn.read())
                     f.close()
                     conn.close()
                 else:
-                    print 'No update available'
+                    print '    No update available'
                     conn.close()
                 repo_done.append(repo)
             except IOError:
@@ -220,7 +223,7 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
 
     # remove left-over db (for example for repo removed from pacman config)
     repos = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
-    registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in res)
+    registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in mirror_list)
     registered_repos.add(local_db)
     for r in repos:
         if r not in registered_repos:
