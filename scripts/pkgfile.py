@@ -274,14 +274,14 @@ def list_files(s, options, filelist_dir=FILELIST_DIR):
 
         matches = search(dbfile)
         # XXX: nested loop, investigate options
-        for m in sorted(matches):
-            for f in sorted(m['files']):
+        for match in sorted(matches):
+            for file_ in sorted(match['files']):
                 if options.binaries:
-                    if is_binary(f):
-                        print '%s /%s' % (m['name'], f)
+                    if is_binary(file_):
+                        print '%s /%s' % (match['name'], file_)
                         foundpkg = True
                 else:
-                    print '%s /%s' % (m['name'], f)
+                    print '%s /%s' % (match['name'], file_)
                     foundpkg = True
 
     if not foundpkg:
