@@ -48,12 +48,14 @@ def find_dbpath():
             return line.split(':')[1].strip()
     raise RuntimeError("Unable to determine pacman DB path")
 
-def parse_config(filename, comment_char='#', option_char='='):
+def parse_config(filename, options=None, comment_char='#', option_char='='):
     '''basic function to parse a key=value config file'''
     # Borrowed at http://www.decalage.info/en/python/configparser
     # another option is http://mail.python.org/pipermail/python-dev/2002-November/029987.html
 
-    options = {}
+    if options is None:
+        options = {}
+
     try:
         with open(filename) as f:
             for line in f:
@@ -72,20 +74,20 @@ def parse_config(filename, comment_char='#', option_char='='):
         pass
     return options
 
-def load_config(conf_file):
+def load_config(conf_file, options=None):
     '''load main config file and try in XDG_CONFIG_HOME too'''
 
-    options = parse_config(os.path.join(CONFIG_DIR, conf_file))
+    options = parse_config(os.path.join(CONFIG_DIR, conf_file), options=options)
     XDG_CONFIG_HOME = os.getenv('XDG_CONFIG_HOME')
     if  XDG_CONFIG_HOME is not None:
         xdg_conf_file = os.path.join(XDG_CONFIG_HOME, 'pkgtools', conf_file)
         if os.path.exists(xdg_conf_file):
-            tmp = parse_config(xdg_conf_file)
-            for k in tmp:
-                options[k] = os.path.expanduser(tmp[k])
+            local_options = parse_config(xdg_conf_file)
+            options.update(local_options)
     return options
 
 def die(n=-1, msg='Unknown error'):
+    # TODO: All calls to die() should probably just be exceptions
     print >> sys.stderr, msg
     sys.exit(n)
 
@@ -135,6 +137,19 @@ def print_pkg(pkg):
             print '%s: %s' % (field, value)
     print
 
+def get_mirrorlist():
+    """Return a list of (reponame, mirror_url) for all mirrors known to pacman"""
+    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
+    output = p.communicate()[0]
+
+    mirrors = []
+    server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
+    for line in output.split('\n'):
+        m = server.match(line)
+        if m:
+            mirrors.append((m.group(1), m.group(2)))
+    return mirrors
+
 def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
     '''download .files.tar.gz for each repo found in pacman config or the one specified'''
 
@@ -147,19 +162,9 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
         except OSError:
             die(1, 'Error: Can\'t create %s directory' % filelist_dir)
 
-    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
-    output = p.communicate()[0]
-
-    # get a list of repo and mirror
-    res = []
-    server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
-    for line in output.split('\n'):
-        m = server.match(line)
-        if m:
-            res.append((m.group(1), m.group(2)))
-
+    mirror_list = get_mirrorlist()
     repo_done = []
-    for repo, mirror in res:
+    for repo, mirror in mirror_list:
         if target_repo is not None and repo != target_repo:
             continue
         if repo not in repo_done:
@@ -176,25 +181,24 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                     local_mtime = os.path.getmtime(dbfile)
                 except os.error:
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
-                # Initiate connexion to get 'Last-Modified' header
+                # Initiate connection to get 'Last-Modified' header
                 conn = urllib2.urlopen(fileslist, timeout=30)
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
-                    update = True
-                    remote_mtime = time.time() # use current time instead
+                    should_update = True
                 else:
                     remote_mtime = time.mktime(last_modified)
-                    update = remote_mtime > local_mtime
+                    should_update = remote_mtime > local_mtime
 
-                if update or options.update > 1:
-                    print ':: Downloading %s ...' % fileslist
-                    # Saving data to local file
+                if should_update or options.update > 1:
+                    if options.verbose:
+                        print '    Downloading %s ...' % fileslist
                     f = open(dbfile, 'w')
                     f.write(conn.read())
                     f.close()
                     conn.close()
                 else:
-                    print 'No update available'
+                    print '    No update available'
                     conn.close()
                 repo_done.append(repo)
             except IOError:
@@ -218,8 +222,9 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
         print 'Done'
 
     # remove left-over db (for example for repo removed from pacman config)
+    # XXX: This should probably be in some type of behavior like pacman -Scc (pkgfile -c[c]?)
     repos = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
-    registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in res)
+    registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in mirror_list)
     registered_repos.add(local_db)
     for r in repos:
         if r not in registered_repos:
@@ -227,20 +232,24 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
             os.unlink(r)
 
 def is_binary(s):
+    """Utility function used to determine whether a file should be displayed under -b"""
     return re.search(r'(?:^|/)s?bin/.', s) != None
 
-def list_files(s, options, filelist_dir=FILELIST_DIR):
-    '''list files of package matching s'''
+def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
+    '''list files of package matching pkgname'''
 
     target_repo = options.repo
-    if '/' in s:
-        res = s.split('/')
+    if '/' in pkgname:
+        res = pkgname.split('/')
         if len(res) > 2:
+            # XXX: This behavior seems to duplicate the -R switch. Maybe we
+            #  should pick one and forbid the other. Probably this is the
+            #  behavior that should be removed
             print >> sys.stderr, 'If given foo/bar, assume "bar" package in "foo" repo'
             return
         target_repo, pkg = res
     else:
-        pkg = s
+        pkg = pkgname
 
     res = []
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
@@ -264,27 +273,27 @@ def list_files(s, options, filelist_dir=FILELIST_DIR):
             match_type = pkgfile.MATCH_REGEX
         else:
             match_type = pkgfile.MATCH_SIMPLE
-        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, s)
+        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkgname)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
-    foundpkg = False
+    found_pkg = False
     for dbfile in repo_list:
         repo = os.path.basename(dbfile).replace('.files.tar.gz', '')
 
         matches = search(dbfile)
         # XXX: nested loop, investigate options
-        for m in sorted(matches):
-            for f in sorted(m['files']):
+        for match in sorted(matches):
+            for file_ in sorted(match['files']):
                 if options.binaries:
-                    if is_binary(f):
-                        print '%s /%s' % (m['name'], f)
-                        foundpkg = True
+                    if is_binary(file_):
+                        print '%s /%s' % (match['name'], file_)
+                        found_pkg = True
                 else:
-                    print '%s /%s' % (m['name'], f)
-                    foundpkg = True
+                    print '%s /%s' % (match['name'], file_)
+                    found_pkg = True
 
-    if not foundpkg:
+    if not found_pkg:
         print 'Package "%s" not found' % pkg,
         if target_repo != '':
             print ' in [%s] repo ' % target_repo,
@@ -294,15 +303,17 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
     '''search package with a file matching filename'''
 
     try:
+        search_type = pkgfile.SEARCH_FILENAME
         if options.glob:
-            search = pkgfile.Search(pkgfile.MATCH_SHELL, pkgfile.SEARCH_FILENAME, filename)
+            match_type = pkgfile.MATCH_SHELL
         elif options.regex:
-            search = pkgfile.Search(pkgfile.MATCH_REGEX, pkgfile.SEARCH_FILENAME, filename)
+            match_type = pkgfile.MATCH_REGEX
         else:
+            match_type = pkgfile.MATCH_SIMPLE
             if filename.startswith('/'):
-                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_PATH, filename.lstrip('/'))
-            else:
-                search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, filename)
+                search_type = pkgfile.SEARCH_PATH
+                filename = filename.lstrip('/')
+        search = pkgfile.Search(match_type, search_type, filename)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
