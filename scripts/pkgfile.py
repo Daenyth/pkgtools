@@ -4,9 +4,7 @@
 # This program is a part of pkgtools
 #
 # Copyright (C) 2010 solsTiCe d'Hiver <solstice.dhiver@gmail.com>
-#
-# original bash version copyright was:
-# Copyright (C) 2008-2010 Daenyth <Daenyth+Arch _AT_ gmail _DOT_ com>
+# Copyright (C) 2008-2011 Daenyth <Daenyth+Arch _AT_ gmail _DOT_ com>
 #
 # Pkgtools is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
