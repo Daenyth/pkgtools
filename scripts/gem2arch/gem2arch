@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+# Copyright (C) 2010-2011 Andrei Thorp <garoth at that gmail thing>
+#
+# gem2arch is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# gem2arch is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+##
+
+import yaml # I use the pure python PyYAML
+from optparse import OptionParser
+import subprocess
+import os
+import sys
+from gemobjects import *
+from pkgobjects import *
+import util
+
+def get_data(gemname):
+    """
+    Uses Ruby's "gem" utility to get the .yaml.
+
+    Returns: the path of the yaml file.
+    """
+    curdir = os.getcwd()
+    workdir = "/tmp/gem2arch"
+    try:
+        if not os.path.exists(workdir):
+            os.mkdir(workdir)
+    except:
+        util.error("Could not create work dir %s" % workdir)
+        sys.exit(1)
+
+    os.chdir(workdir)
+    util.inform("Downloading YAML file...")
+    yamlfile = workdir + "/" + gemname + ".yaml"
+    process = subprocess.Popen("gem spec -rq " + gemname + " > " + yamlfile,
+                               shell=True, stdout=subprocess.PIPE)
+    exit = process.wait()
+    if exit != 0:
+        sys.exit(1)
+    os.chdir(curdir)
+
+    return yamlfile
+
+def write_file(options, pkgbuild, package):
+    """
+    Writes the PKGBUILD to the appropriate file
+    """
+    success = "failure"
+    if options.outdir:
+        try:
+            if not os.path.exists(options.outdir):
+                os.mkdir(options.outdir)
+            f = open(options.outdir + "/PKGBUILD", "w")
+            f.write(str(pkgbuild))
+            f.close()
+            success = "success"
+        except:
+            util.error("Could not write the PKGBUILD file!")
+            sys.exit(1)
+    else:
+        try:
+            if not os.path.exists(package):
+                os.mkdir(package)
+            f = open(package + "/PKGBUILD", "w")
+            f.write(str(pkgbuild))
+            f.close()
+            success = "success"
+        except:
+            util.error("Could not write the PKGBUILD file!")
+    return success
+
+def print_dependencies(gemspec):
+    """
+    Outputs the dependencies listed in the Gem file.
+    """
+    for dependency in gemspec.dependencies:
+        print(dependency.name)
+
+def parse():
+    """
+    Handles parsing of command line arguments using optparse.
+    """
+    usage = "\n%prog GEM [-o DIRECTORY]"
+    description = "Convert Ruby gem specifications into Arch PKGBUILDs"
+    parser = OptionParser(usage=usage, description=description)
+
+    parser.add_option("-q", action="store_true", dest="quiet", default=False,
+                      help="Removes information and warning messages.")
+    parser.add_option("-o", dest="outdir", metavar="DIRECTORY",
+                      help="Writes PKGBUILD to DIRECTORY instead of GEM.")
+    parser.add_option("-d", action="store_true", dest="depsonly", default=False,
+                      help="Only list the dependencies given in the Gem.")
+
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+
+    return parser, options, args
+
+def main():
+    parser, options, args = parse()
+    package = args[0]
+
+    if options.quiet:
+        util.allowed_levels = [ "E!" ]
+
+    util.inform("Generating PKGBUILD for %s..." % package)
+    yamlfile = get_data(package)
+    gemspec = yaml.load(open(yamlfile))
+
+    if options.depsonly:
+        print_dependencies(gemspec)
+    else:
+        pkgbuild = PKGBUILD(gemspec)
+        success = write_file(options, pkgbuild, package)
+        util.inform("Finished working on %s with %s!" % (package, success))
+
+if __name__ == "__main__":
+        main()
