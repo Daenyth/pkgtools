@@ -355,7 +355,7 @@ def main():
     # This section is here for backward compatibility
     dict_options = load_config('pkgfile.conf')
     try:
-        filelist_dir = dict_options['FILELIST_DIR'].rstrip('/')
+        filelist_dir = os.path.expanduser(dict_options['FILELIST_DIR'].rstrip('/'))
     except KeyError:
         filelist_dir = FILELIST_DIR
     # PKGTOOLS_DIR is meaningless here
