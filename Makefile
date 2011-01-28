@@ -59,14 +59,22 @@ install:
 	# maintpkg
 	$(INSTALL_PROGRAM) scripts/maintpkg $(DESTDIR)$(bindir)/maintpkg
 
+	# gem2arch
+	$(INSTALL_DATA) doc/gem2arch.1 $(DESTDIR)$(mandir)/man1/gem2arch.1
+	$(INSTALL) -d $(DESTDIR)$(sharedir)/gem2arch
+	$(INSTALL_DATA) scripts/gem2arch/*.py $(DESTDIR)$(sharedir)/gem2arch
+	$(INSTALL_PROGRAM) scripts/gem2arch/gem2arch $(DESTDIR)$(sharedir)/gem2arch
+	ln -s /$(sharedir)/gem2arch/gem2arch $(DESTDIR)$(bindir)/gem2arch
+
 uninstall:
 	rm -Rf $(DESTDIR)$(sharedir)
-	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean}
+	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean,gem2arch}
 	rm $(DESTDIR)$(crondir)/pkgfile
 	rm $(DESTDIR)$(profiledir)/pkgfile-hook.*
 	rm -Rf $(DESTDIR)$(confdir)/pkgtools
 	rm $(DESTDIR)$(mandir)/man8/spec2arch.8
 	rm $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
+	rm $(DESTDIR)$(mandir)/man1/gem2arch.1
 
 pkgfile.so:
 	(cd modules; python2 ./setup.py build)
