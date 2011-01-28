@@ -249,7 +249,6 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
     else:
         pkg = pkgname
 
-    res = []
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if target_repo:
         tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
