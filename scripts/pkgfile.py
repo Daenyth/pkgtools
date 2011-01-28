@@ -270,7 +270,7 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
             match_type = pkgfile.MATCH_REGEX
         else:
             match_type = pkgfile.MATCH_SIMPLE
-        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkgname)
+        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkg)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
