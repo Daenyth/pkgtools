@@ -261,7 +261,6 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
     else:
         pkg = pkgname
 
-    res = []
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if target_repo:
         tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
@@ -283,7 +282,7 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
             match_type = pkgfile.MATCH_REGEX
         else:
             match_type = pkgfile.MATCH_SIMPLE
-        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkgname)
+        search = pkgfile.Search(match_type, pkgfile.SEARCH_PACKAGE, pkg)
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
@@ -367,7 +366,7 @@ def main():
     # This section is here for backward compatibility
     dict_options = load_config('pkgfile.conf')
     try:
-        filelist_dir = dict_options['FILELIST_DIR'].rstrip('/')
+        filelist_dir = os.path.expanduser(dict_options['FILELIST_DIR'].rstrip('/'))
     except KeyError:
         filelist_dir = FILELIST_DIR
     # PKGTOOLS_DIR is meaningless here
