@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 ###
 # pkgfile.py -- search the arch repo to see what package owns a file
 # This program is a part of pkgtools
@@ -27,7 +27,7 @@ import os
 import sys
 import optparse
 import subprocess
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import tarfile
 import time
 import pkgfile
@@ -86,7 +86,7 @@ def load_config(conf_file, options=None):
 
 def die(n=-1, msg='Unknown error'):
     # TODO: All calls to die() should probably just be exceptions
-    print >> sys.stderr, msg
+    print(msg, file=sys.stderr)
     sys.exit(n)
 
 def print_pkg(pkg):
@@ -105,35 +105,35 @@ def print_pkg(pkg):
         except KeyError:
             continue
         if value is None:
-            print '%s: --' % field
+            print('%s: --' % field)
             continue
 
         if attr == 'csize' or attr == 'isize':
-            print '%s: %d k' % (field, value/1024)
+            print('%s: %d k' % (field, value/1024))
         #elif attr == 'force':
         #    print = '%s: %d' % (field, value)
         elif attr in ('groups', 'license', 'replaces',  'depends', 'conflicts', 'provides'):
-            print '%s: %s' % (field, '  '.join(value))
+            print('%s: %s' % (field, '  '.join(value)))
         elif attr == 'optdepends':
-            print '%s: %s' % (field, ('\n'+(WIDTH+2)*' ').join(value))
+            print('%s: %s' % (field, ('\n'+(WIDTH+2)*' ').join(value)))
         elif attr == 'builddate':
             try:
-                print '%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S',
-                    time.localtime(value)))
+                print('%s: %s' % (field, time.strftime('%a, %d %b %Y %H:%M:%S',
+                    time.localtime(value))))
             except ValueError:
-                print '%s: error !' % attr.ljust(22)
+                print('%s: error !' % attr.ljust(22))
         elif attr == 'backup':
             s = field + ':'
             for i in value:
                 s += '\n'+': '.join(i.split('\t')) +'\n'
             else:
                 s += ' --'
-            print s
+            print(s)
         #elif attr == 'files':
         #    print '%s: %s' % (field, '\n'+'\n'.join(value))
         else:
-            print '%s: %s' % (field, value)
-    print
+            print('%s: %s' % (field, value))
+    print()
 
 def get_mirrorlist():
     """Return a list of (reponame, mirror_url) for all mirrors known to pacman"""
@@ -154,9 +154,9 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
     # XXX: This function is way too big. Needs refactoring
 
     if not os.path.exists(filelist_dir):
-        print >> sys.stderr, 'Warning: %s does not exist. Creating it.' % filelist_dir
+        print('Warning: %s does not exist. Creating it.' % filelist_dir, file=sys.stderr)
         try:
-            os.mkdir(filelist_dir, 0755)
+            os.mkdir(filelist_dir, 0o755)
         except OSError:
             # TODO: raise UpdateFailedError("Failed to create filelist dir: e")...
             die(1, 'Error: Can\'t create %s directory' % filelist_dir)
@@ -172,13 +172,13 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
         if target_repos is not None and repo != target_repos:
             continue
         if repo not in repo_done:
-            print ':: Checking [%s] for files list ...' % repo
+            print(':: Checking [%s] for files list ...' % repo)
             repofile = '%s.files.tar.gz' % repo
             fileslist = os.path.join(mirror, repofile)
 
             try:
                 if options.verbose:
-                    print '    Trying mirror %s ...' % mirror
+                    print('    Trying mirror %s ...' % mirror)
                 dbfile = '%s/%s.files.tar.gz' % (filelist_dir, repo)
                 try:
                     # try to get mtime of dbfile
@@ -186,7 +186,7 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                 except os.error:
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
                 # Initiate connection to get 'Last-Modified' header
-                conn = urllib2.urlopen(fileslist, timeout=30)
+                conn = urllib.request.urlopen(fileslist, timeout=30)
                 last_modified = conn.info().getdate('last-modified')
                 if last_modified is None:
                     should_update = True
@@ -196,19 +196,19 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
 
                 if should_update or options.update > 1:
                     if options.verbose:
-                        print '    Downloading %s ...' % fileslist
+                        print('    Downloading %s ...' % fileslist)
                     f = open(dbfile, 'w')
                     f.write(conn.read())
                     f.close()
                     conn.close()
                 else:
-                    print '    No update available'
+                    print('    No update available')
                     conn.close()
                 repo_done.append(repo)
             except IOError as e:
-                print >> sys.stderr, 'Warning: could not retrieve %s' % fileslist
+                print('Warning: could not retrieve %s' % fileslist, file=sys.stderr)
                 if options.verbose:
-                    print >> sys.stderr, "         " + str(e)
+                    print("         " + str(e), file=sys.stderr)
                 continue
 
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
@@ -223,12 +223,12 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
     registered_repos.add(local_db)
     for r in repos:
         if r not in registered_repos:
-            print ':: Deleting %s' % r
+            print(':: Deleting %s' % r)
             os.unlink(r)
 
 def update_local_repo(local_db):
     """Update the file list for the local repo db."""
-    print ':: Converting local repo ...'
+    print(':: Converting local repo ...')
     local_dbpath = os.path.join(find_dbpath(), 'local')
     # create a tarball of local repo
     tf = tarfile.open(local_db, 'w:gz')
@@ -239,7 +239,7 @@ def update_local_repo(local_db):
         tf.add(i)
     tf.close()
     os.chdir(cwd) # restore it
-    print 'Done'
+    print('Done')
 
 def is_binary(path):
     """Utility function used to determine whether a file should be displayed under -b"""
@@ -255,7 +255,7 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
             # XXX: This behavior seems to duplicate the -R switch. Maybe we
             #  should pick one and forbid the other. Probably this is the
             #  behavior that should be removed
-            print >> sys.stderr, 'If given foo/bar, assume "bar" package in "foo" repo'
+            print('If given foo/bar, assume "bar" package in "foo" repo', file=sys.stderr)
             return
         target_repo, pkg = res
     else:
@@ -296,17 +296,17 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
             for file_ in sorted(match['files']):
                 if options.binaries:
                     if is_binary(file_):
-                        print '%s /%s' % (match['name'], file_)
+                        print('%s /%s' % (match['name'], file_))
                         found_pkg = True
                 else:
-                    print '%s /%s' % (match['name'], file_)
+                    print('%s /%s' % (match['name'], file_))
                     found_pkg = True
 
     if not found_pkg:
-        print 'Package "%s" not found' % pkg,
+        print('Package "%s" not found' % pkg, end=' ')
         if target_repo != '':
-            print ' in [%s] repo ' % target_repo,
-        print
+            print(' in [%s] repo ' % target_repo, end=' ')
+        print()
 
 def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
     '''search package with a file matching filename'''
@@ -348,19 +348,19 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         for match in matches:
             files = match['files']
             if options.binaries:
-                files = filter(is_binary, files)
+                files = list(filter(is_binary, files))
             if files != []:
                 if options.info:
                     pkg = pkgfile.pkg_info(dbfile, [match['name']])[0]
                     print_pkg(pkg)
                     if options.verbose:
-                        print '\n'.join('%s/%s : /%s' % (repo, match['name'], f) for f in files)
-                        print
+                        print('\n'.join('%s/%s : /%s' % (repo, match['name'], f) for f in files))
+                        print()
                 else:
                     if options.verbose:
-                        print '\n'.join('%s/%s (%s) : /%s' % (repo, match['name'], match['version'], f) for f in files)
+                        print('\n'.join('%s/%s (%s) : /%s' % (repo, match['name'], match['version'], f) for f in files))
                     else:
-                        print '%s/%s' % (repo, match['name'])
+                        print('%s/%s' % (repo, match['name']))
 
 def main():
     # This section is here for backward compatibility
@@ -434,9 +434,9 @@ def main():
 if __name__ == '__main__':
     # This will ensure that any files we create are readable by normal users
     # TODO: Move to more relevent section
-    os.umask(0022)
+    os.umask(0o022)
 
     try:
         main()
     except KeyboardInterrupt:
-        print 'Aborted'
+        print('Aborted')
