@@ -148,7 +148,7 @@ def get_mirrorlist():
             mirrors.append((m.group(1), m.group(2)))
     return mirrors
 
-def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
+def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
     '''download .files.tar.gz for each repo found in pacman config or the one specified'''
 
     # XXX: This function is way too big. Needs refactoring
@@ -158,12 +158,18 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
         try:
             os.mkdir(filelist_dir, 0755)
         except OSError:
+            # TODO: raise UpdateFailedError("Failed to create filelist dir: e")...
             die(1, 'Error: Can\'t create %s directory' % filelist_dir)
+
+    # Check here first since we squash IOError later, and it goes into a long
+    # loop of repeated errors.
+    if not os.access(filelist_dir, os.F_OK|os.R_OK|os.W_OK|os.X_OK):
+        die(1, 'Error: %s is not accessible' % filelist_dir)
 
     mirror_list = get_mirrorlist()
     repo_done = []
     for repo, mirror in mirror_list:
-        if target_repo is not None and repo != target_repo:
+        if target_repos is not None and repo != target_repos:
             continue
         if repo not in repo_done:
             print ':: Checking [%s] for files list ...' % repo
@@ -199,25 +205,16 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
                     print '    No update available'
                     conn.close()
                 repo_done.append(repo)
-            except IOError:
+            except IOError as e:
                 print >> sys.stderr, 'Warning: could not retrieve %s' % fileslist
+                if options.verbose:
+                    print >> sys.stderr, "         " + str(e)
                 continue
 
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
 
-    if target_repo is None or target_repo == 'local':
-        print ':: Converting local repo ...'
-        local_dbpath = os.path.join(find_dbpath(), 'local')
-        # create a tarball of local repo
-        tf = tarfile.open(local_db, 'w:gz')
-        cwd = os.getcwd() # save current working directory
-        os.chdir(local_dbpath)
-        # we don't want a ./ prefix on all the files in the tarball
-        for i in os.listdir('.'):
-            tf.add(i)
-        tf.close()
-        os.chdir(cwd) # restore it
-        print 'Done'
+    if target_repos is None or target_repos == 'local':
+        update_local_repo(local_db)
 
     # remove left-over db (for example for repo removed from pacman config)
     # XXX: This should probably be in some type of behavior like pacman -Scc (pkgfile -c[c]?)
@@ -229,9 +226,24 @@ def update_repo(options, target_repo=None, filelist_dir=FILELIST_DIR):
             print ':: Deleting %s' % r
             os.unlink(r)
 
-def is_binary(s):
+def update_local_repo(local_db):
+    """Update the file list for the local repo db."""
+    print ':: Converting local repo ...'
+    local_dbpath = os.path.join(find_dbpath(), 'local')
+    # create a tarball of local repo
+    tf = tarfile.open(local_db, 'w:gz')
+    cwd = os.getcwd() # save current working directory
+    os.chdir(local_dbpath)
+    # we don't want a ./ prefix on all the files in the tarball
+    for i in os.listdir('.'):
+        tf.add(i)
+    tf.close()
+    os.chdir(cwd) # restore it
+    print 'Done'
+
+def is_binary(path):
     """Utility function used to determine whether a file should be displayed under -b"""
-    return re.search(r'(?:^|/)s?bin/.', s) != None
+    return re.search(r'(?:^|/)s?bin/.', path) != None
 
 def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
     '''list files of package matching pkgname'''
@@ -315,14 +327,14 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
     except pkgfile.RegexError:
         die(1, 'Error: invalid pattern or regular expression')
 
-    target_repo = options.repo
+    target_repos = options.repo
     local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
-    if target_repo:
-        tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
+    if target_repos:
+        tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repos)
         if not os.path.exists(tmp):
-            die(1, 'Error: %s repo does not exist' % target_repo)
+            die(1, 'Error: %s repo does not exist' % target_repos)
         repo_list = [tmp]
-    elif os.path.exists(filename) or target_repo == 'local':
+    elif os.path.exists(filename) or target_repos == 'local':
         repo_list = [local_db]
     else:
         repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
@@ -404,7 +416,7 @@ def main():
 
     if options.update:
         try:
-            update_repo(options, filelist_dir=filelist_dir, target_repo=args[0])
+            update_repo(options, filelist_dir=filelist_dir, target_repos=args[0])
         except IndexError:
             update_repo(options, filelist_dir=filelist_dir)
     elif options.list:
