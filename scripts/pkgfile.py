@@ -138,7 +138,7 @@ def print_pkg(pkg):
 def get_mirrorlist():
     """Return a list of (reponame, mirror_url) for all mirrors known to pacman"""
     p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
-    output = p.communicate()[0]
+    output = p.communicate()[0].decode('utf-8')
 
     mirrors = []
     server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
