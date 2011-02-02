@@ -142,7 +142,7 @@ def get_mirrorlist():
 
     mirrors = []
     server = re.compile(r'.*adding new server URL to database \'(.*)\': (.*)')
-    for line in output.split('\n'):
+    for line in output.splitlines():
         m = server.match(line)
         if m:
             mirrors.append((m.group(1), m.group(2)))
