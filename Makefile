@@ -44,7 +44,7 @@ install:
 	# spec2arch
 	$(INSTALL_PROGRAM) scripts/spec2arch $(DESTDIR)$(bindir)/spec2arch
 	$(INSTALL_DATA) confs/spec2arch.conf $(DESTDIR)$(confdir)/pkgtools/spec2arch.conf
-	$(INSTALL_DATA) doc/spec2arch.8 $(DESTDIR)$(mandir)/man8/spec2arch.8
+	$(INSTALL_DATA) doc/spec2arch.1 $(DESTDIR)$(mandir)/man1/spec2arch.1
 	$(INSTALL_DATA) doc/spec2arch.conf.5 $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
 
 	# pkgconflict
