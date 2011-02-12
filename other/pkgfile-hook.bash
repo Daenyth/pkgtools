@@ -9,3 +9,4 @@ command_not_found_handle () {
 	printf "bash: $(gettext bash "%s: command not found")\n" $command >&2
 	return 127
 }
+export -f command_not_found_handle
