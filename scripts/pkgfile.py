@@ -315,8 +315,10 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         search_type = pkgfile.SEARCH_FILENAME
         if options.glob:
             match_type = pkgfile.MATCH_SHELL
+            search_type = pkgfile.SEARCH_PATH
         elif options.regex:
             match_type = pkgfile.MATCH_REGEX
+            search_type = pkgfile.SEARCH_PATH
         else:
             match_type = pkgfile.MATCH_SIMPLE
             if filename.startswith('/'):
