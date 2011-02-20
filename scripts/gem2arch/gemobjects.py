@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import yaml # I use the pure python PyYAML
+import yaml
+
 class Timestamp(yaml.YAMLObject):
     """Avoid errors from files with old YAML timestamps."""
     yaml_tag = '!timestamp'

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import util
+import gem2archutil as util
 
 class PKGBUILD:
     def __init__(self, gem_spec):
@@ -13,7 +13,7 @@ class PKGBUILD:
         self.license = self.get_licenses(getattr(gem_spec, 'licenses', False))
         self.groups = "()"
         self.depends = self.get_deps(gem_spec.dependencies)
-        self.makedepends = "('rubygems')"
+        self.makedepends = "('ruby')"
         self.optdepends = "()"
         self.provides = "()"
         self.conflicts = "()"
@@ -26,10 +26,10 @@ class PKGBUILD:
         self.noextract = '("%s-${pkgver}.gem")' % (gem_spec.name)
         self.md5sums = "()" # makepkg already generates md5sums.
         self.build = """
-  cd $srcdir
+  cd "${srcdir}"
   local _gemdir="$(ruby -rubygems -e'puts Gem.default_dir')"
   gem install --ignore-dependencies -i "$pkgdir$_gemdir" %s-$pkgver.gem \\
-  -n \"$pkgdir/usr/bin\"
+    -n \"$pkgdir/usr/bin\"
 """ % (gem_spec.name)
 
     def get_maintainer(self, makepkg_conf):
@@ -39,7 +39,7 @@ class PKGBUILD:
                 if line.startswith('PACKAGER='):
                     return line.strip('PACKAGER=\n ')[1:-1]
             return default
-        except:
+        except IOError:
             return default
 
     def get_licenses(self, licenses):
@@ -94,7 +94,7 @@ class PKGBUILD:
             'noextract', 'md5sums']
     #The *:set* command is mangled to keep vim from being really annoying.
     def __repr__(self):
-        return '# Maintainer: %s\n%s\n\nbuild() {%s}\n\n# %s:set ts=2 sw=2 \
+        return '# Maintainer: %s\n%s\n\npackage() {%s}\n\n# %s:set ts=2 sw=2 \
 et:' % (self.maintainer, '\n'.join('%s=%s' % (k, getattr(self, k))\
                                    for k in self._pkg), self.build, 'vim')
 

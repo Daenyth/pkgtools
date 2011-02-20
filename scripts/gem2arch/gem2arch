@@ -17,14 +17,15 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 ##
 
-import yaml # I use the pure python PyYAML
+from yaml import load
 from optparse import OptionParser
 import subprocess
 import os
 import sys
+
 from gemobjects import *
 from pkgobjects import *
-import util
+import gem2archutil as util
 
 def get_data(gemname):
     """
@@ -37,7 +38,7 @@ def get_data(gemname):
     try:
         if not os.path.exists(workdir):
             os.mkdir(workdir)
-    except:
+    except IOError:
         util.error("Could not create work dir %s" % workdir)
         sys.exit(1)
 
@@ -66,7 +67,7 @@ def write_file(options, pkgbuild, package):
             f.write(str(pkgbuild))
             f.close()
             success = "success"
-        except:
+        except IOError:
             util.error("Could not write the PKGBUILD file!")
             sys.exit(1)
     else:
@@ -77,7 +78,7 @@ def write_file(options, pkgbuild, package):
             f.write(str(pkgbuild))
             f.close()
             success = "success"
-        except:
+        except IOError:
             util.error("Could not write the PKGBUILD file!")
     return success
 
@@ -116,7 +117,7 @@ def main():
     package = args[0]
 
     if options.quiet:
-        util.allowed_levels = [ "E!" ]
+        util.allowed_levels = ( "E!" )
 
     util.inform("Generating PKGBUILD for %s..." % package)
     yamlfile = get_data(package)
