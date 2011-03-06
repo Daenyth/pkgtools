@@ -174,7 +174,7 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
         if repo not in repo_done:
             print(':: Checking [%s] for files list ...' % repo)
             repofile = '%s.files.tar.gz' % repo
-            fileslist = os.path.join(mirror, repofile)
+            fileslist = mirror + '/' + repofile
 
             try:
                 if options.verbose:
