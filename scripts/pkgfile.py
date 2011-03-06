@@ -202,7 +202,7 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                 if should_update or options.update > 1:
                     if options.verbose:
                         print('    Downloading %s ...' % fileslist)
-                    f = open(dbfile, 'w')
+                    f = open(dbfile, 'wb')
                     f.write(conn.read())
                     f.close()
                     conn.close()
