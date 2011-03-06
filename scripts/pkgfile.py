@@ -41,7 +41,7 @@ def find_dbpath():
 
     p = subprocess.Popen(['pacman', '-Tv'], stdout=subprocess.PIPE)
     output = p.communicate()[0]
-    for line in output.split('\n'):
+    for line in output.splitlines():
         if line.startswith('DB Path'):
             return line.split(':')[1].strip()
     raise RuntimeError("Unable to determine pacman DB path")
