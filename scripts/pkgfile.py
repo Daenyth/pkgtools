@@ -155,7 +155,7 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
     # XXX: This function is way too big. Needs refactoring
 
     if not os.path.exists(filelist_dir):
-        print('Warning: %s does not exist. Creating it.' % filelist_dir, file=sys.stderr)
+        print('    Warning: %s does not exist. Creating it.' % filelist_dir, file=sys.stderr)
         try:
             os.mkdir(filelist_dir, 0o755)
         except OSError:
@@ -212,7 +212,7 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                     conn.close()
                 repo_done.append(repo)
             except IOError as e:
-                print('Warning: could not retrieve %s' % fileslist, file=sys.stderr)
+                print('    Warning: could not retrieve %s' % fileslist, file=sys.stderr)
                 if options.verbose:
                     print("         " + str(e), file=sys.stderr)
                 continue
