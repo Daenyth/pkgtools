@@ -30,6 +30,7 @@ import subprocess
 import urllib.request, urllib.error, urllib.parse
 import tarfile
 import time
+
 import pkgfile
 
 VERSION = '22'
@@ -40,7 +41,7 @@ def find_dbpath():
     '''find pacman dbpath'''
 
     p = subprocess.Popen(['pacman', '-Tv'], stdout=subprocess.PIPE)
-    output = p.communicate()[0]
+    output = str(p.communicate()[0], "utf-8")
     for line in output.splitlines():
         if line.startswith('DB Path'):
             return line.split(':')[1].strip()
