@@ -245,7 +245,7 @@ def update_local_repo(local_db):
         tf.add(i)
     tf.close()
     os.chdir(cwd) # restore it
-    print('Done')
+    print(':: Done')
 
 def is_binary(path):
     """Utility function used to determine whether a file should be displayed under -b"""
