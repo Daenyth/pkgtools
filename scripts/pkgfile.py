@@ -187,11 +187,16 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                     local_mtime = 0 # fake a very old date if dbfile doesn't exist
                 # Initiate connection to get 'Last-Modified' header
                 conn = urllib.request.urlopen(fileslist, timeout=30)
+                # No more conn.info().getdate() in py3k, so we need to parse it
+                # into something similar to a struct_time manually
                 last_modified = conn.headers['last-modified']
                 if last_modified is None:
                     should_update = True
                 else:
-                    remote_mtime = time.mktime(last_modified)
+                    # I hope that format string is correct.. I have a feeling this bit is really fragile.
+                    time_struct = time.strptime(last_modified,
+                                                '%a, %d %b %Y %H:%M:%S %Z')
+                    remote_mtime = time.mktime(time_struct)
                     should_update = remote_mtime > local_mtime
 
                 if should_update or options.update > 1:
