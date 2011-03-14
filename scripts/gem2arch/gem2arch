@@ -38,8 +38,8 @@ def get_data(gemname):
     try:
         if not os.path.exists(workdir):
             os.mkdir(workdir)
-    except IOError:
-        util.error("Could not create work dir %s" % workdir)
+    except IOError as e:
+        util.error("Could not create work dir %s: %s" % (workdir, e.strerror))
         sys.exit(1)
 
     os.chdir(workdir)
@@ -67,8 +67,8 @@ def write_file(options, pkgbuild, package):
             f.write(str(pkgbuild))
             f.close()
             success = "success"
-        except IOError:
-            util.error("Could not write the PKGBUILD file!")
+        except IOError as e:
+            util.error("Could not write the PKGBUILD file: %s" % e.strerror)
             sys.exit(1)
     else:
         try:
@@ -78,8 +78,8 @@ def write_file(options, pkgbuild, package):
             f.write(str(pkgbuild))
             f.close()
             success = "success"
-        except IOError:
-            util.error("Could not write the PKGBUILD file!")
+        except IOError as e:
+            util.error("Could not write the PKGBUILD file: %s" % e.strerror)
     return success
 
 def print_dependencies(gemspec):

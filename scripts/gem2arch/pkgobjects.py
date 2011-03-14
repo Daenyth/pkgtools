@@ -39,7 +39,8 @@ class PKGBUILD:
                 if line.startswith('PACKAGER='):
                     return line.strip('PACKAGER=\n ')[1:-1]
             return default
-        except IOError:
+        except IOError as e:
+            util.warn("Could not read %s: %s" % (e.filename, e.strerror))
             return default
 
     def get_licenses(self, licenses):
@@ -95,7 +96,7 @@ class PKGBUILD:
     #The *:set* command is mangled to keep vim from being really annoying.
     def __repr__(self):
         return '# Maintainer: %s\n%s\n\npackage() {%s}\n\n# %s:set ts=2 sw=2 \
-et:' % (self.maintainer, '\n'.join('%s=%s' % (k, getattr(self, k))\
+et:\n' % (self.maintainer, '\n'.join('%s=%s' % (k, getattr(self, k))\
                                    for k in self._pkg), self.build, 'vim')
 
     def __str__(self):

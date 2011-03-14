@@ -2,7 +2,6 @@
 import sys
 from functools import reduce
 
-global allowed_levels
 allowed_levels = ( "E!", "W:", "I:" )
 
 def message(prefix, text):
