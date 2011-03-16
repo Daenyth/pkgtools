@@ -110,7 +110,7 @@ static PyObject *search_file(const char *filename,
         m = l;
       }
       if(search_type == SEARCH_PACKAGE || match_func(m, data)) {
-        pystr = PyString_FromString(l);
+        pystr = PyBytes_FromString(l);
         if(pystr == NULL)
           goto cleanup;
         PyList_Append(files, pystr);
@@ -119,13 +119,13 @@ static PyObject *search_file(const char *filename,
     }
 
     if(search_type == SEARCH_PACKAGE || PyList_Size(files) > 0) {
-      pystrname = PyString_FromString(pkgname);
+      pystrname = PyUnicode_FromString(pkgname);
       free(pkgname);
       if(pystrname == NULL) {
         free(pkgver);
         goto cleanup;
       }
-      pystrver = PyString_FromString(pkgver);
+      pystrver = PyUnicode_FromString(pkgver);
       free(pkgver);
       if(pystrver == NULL)
         goto cleanup;
