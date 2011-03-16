@@ -12,12 +12,19 @@ static PyMethodDef PkgfileMethods[] = {
   {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initpkgfile(void) {
-  PyObject *m;
-  m = Py_InitModule("pkgfile", PkgfileMethods);
+static struct PyModuleDef PkgfileDef = {
+  PyModuleDef_HEAD_INIT,
+  "pkgfile",
+  NULL,
+  -1,
+  PkgfileMethods
+};
+
+PyMODINIT_FUNC PyInit_pkgfile(void) {
+  PyObject *m = PyModule_Create(&PkgfileDef);
 
   if(m == NULL)
-    return;
+    return NULL;
 
 	RegexError = PyErr_NewException("pkgfile.RegexError", NULL, NULL);
 	Py_INCREF(RegexError);
@@ -25,4 +32,6 @@ PyMODINIT_FUNC initpkgfile(void) {
 
   search_pyinit(m);
   match_pyinit(m);
+
+  return m;
 }
