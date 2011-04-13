@@ -110,7 +110,7 @@ static PyObject *search_file(const char *filename,
         m = l;
       }
       if(search_type == SEARCH_PACKAGE || match_func(m, data)) {
-        pystr = PyBytes_FromString(l);
+        pystr = PyUnicode_FromString(l);
         if(pystr == NULL)
           goto cleanup;
         PyList_Append(files, pystr);
