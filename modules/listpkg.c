@@ -52,7 +52,7 @@ PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
       if(dict == NULL) {
         goto cleanup_nodict;
       }
-      pystr = PyString_FromString(pkgname);
+      pystr = PyUnicode_FromString(pkgname);
       free(pkgname);
       if(pystr == NULL) {
         free(pkgver);
@@ -60,7 +60,7 @@ PyObject *list_packages(PyObject *self, PyObject *args, PyObject *kw) {
       }
       PyDict_SetItemString(dict, "name", pystr);
       Py_DECREF(pystr);
-      pystr = PyString_FromString(pkgver);
+      pystr = PyUnicode_FromString(pkgver);
       free(pkgver);
       if(pystr == NULL)
         goto cleanup;

@@ -360,11 +360,11 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
                     pkg = pkgfile.pkg_info(dbfile, [match['name']])[0]
                     print_pkg(pkg)
                     if options.verbose:
-                        print('\n'.join('%s/%s : /%s' % (repo, match['name'], f) for f in files))
+                        print('\n'.join('%s/%s : /%s' % (repo, match['name'], f.decode('utf-8', 'ignore')) for f in files))
                         print()
                 else:
                     if options.verbose:
-                        print('\n'.join('%s/%s (%s) : /%s' % (repo, match['name'], match['version'], f) for f in files))
+                        print('\n'.join('%s/%s (%s) : /%s' % (repo, match['name'], match['version'], f.decode('utf-8', 'ignore')) for f in files))
                     else:
                         print('%s/%s' % (repo, match['name']))
 
