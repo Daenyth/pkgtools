@@ -14,6 +14,7 @@ conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 optdepends=('cron: For pkgfile --update entry')
+options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"

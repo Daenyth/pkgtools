@@ -6,5 +6,5 @@ setup(name='pkgfile',
       ext_modules=[Extension('pkgfile',
           ['pkgfile2.c', 'match.c', 'search.c', 'listpkg.c', 'util.c', 'parse.c'],
           libraries=['archive', 'pcre'],
-          extra_compile_args=['-Wall'])],
+          extra_compile_args=['-Wall', '-g'])],
       )
