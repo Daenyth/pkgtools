@@ -304,7 +304,7 @@ PyObject *pkg_info(PyObject *self, PyObject *args) {
 	int found, existing;
 	char *l = NULL, *p, *v;
 	char pname[ABUFLEN], *fname, *dname;
-	const char *filename=NULL, *pkgname;
+	const char *dbfile=NULL, *pkgname;
 	struct stat st;
 	struct archive *a;
 	struct archive_entry *entry;
@@ -312,11 +312,11 @@ PyObject *pkg_info(PyObject *self, PyObject *args) {
 	PyObject *ret=NULL, *pkgnames_list=NULL, *pkg=NULL, *waiting_dict=NULL;
 	Py_ssize_t lp, i;
 
-	if (!PyArg_ParseTuple(args, "sO", &filename, &pkgnames_list)) {
+	if (!PyArg_ParseTuple(args, "sO", &dbfile, &pkgnames_list)) {
 		PyErr_SetString(PyExc_ValueError, "pkg_info() has invalid arguments");
 		return NULL;
 	}
-	if (filename == NULL || strlen(filename)<=0) {
+	if (dbfile == NULL || strlen(dbfile)<=0) {
 		PyErr_SetString(PyExc_ValueError, "pkg_info() was given an empty files tarball name.");
 		return NULL;
 	}
@@ -331,8 +331,8 @@ PyObject *pkg_info(PyObject *self, PyObject *args) {
 	}
 
 	pname[ABUFLEN-1]='\0';
-	if(stat(filename, &st)==-1 || !S_ISREG(st.st_mode)) {
-		PyErr_Format(PyExc_IOError, "File does not exist: %s\n", filename);
+	if(stat(dbfile, &st)==-1 || !S_ISREG(st.st_mode)) {
+		PyErr_Format(PyExc_IOError, "File does not exist: %s\n", dbfile);
 		return NULL;
 	}
 	ret = PyList_New(0);
@@ -347,7 +347,7 @@ PyObject *pkg_info(PyObject *self, PyObject *args) {
 	a = archive_read_new();
 	archive_read_support_compression_all(a);
 	archive_read_support_format_all(a);
-	archive_read_open_filename(a, filename, 10240);
+	archive_read_open_filename(a, dbfile, 10240);
 	l = NULL;
 	while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
 		if(!S_ISREG(archive_entry_filetype(entry))) {
