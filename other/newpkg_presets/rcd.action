@@ -1,3 +1,4 @@
+setrcd 'rc-script.proto'
 add_copy "$PROTO_RC" "$pkgname.rc.d"
 add_mod _set_rcd
 

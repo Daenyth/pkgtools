@@ -1,52 +1,3 @@
-# setpkgbuild() {{{
-setpkgbuild () {
-    if [ -z "$1" ]; then
-        die 1 "setpkgbuild() requires an argument!"
-    fi
-    case "$1" in
-        /*)
-            PROTO_PKGBUILD="$1"
-            ;;
-        *)
-            PROTO_PKGBUILD="${PROTODIR}/$1"
-            ;;
-    esac
-}
-# }}}
-
-# add_action {{{
-add_action() {
-    ACTIONS=(${ACTIONS[@]} $1)
-}
-# }}}
-
-# add_copy {{{
-add_copy() {
-    local from="$1"
-    local to="$2"
-    if [[ ! -r $from ]]; then
-        warn "Can't read %s, cancelling copy!\n" "$from"
-    fi
-    COPIES[$to]="$from"
-}
-# }}}
-
-# setpkginstall() {{{
-setpkginstall () {
-    if [ -z "$1" ]; then
-        die 1 "setpkginstall() requires an argument!"
-    fi
-    case "$1" in
-        /*)
-            PROTO_INSTALL="$1"
-            ;;
-        *)
-            PROTO_INSTALL="${PROTODIR}/$1"
-            ;;
-    esac
-}
-# }}}
-
 # add_action {{{
 add_action() {
     ACTIONS=(${ACTIONS[@]} $1)
@@ -68,6 +19,54 @@ add_copy() {
 add_mod() {
     local mod="$1"
     MODIFICATIONS=("${MODIFICATIONS[@]}" "$1")
+}
+# }}}
+
+# setpkgbuild() {{{
+setpkgbuild () {
+    if [ -z "$1" ]; then
+        die 1 "setpkgbuild() requires an argument!"
+    fi
+    case "$1" in
+        /*)
+            PROTO_PKGBUILD="$1"
+            ;;
+        *)
+            PROTO_PKGBUILD="${PROTODIR}/$1"
+            ;;
+    esac
+}
+# }}}
+
+# setpkginstall() {{{
+setpkginstall () {
+    if [ -z "$1" ]; then
+        die 1 "setpkginstall() requires an argument!"
+    fi
+    case "$1" in
+        /*)
+            PROTO_INSTALL="$1"
+            ;;
+        *)
+            PROTO_INSTALL="${PROTODIR}/$1"
+            ;;
+    esac
+}
+# }}}
+
+# setrcd() {{{
+setrcd() {
+    if [ -z "$1" ]; then
+        die 1 "setrcd() requires an argument!"
+    fi
+    case "$1" in
+        /*)
+            PROTO_RC="$1"
+            ;;
+        *)
+            PROTO_RC="${PROTODIR}/$1"
+            ;;
+    esac
 }
 # }}}
 
