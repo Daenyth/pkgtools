@@ -12,7 +12,8 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 install=pkgtools.install
 provides=(newpkg pkgfile)
 depends=('bash>=4' 'python2' 'pcre' 'libarchive')
-optdepends=('cron: For pkgfile --update entry')
+optdepends=('cron: For pkgfile --update entry'
+            'abs: Provides proto packaging files for newpkg')
 md5sums=('37430c4fa13b4cf4afb233100706f5ae')
 
 build() {

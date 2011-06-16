@@ -13,7 +13,8 @@ provides=(pkgtools)
 conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-optdepends=('cron: For pkgfile --update entry')
+optdepends=('cron: For pkgfile --update entry'
+            'abs: Provides proto packaging files for newpkg')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"
