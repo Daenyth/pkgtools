@@ -162,7 +162,7 @@ while (( $# != 0 )); do
             pkgname=$(echo $1 | sed 's; ;;g' | sed 's;/$;;')
             ;;
     esac
-    hift
+    shift
 done
 
 [[ -z $pkgname ]] && die 1 "No package name supplied\n"
