@@ -1,4 +1,10 @@
 setrcd 'rc-script.proto'
+
+if [[ ! -r $PROTO_RC ]]; then
+    msg "Unable to read rc.d proto file at %s\n" "$PROTO_RC"
+    msg "You may need to install the abs package\n"
+fi
+
 add_copy "$PROTO_RC" "$pkgname.rc.d"
 add_mod _set_rcd
 
