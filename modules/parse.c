@@ -376,10 +376,10 @@ PyObject *pkg_info(PyObject *self, PyObject *args) {
 			}
 			if (strcmp(p, pkgname) == 0) {
 				found = 1;
-				Py_DECREF(pkgnamestr);
+				//Py_DECREF(pkgnamestr);
 				break;
 			}
-			Py_DECREF(pkgnamestr);
+			//Py_DECREF(pkgnamestr);
 		}
 		free(p);
 		free(v);
