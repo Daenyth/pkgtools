@@ -300,12 +300,13 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
         # XXX: nested loop, investigate options
         for match in sorted(matches):
             for file_ in sorted(match['files']):
+                filename = str(file_, 'utf-8')
                 if options.binaries:
-                    if is_binary(file_):
-                        print('%s /%s' % (match['name'], file_))
+                    if is_binary(filename):
+                        print('%s /%s' % (match['name'], filename))
                         found_pkg = True
                 else:
-                    print('%s /%s' % (match['name'], file_))
+                    print('%s /%s' % (match['name'], filename))
                     found_pkg = True
 
     if not found_pkg:
