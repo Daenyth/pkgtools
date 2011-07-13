@@ -8,3 +8,4 @@ scripts/*.pyc
 modules/pkgfile.so
 modules/*.o
 modules/build
+tags
