@@ -357,7 +357,7 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
                 files = list(filter(is_binary, files))
             if files != []:
                 if options.info:
-                    pkg = pkgfile.pkg_info(dbfile, [match['name']])[0]
+                    pkg = pkgfile.pkg_info(dbfile, [bytes(match['name'], 'utf-8')])[0]
                     print_pkg(pkg)
                     if options.verbose:
                         print('\n'.join('%s/%s : /%s' % (repo, match['name'], f.decode('utf-8', 'ignore')) for f in files))
