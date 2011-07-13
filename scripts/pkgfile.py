@@ -249,6 +249,8 @@ def update_local_repo(local_db):
 
 def is_binary(path):
     """Utility function used to determine whether a file should be displayed under -b"""
+    if isinstance(path, bytes):
+        path = path.decode('utf-8', errors='ignore')
     return re.search(r'(?:^|/)s?bin/.', path) != None
 
 def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
