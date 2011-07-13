@@ -73,7 +73,7 @@ int parse_depends(FILE *stream, PyObject **ppkg) {
 		} else if(strcmp(line, "%OPTDEPENDS%") == 0) {
 			tmp = PyList_New(0);
 			while(fgets(line, sizeof(line), stream) && strlen(strtrim(line))) {
-				s = PyBytes_FromString(strtrim(line));
+				s = PyUnicode_FromString(strtrim(line));
 				PyList_Append(tmp, s);
 				Py_DECREF(s);
 			}
@@ -179,7 +179,7 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
 				goto error;
 			}
-			s = PyBytes_FromString(strtrim(line));
+			s = PyUnicode_FromString(strtrim(line));
 			PyDict_SetItemString(pkg, "url", s);
 			Py_DECREF(s);
 		} else if(strcmp(line, "%LICENSE%") == 0) {
