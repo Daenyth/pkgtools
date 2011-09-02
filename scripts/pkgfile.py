@@ -212,7 +212,12 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                     conn.close()
                 repo_done.append(repo)
             except IOError as e:
-                print('    Warning: could not retrieve %s' % fileslist, file=sys.stderr)
+                # XXX: This looks ugly. Consider reworking
+                if options.verbose:
+                    error_message = '    Warning: could not retrieve %s' % fileslist
+                else:
+                    error_message = '    Warning: could not retrieve file list.'
+                print(error_message, file=sys.stderr)
                 if options.verbose:
                     print("         " + str(e), file=sys.stderr)
                 continue
