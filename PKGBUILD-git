@@ -15,6 +15,7 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 install=pkgtools.install
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg')
+options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"
