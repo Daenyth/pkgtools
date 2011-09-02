@@ -40,7 +40,7 @@ FILELIST_DIR = '/var/cache/pkgtools/lists'
 def find_dbpath():
     '''find pacman dbpath'''
 
-    p = subprocess.Popen(['pacman', '-Tv'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['pacman', '-Tv', '--debug'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = str(p.communicate()[0], "utf-8")
     for line in output.splitlines():
         if line.startswith('DB Path'):
@@ -138,7 +138,7 @@ def print_pkg(pkg):
 
 def get_mirrorlist():
     """Return a list of (reponame, mirror_url) for all mirrors known to pacman"""
-    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['pacman', '-T', '--debug'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = p.communicate()[0].decode('utf-8')
 
     mirrors = []
