@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 ###
 # pkgconflict.py -- check a binary .pkg.tar.gz file for conflicts with
