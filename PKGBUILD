@@ -11,7 +11,7 @@ source=(v$pkgver::http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 provides=(newpkg pkgfile)
-depends=('bash>=4' 'python2' 'pcre' 'libarchive')
+depends=('bash>=4' 'python2' 'pcre' 'libarchive' 'python')
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg')
 md5sums=('37430c4fa13b4cf4afb233100706f5ae')
