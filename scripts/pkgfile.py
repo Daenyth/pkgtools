@@ -217,35 +217,14 @@ def update_repo(options, target_repos=None, filelist_dir=FILELIST_DIR):
                     print("         " + str(e), file=sys.stderr)
                 continue
 
-    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
-
-    if target_repos is None or target_repos == 'local':
-        update_local_repo(local_db)
-
     # remove left-over db (for example for repo removed from pacman config)
     # XXX: This should probably be in some type of behavior like pacman -Scc (pkgfile -c[c]?)
     repos = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
     registered_repos = set(os.path.join(filelist_dir, r[0]+'.files.tar.gz') for r in mirror_list)
-    registered_repos.add(local_db)
     for r in repos:
         if r not in registered_repos:
             print(':: Deleting %s' % r)
             os.unlink(r)
-
-def update_local_repo(local_db):
-    """Update the file list for the local repo db."""
-    print(':: Converting local repo ...')
-    local_dbpath = os.path.join(find_dbpath(), 'local')
-    # create a tarball of local repo
-    tf = tarfile.open(local_db, 'w:gz')
-    cwd = os.getcwd() # save current working directory
-    os.chdir(local_dbpath)
-    # we don't want a ./ prefix on all the files in the tarball
-    for i in os.listdir('.'):
-        tf.add(i)
-    tf.close()
-    os.chdir(cwd) # restore it
-    print(':: Done')
 
 def is_binary(path):
     """Utility function used to determine whether a file should be displayed under -b"""
@@ -269,7 +248,6 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
     else:
         pkg = pkgname
 
-    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if target_repo:
         tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repo)
         if not os.path.exists(tmp):
@@ -277,11 +255,6 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
         repo_list = [tmp]
     else:
         repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
-        try:
-            del repo_list[repo_list.index(local_db)]
-        except ValueError:
-            # TODO: Replace with custom NoFileDBError class
-            raise RuntimeError("No local file db found. Run --update")
 
     try:
         if options.glob:
@@ -336,17 +309,13 @@ def query_pkg(filename, options, filelist_dir=FILELIST_DIR):
         die(1, 'Error: invalid pattern or regular expression')
 
     target_repos = options.repo
-    local_db = os.path.join(filelist_dir, 'local.files.tar.gz')
     if target_repos:
         tmp = os.path.join(filelist_dir, '%s.files.tar.gz' % target_repos)
         if not os.path.exists(tmp):
             die(1, 'Error: %s repo does not exist' % target_repos)
         repo_list = [tmp]
-    elif os.path.exists(filename) or target_repos == 'local':
-        repo_list = [local_db]
     else:
         repo_list = glob.glob(os.path.join(filelist_dir, '*.files.tar.gz'))
-        del repo_list[repo_list.index(local_db)]
 
     for dbfile in repo_list:
         # search the package name that have a filename
