@@ -156,14 +156,14 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
 				goto error;
 			}
-			s = PyBytes_FromString(strtrim(line));
+			s = PyUnicode_FromString(strtrim(line));
 			PyDict_SetItemString(pkg, "filename", s);
 			Py_DECREF(s);
 		} else if(strcmp(line, "%DESC%") == 0) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
 				goto error;
 			}
-			s = PyBytes_FromString(strtrim(line));
+			s = PyUnicode_FromString(strtrim(line));
 			PyDict_SetItemString(pkg, "desc", s);
 			Py_DECREF(s);
 		} else if(strcmp(line, "%GROUPS%") == 0) {
@@ -185,7 +185,7 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 		} else if(strcmp(line, "%LICENSE%") == 0) {
 			PyObject *license = PyList_New(0);
 			while(fgets(line, sizeof(line), stream) && strlen(strtrim(line))) {
-				s = PyBytes_FromString(strtrim(line));
+				s = PyUnicode_FromString(strtrim(line));
 				PyList_Append(license, s);
 				Py_DECREF(s);
 			}
@@ -242,7 +242,7 @@ int parse_desc(FILE *stream, PyObject **ppkg) {
 			if(fgets(line, sizeof(line), stream) == NULL) {
 				goto error;
 			}
-			s = PyBytes_FromString(strtrim(line));
+			s = PyUnicode_FromString(strtrim(line));
 			PyDict_SetItemString(pkg, "packager", s);
 			Py_DECREF(s);
 		} else if(strcmp(line, "%REASON%") == 0) {
