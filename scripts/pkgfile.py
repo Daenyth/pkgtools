@@ -312,7 +312,7 @@ def list_files(pkgname, options, filelist_dir=FILELIST_DIR):
                     found_pkg = True
 
     if not found_pkg:
-        print('Package "%s" not found' % pkg, end=' ')
+        print('Package "%s" not found' % pkg, end='')
         if target_repo != '':
             print(' in [%s] repo ' % target_repo, end=' ')
         print()
