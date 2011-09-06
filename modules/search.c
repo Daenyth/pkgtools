@@ -110,7 +110,7 @@ static PyObject *search_file(const char *filename,
         m = l;
       }
       if(search_type == SEARCH_PACKAGE || match_func(m, data)) {
-        pystr = PyString_FromString(l);
+        pystr = PyBytes_FromString(l);
         if(pystr == NULL)
           goto cleanup;
         PyList_Append(files, pystr);
@@ -119,13 +119,13 @@ static PyObject *search_file(const char *filename,
     }
 
     if(search_type == SEARCH_PACKAGE || PyList_Size(files) > 0) {
-      pystrname = PyString_FromString(pkgname);
+      pystrname = PyUnicode_FromString(pkgname);
       free(pkgname);
       if(pystrname == NULL) {
         free(pkgver);
         goto cleanup;
       }
-      pystrver = PyString_FromString(pkgver);
+      pystrver = PyUnicode_FromString(pkgver);
       free(pkgver);
       if(pystrver == NULL)
         goto cleanup;
@@ -194,7 +194,7 @@ static PyObject *Search_new(PyTypeObject *type, PyObject *args, PyObject *kwds) 
 
 static void Search_dealloc(Search* self) {
   match_reset(&(self->match_type), &(self->match_func), &(self->data));
-  self->ob_type->tp_free((PyObject*)self);
+  Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int Search_init(Search *self, PyObject *args, PyObject *kw) {
@@ -237,8 +237,7 @@ static PyObject *Search_call(Search *self, PyObject *args, PyObject *kw) {
 }
 
 static PyTypeObject SearchPyType = {
-  PyObject_HEAD_INIT(NULL)
-  0,                          /*ob_size*/
+  PyVarObject_HEAD_INIT(NULL, 0)
   "pkgfile.Search",           /*tp_name*/
   sizeof(Search),             /*tp_basicsize*/
   0,                          /*tp_itemsize*/
@@ -246,7 +245,7 @@ static PyTypeObject SearchPyType = {
   0,                          /*tp_print*/
   0,                          /*tp_getattr*/
   0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
+  NULL,                       /*tp_reserved*/
   0,                          /*tp_repr*/
   0,                          /*tp_as_number*/
   0,                          /*tp_as_sequence*/

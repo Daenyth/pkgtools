@@ -120,6 +120,7 @@ while (( $# != 0 )); do
                 die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
             fi
             add_action $2
+            shift
             ;;
         -e|--edit)
             EDIT=1

@@ -35,7 +35,7 @@ install:
 	$(INSTALL_DATA) confs/pkgfile.conf $(DESTDIR)$(confdir)/pkgtools/pkgfile.conf
 	$(INSTALL_CRON) other/pkgfile.cron $(DESTDIR)$(crondir)/pkgfile
 	# install pkgfile.so module
-	(cd modules; python2 ./setup.py install --root=$(DESTDIR))
+	(cd modules; python3 ./setup.py install --root=$(DESTDIR))
 	# Loads shell hooks
 	$(INSTALL_PROGRAM) other/pkgfile-hook.sh $(DESTDIR)$(profiledir)/pkgfile-hook.sh
 	$(INSTALL_DATA) other/pkgfile-hook.zsh $(DESTDIR)$(sharedir)/pkgfile-hook.zsh
@@ -77,7 +77,7 @@ uninstall:
 	rm $(DESTDIR)$(mandir)/man1/gem2arch.1
 
 pkgfile.so:
-	(cd modules; python2 ./setup.py build)
+	(cd modules; python3 ./setup.py build)
 
 clean:
 	(rm -rf modules/build)

@@ -9,3 +9,4 @@ scripts/gem2arch/*.pyc
 modules/pkgfile.so
 modules/*.o
 modules/build
+tags

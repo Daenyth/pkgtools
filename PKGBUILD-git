@@ -1,19 +1,22 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools-git
-pkgver=20110116
+pkgver=20110902
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('i686' 'x86_64')
 url="http://github.com/Daenyth/pkgtools"
 license=('GPL')
 source=()
-depends=('bash>=4' 'libarchive' 'pcre' 'python2' 'python' 'python-yaml')
+depends=('bash>=4' 'libarchive' 'pcre' 'python2' 'python')
 makedepends=(git)
 provides=(pkgtools)
 conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-optdepends=('cron: For pkgfile --update entry')
+optdepends=('cron: For pkgfile --update entry'
+            'abs: Provides proto packaging files for newpkg'
+            'python-yaml: for gem2arch')
+options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"

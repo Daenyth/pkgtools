@@ -1,3 +1,4 @@
+[[ -z $PROTO_INSTALL ]] && setpkginstall 'proto.install'
 add_copy "$PROTO_INSTALL" "$pkgname.install"
 add_mod _set_install
 
