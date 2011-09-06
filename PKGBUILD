@@ -11,10 +11,11 @@ source=(v$pkgver::http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 provides=(newpkg pkgfile)
-depends=('bash>=4' 'python2' 'pcre' 'libarchive' 'python')
+depends=('bash>=4' 'pcre' 'libarchive' 'python')
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg'
-            'python-yaml: for gem2arch')
+            'python-yaml: for gem2arch'
+            'python2: for pkgconflict')
 md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
 
 build() {

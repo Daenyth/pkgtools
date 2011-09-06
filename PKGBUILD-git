@@ -7,7 +7,7 @@ arch=('i686' 'x86_64')
 url="http://github.com/Daenyth/pkgtools"
 license=('GPL')
 source=()
-depends=('bash>=4' 'libarchive' 'pcre' 'python2' 'python')
+depends=('bash>=4' 'libarchive' 'pcre' 'python')
 makedepends=(git)
 provides=(pkgtools)
 conflicts=(pkgtools)
@@ -15,7 +15,8 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 install=pkgtools.install
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg'
-            'python-yaml: for gem2arch')
+            'python-yaml: for gem2arch'
+            'python2: for pkgconflict')
 options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
