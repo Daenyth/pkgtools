@@ -53,7 +53,7 @@ def read_file_lists(list_base):
   """Snarf filelists into memory; return hash mapping filenames to
   (repo, package) tuples."""
   known_files = {}
-  repos = os.listdir(list_base)
+  repos = (p for p in os.listdir(list_base) if not p.endswith(".tar.gz"))
   for repo in repos:
     repopath = os.path.join(FILELIST_DIR, repo)
     packages = os.listdir(repopath)
