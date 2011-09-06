@@ -1,7 +1,7 @@
 # Maintainer: Daenyth <Daenyth+Arch AT gmail DOT com>
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=22
+pkgver=23
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('i686' 'x86_64')
@@ -15,7 +15,7 @@ depends=('bash>=4' 'python2' 'pcre' 'libarchive' 'python')
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg'
             'python-yaml: for gem2arch')
-md5sums=('37430c4fa13b4cf4afb233100706f5ae')
+md5sums=()
 
 build() {
   cd "$srcdir/Daenyth-$pkgname"-*
