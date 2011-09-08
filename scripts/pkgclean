@@ -57,7 +57,7 @@ clean_srcpkgs () {
         return 0
     fi
     if (( LIST )); then
-        ls -1 "${SRCPKGS[@]}"
+        printf '%s\n' "${SRCPKGS[@]}"
         return 0
     fi
     if [[ -n $SRCDEST ]]; then
@@ -82,7 +82,7 @@ clean_pkgs () {
         return 0
     fi
     if (( LIST )); then
-        ls -1 "${PKGS[@]}"
+        printf '%s\n' "${PKGS[@]}"
         return 0
     fi
     if [[ -n $PKGDEST ]]; then
