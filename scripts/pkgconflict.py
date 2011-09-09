@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 ###
 # pkgconflict.py -- check a binary .pkg.tar.gz file for conflicts with
@@ -91,4 +91,4 @@ pkg_contents = list_package_contents(sys.argv[1])
 for file in pkg_contents:
   if file in known_files:
     (repo, package) = known_files[file]
-    print "%s already provided by the %s package from [%s]" % (file, package, repo)
+    print("%s already provided by the %s package from [%s]" % (file, package, repo))
