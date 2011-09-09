@@ -15,8 +15,7 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 install=pkgtools.install
 optdepends=('cron: For pkgfile --update entry'
             'abs: Provides proto packaging files for newpkg'
-            'python-yaml: for gem2arch'
-            'python2: for pkgconflict')
+            'python-yaml: for gem2arch')
 options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
