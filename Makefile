@@ -35,7 +35,7 @@ install:
 	$(INSTALL_DATA) confs/pkgfile.conf $(DESTDIR)$(confdir)/pkgtools/pkgfile.conf
 	$(INSTALL_CRON) other/pkgfile.cron $(DESTDIR)$(crondir)/pkgfile
 	# install pkgfile.so module
-	(cd modules; python2 ./setup.py install --root=$(DESTDIR))
+	(cd modules; python3 ./setup.py install --root=$(DESTDIR))
 	# Loads shell hooks
 	$(INSTALL_PROGRAM) other/pkgfile-hook.sh $(DESTDIR)$(profiledir)/pkgfile-hook.sh
 	$(INSTALL_DATA) other/pkgfile-hook.zsh $(DESTDIR)$(sharedir)/pkgfile-hook.zsh
@@ -59,17 +59,25 @@ install:
 	# maintpkg
 	$(INSTALL_PROGRAM) scripts/maintpkg $(DESTDIR)$(bindir)/maintpkg
 
+	# gem2arch
+	$(INSTALL_DATA) doc/gem2arch.1 $(DESTDIR)$(mandir)/man1/gem2arch.1
+	$(INSTALL) -d $(DESTDIR)$(sharedir)/gem2arch
+	$(INSTALL_DATA) scripts/gem2arch/*.py $(DESTDIR)$(sharedir)/gem2arch
+	$(INSTALL_PROGRAM) scripts/gem2arch/gem2arch $(DESTDIR)$(sharedir)/gem2arch
+	ln -s /$(sharedir)/gem2arch/gem2arch $(DESTDIR)$(bindir)/gem2arch
+
 uninstall:
 	rm -Rf $(DESTDIR)$(sharedir)
-	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean}
+	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean,gem2arch}
 	rm $(DESTDIR)$(crondir)/pkgfile
 	rm $(DESTDIR)$(profiledir)/pkgfile-hook.*
 	rm -Rf $(DESTDIR)$(confdir)/pkgtools
 	rm $(DESTDIR)$(mandir)/man8/spec2arch.8
 	rm $(DESTDIR)$(mandir)/man5/spec2arch.conf.5
+	rm $(DESTDIR)$(mandir)/man1/gem2arch.1
 
 pkgfile.so:
-	(cd modules; python2 ./setup.py build)
+	(cd modules; python3 ./setup.py build)
 
 clean:
 	(rm -rf modules/build)

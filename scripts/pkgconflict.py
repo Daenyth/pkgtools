@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 ###
 # pkgconflict.py -- check a binary .pkg.tar.gz file for conflicts with
@@ -53,7 +53,7 @@ def read_file_lists(list_base):
   """Snarf filelists into memory; return hash mapping filenames to
   (repo, package) tuples."""
   known_files = {}
-  repos = os.listdir(list_base)
+  repos = (p for p in os.listdir(list_base) if not p.endswith(".tar.gz"))
   for repo in repos:
     repopath = os.path.join(FILELIST_DIR, repo)
     packages = os.listdir(repopath)
@@ -91,4 +91,4 @@ pkg_contents = list_package_contents(sys.argv[1])
 for file in pkg_contents:
   if file in known_files:
     (repo, package) = known_files[file]
-    print "%s already provided by the %s package from [%s]" % (file, package, repo)
+    print("%s already provided by the %s package from [%s]" % (file, package, repo))
