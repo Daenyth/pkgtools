@@ -1,7 +1,7 @@
 #!/bin/bash
 
 die () {
-    local ret=$1; 
+    local ret=$1;
     local warning="$2"; shift 2
     warn "${warning:-Unknown error}" "$@"
     quit ${ret:-1}
@@ -31,7 +31,7 @@ in_array() {
     needle=$1
     shift
     for item
-    do 
+    do
         [ "$item" = "$needle" ] && return 0
     done
     return 1

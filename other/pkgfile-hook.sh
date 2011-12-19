@@ -1,7 +1,7 @@
 CMD_SEARCH_ENABLED=0
 [ -f /etc/pkgtools/pkgfile.conf     ] && CMD_SEARCH_ENABLED=`. /etc/pkgtools/pkgfile.conf;     echo $CMD_SEARCH_ENABLED`
 [ -f "$HOME/.config/pkgtools/pkgfile.conf" ] && CMD_SEARCH_ENABLED=`. "$HOME/.config/pkgtools/pkgfile.conf"; echo $CMD_SEARCH_ENABLED`
- 
+
 # Load shell-specific pkgfile hook
 # Determine our shell without using $SHELL, which may lie
 #   (trick adapted from /etc/profile)

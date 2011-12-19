@@ -9,17 +9,17 @@ query=$1
 function walk_nodes () {
 
     local package=$1
-    
+
     # if we've walked this node before, skip. This drastically
     # reduces overhead for a relatively cheap operation
     [[ ${walked_nodes[$package]} -eq 1 ]] && return 0
     walked_nodes[$package]=1
-    
+
     # we do this so that we can make a single call to pacman
     # to get both bits of information that we require
     result=( $(LC_ALL=c pacman -Qi $package | awk -F':' \
       'BEGIN { tag = ""; dependents = ""; explicit = 0 }
-       { 
+       {
           # since the formatting of the pacman output is more for human
           # consumption than programmatic, we find ourselves with the following need.
           # if we have two fields, then we know we have a proper identifier on the line
