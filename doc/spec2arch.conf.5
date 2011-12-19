@@ -1,20 +1,20 @@
 .TH "SPEC2ARCH.CONF" "5" "01 July 2008"
-.SH "NAME" 
+.SH "NAME"
 spec2arch.conf.conf \- Configuration file for \fBspec2arch\fR, which creates
 ArchLinux PKGBUILD files from RPM spec files
-.SH "DESCRIPTION" 
-.PP 
+.SH "DESCRIPTION"
+.PP
 This manual page documents the options that can be set in the spec2arch.conf
 configuration file. For a description of what spec2arch does, see the
 spec2arch(8) manpage.
 
-.SH "SETTINGS" 
-.PP 
+.SH "SETTINGS"
+.PP
 The syntax of options is OPTION=value - Bash syntax, since it will be sourced
 by the pkgmake executable, which is written in Bash script.
 
 .PP
-The following settings are available in spec2arch.conf: 
+The following settings are available in spec2arch.conf:
 
 .IP "\fBSRC_BASEURL\fP" 10
 Here you can define a base URL where the source is available for download.
@@ -68,16 +68,16 @@ If namcap.py is found in the $PATH, shall it be used to verify the generated
 PKGBUILD file (1 - default) or not (0)? It is recommended to use this tool
 to detect possible problems.
 
-.SH "SEE ALSO" 
-.PP 
+.SH "SEE ALSO"
+.PP
 spec2arch(8)
 
-.SH "AUTHOR" 
-.PP 
+.SH "AUTHOR"
+.PP
 This manual page was written by Andreas Itzchak Rehberg (devel@izzysoft.de),
 the author of the program. Permission is granted to copy, distribute and/or
 modify this document under the terms of the GNU General Public License,
 Version 2.
 
 More information may be found on the authors website, http://www.izzysoft.de/
- 
+

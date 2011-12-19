@@ -11,11 +11,11 @@ Here is an usage example:
   >>> import pkgfile
   >>> search = pkgfile.Search(pkgfile.MATCH_SIMPLE, pkgfile.SEARCH_FILENAME, 'pacman')
   >>> # this gives us an object 'search' that is callable
-  ... 
+  ...
   >>> matches = search('core.files.tar.gz')
   >>> print matches
   [{'files': ['etc/bash_completion.d/pacman', 'usr/bin/pacman'], 'version': '3.4.1-1', 'name': 'pacman'}]
-  
+
 One can also use:
 - MATCH_REGEX to match for a regex,
 - MATCH_PCRE for a pcre style regex,
