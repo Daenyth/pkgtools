@@ -7,7 +7,7 @@ CMD_SEARCH_ENABLED=0
 #   (trick adapted from /etc/profile)
 if [ $CMD_SEARCH_ENABLED -eq 1 ]; then
     if [ -f /proc/mounts ]; then
-        case $(/bin/readlink /proc/$$/exe) in
+        case $(/usr/bin/readlink /proc/$$/exe) in
             /bin/bash) [ -f /usr/share/pkgtools/pkgfile-hook.bash ] && . /usr/share/pkgtools/pkgfile-hook.bash ;;
             /bin/zsh)  [ -f /usr/share/pkgtools/pkgfile-hook.zsh  ] && . /usr/share/pkgtools/pkgfile-hook.zsh  ;;
         esac
