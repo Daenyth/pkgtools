@@ -29,7 +29,7 @@ class PKGBUILD:
   cd "${srcdir}"
   local _gemdir="$(ruby -rubygems -e'puts Gem.default_dir')"
   gem install --ignore-dependencies -i "$pkgdir$_gemdir" %s-$pkgver.gem \\
-    -n \"$pkgdir/usr/bin\"
+    -n \"$pkgdir/usr/bin\" --no-user-install
 """ % (gem_spec.name)
 
     def get_maintainer(self, makepkg_conf):
