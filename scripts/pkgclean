@@ -53,7 +53,7 @@ clean_srcpkgs () {
     vmsg "Cleaning source packages... "
     SRCPKGS=(*"$SRCEXT")
     if [[ ! -f ${SRCPKGS[0]} ]]; then
-        vmsg "Empty."
+        vmsg "Empty.\n"
         return 0
     fi
     if (( LIST )); then
@@ -78,7 +78,7 @@ clean_pkgs () {
     vmsg "Cleaning built packages... "
     PKGS=(*"$PKGEXT")
     if [[ ! -f ${PKGS[0]} ]]; then
-        vmsg "Empty."
+        vmsg "Empty.\n"
         return 0
     fi
     if (( LIST )); then
