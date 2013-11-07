@@ -25,64 +25,58 @@
 import os
 import sys
 import tarfile
-import subprocess
+import gzip
 
 def chomp(x): return x[0:-1]
 def isfilename(x): return not x.endswith('/')
-
-def get_lists_base(configfile):
-  """Obtain the name of the directory containing file lists, by reading
-  a config file.  Bash parses the file and prints the directory name.
-  This function returns a non-empty string on success, or None on error."""
-  if not os.access(configfile, os.R_OK):
-    return None
-  bash = subprocess.Popen(
-    ['bash', '-c', 'source %s ; echo $FILELIST_DIR' % (configfile,)],
-    stdout=subprocess.PIPE)
-  dirname = bash.stdout.readline()
-  status = bash.wait()
-  if status == 0:
-    dirname = chomp(dirname)
-    if dirname == "":
-      dirname = None
-    return dirname
-  else:
-    return None
 
 def read_file_lists(list_base):
   """Snarf filelists into memory; return hash mapping filenames to
   (repo, package) tuples."""
   known_files = {}
-  repos = (p for p in os.listdir(list_base) if not p.endswith(".tar.gz"))
+  repos = (p for p in os.listdir(list_base))
   for repo in repos:
     repopath = os.path.join(FILELIST_DIR, repo)
-    packages = os.listdir(repopath)
-    for package in packages:
-      listfile = open(os.path.join(repopath, package, 'files'))
-      listfile.readline() # discard the %files% line
-      for entry in filter(isfilename, map(chomp, listfile.readlines())):
-        known_files[entry] = (repo, package)
-      listfile.close()
+    magic = '070707' # cpio magic (old binary format)
+    header = 6+6+6+6+6+6+6+6+11+6+11 # portable ASCII header
+    end = 'TRAILER!!!' # end of cpio archive
+    try:
+      fp = open(repopath, 'r')
+      lines = fp.readlines()
+    except UnicodeDecodeError: # if it's a gzip file
+      fp = gzip.open(repopath, 'rt')
+      lines = fp.readlines()
+    for l in range(0, len(lines)-1):
+      file = lines[l][:-1]
+      if file[0:1] != '/': # if it's a package
+        package = file[header:-6-2]
+        while True: # find files
+          l += 1
+          file = lines[l][:-1]
+          if file[:6] == magic or file[-10:] == end: # go to next package
+            break
+          else:
+            if file[-1:] != '/':
+              known_files[file[1:]] = (repo[:-6], package[:package.find('-')])
   return known_files
 
 def list_package_contents(package):
   """Return a list containing the names of the files in the tarball.
   Removes the entries .INSTALL and .PKGINFO."""
-  tarball = tarfile.open(package, 'r:gz')
+  tarball = tarfile.open(package, 'r:xz')
   names = tarball.getnames()
   tarball.close()
   try:
     del names[names.index('.PKGINFO')]
     del names[names.index('.INSTALL')]
+    del names[names.index('.MTREE')]
   except ValueError:
     pass
   return names
 
 HOME = os.environ['HOME']
-CONFIG_DIR='/etc/pkgtools'
-FILELIST_DIR =(get_lists_base(os.path.join(HOME, '.pkgtools', 'pkgfile.conf'))
-               or get_lists_base(os.path.join(CONFIG_DIR, 'pkgfile.conf'))
-               or '/var/cache/pkgtools/lists')
+CONFIG_DIR = '/etc/pkgtools'
+FILELIST_DIR = '/var/cache/pkgfile'
 if len(sys.argv) != 2:
   sys.stderr.write('Usage: %s <PACKAGEFILE>\n' % (sys.argv[0], ))
   sys.exit(1)
