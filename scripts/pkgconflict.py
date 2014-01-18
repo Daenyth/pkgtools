@@ -77,9 +77,12 @@ def list_package_contents(package):
 HOME = os.environ['HOME']
 CONFIG_DIR = '/etc/pkgtools'
 FILELIST_DIR = '/var/cache/pkgfile'
-if len(sys.argv) != 2:
-  sys.stderr.write('Usage: %s <PACKAGEFILE>\n' % (sys.argv[0], ))
-  sys.exit(1)
+try:
+  with open(sys.argv[1]) as f:
+    pass
+except (IndexError, FileNotFoundError):
+    sys.stderr.write('Usage: %s <PACKAGEFILE>\n' % (sys.argv[0], ))
+    sys.exit(1)
 known_files = read_file_lists(FILELIST_DIR)
 pkg_contents = list_package_contents(sys.argv[1])
 for file in pkg_contents:
