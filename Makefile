@@ -66,9 +66,12 @@ install:
 	$(INSTALL_PROGRAM) scripts/gem2arch/gem2arch $(DESTDIR)$(sharedir)/gem2arch
 	ln -s /$(sharedir)/gem2arch/gem2arch $(DESTDIR)$(bindir)/gem2arch
 
+	# pip2arch
+	$(INSTALL_PROGRAM) scripts/pip2arch/pip2arch.py $(DESTDIR)$(bindir)/pip2arch
+
 uninstall:
 	rm -Rf $(DESTDIR)$(sharedir)
-	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean,gem2arch}
+	rm $(DESTDIR)$(bindir)/{newpkg,pkgfile,spec2arch,pkgconflict,whoneeds,pkgclean,gem2arch,pip2arch}
 	rm $(DESTDIR)$(crondir)/pkgfile
 	rm $(DESTDIR)$(profiledir)/pkgfile-hook.*
 	rm -Rf $(DESTDIR)$(confdir)/pkgtools
