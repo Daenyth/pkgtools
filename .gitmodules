@@ -1,0 +1,3 @@
+[submodule "scripts/pip2arch"]
+	path = scripts/pip2arch
+	url = https://github.com/bluepeppers/pip2arch
