@@ -4,7 +4,8 @@ import gem2archutil as util
 class PKGBUILD:
     def __init__(self, gem_spec):
         self.maintainer = self.get_maintainer('/etc/makepkg.conf')
-        self.pkgname = "ruby-%s" % (gem_spec.name)
+        self._gemname = gem_spec.name
+        self.pkgname = "ruby-$_gemname"
         self.pkgver = gem_spec.version.version
         self.pkgrel = "1"
         self.pkgdesc = self.get_summary(gem_spec.summary)
@@ -21,16 +22,15 @@ class PKGBUILD:
         self.backup = "()"
         self.options = "()"
         self.install = ""
-        self.source = '("http://gems.rubyforge.org/gems/%s-${pkgver}.gem")' %\
-                (gem_spec.name)
-        self.noextract = '("%s-${pkgver}.gem")' % (gem_spec.name)
+        self.source = '("http://gems.rubyforge.org/gems/$_gemname-${pkgver}.gem")'
+        self.noextract = '("$_gemname-${pkgver}.gem")'
         self.md5sums = "()" # makepkg already generates md5sums.
         self.build = """
   cd "${srcdir}"
   local _gemdir="$(ruby -rubygems -e'puts Gem.default_dir')"
-  gem install --ignore-dependencies -i "$pkgdir$_gemdir" %s-$pkgver.gem \\
-    -n \"$pkgdir/usr/bin\" --no-user-install
-""" % (gem_spec.name)
+  gem install --no-user-install --ignore-dependencies -i "$pkgdir$_gemdir" $_gemname-$pkgver.gem \\
+    -n \"$pkgdir/usr/bin\"
+"""
 
     def get_maintainer(self, makepkg_conf):
         default = 'Your Name <YourEmail "AT" example "DOT" com>'
@@ -89,7 +89,7 @@ class PKGBUILD:
         retval += ")"
         return retval
 
-    _pkg = ['pkgname', 'pkgver', 'pkgrel', 'pkgdesc', 'arch', 'url', 'license',
+    _pkg = ['_gemname', 'pkgname', 'pkgver', 'pkgrel', 'pkgdesc', 'arch', 'url', 'license',
             'groups', 'depends', 'makedepends', 'optdepends', 'provides',
             'conflicts', 'replaces', 'backup', 'options', 'install', 'source',
             'noextract', 'md5sums']
