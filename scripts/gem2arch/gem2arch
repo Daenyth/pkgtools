@@ -72,9 +72,9 @@ def write_file(options, pkgbuild, package):
             sys.exit(1)
     else:
         try:
-            if not os.path.exists(package):
-                os.mkdir(package)
-            f = open(package + "/PKGBUILD", "w")
+            if not os.path.exists('ruby-' + package):
+                os.mkdir('ruby-' + package)
+            f = open('ruby-' + package + "/PKGBUILD", "w")
             f.write(str(pkgbuild))
             f.close()
             success = "success"
