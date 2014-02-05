@@ -14,8 +14,7 @@ conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg'
-            'python-yaml: for gem2arch')
+            'abs: Provides proto packaging files for newpkg')
 options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"

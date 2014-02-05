@@ -13,8 +13,7 @@ install=pkgtools.install
 provides=(newpkg pkgfile)
 depends=('bash>=4' 'pcre' 'libarchive' 'python')
 optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg'
-            'python-yaml: for gem2arch')
+            'abs: Provides proto packaging files for newpkg')
 md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
 
 build() {

@@ -5,7 +5,6 @@ pkgtools.tar.gz
 .*.swp
 *.files.*
 scripts/*.pyc
-scripts/gem2arch/*.pyc
 modules/pkgfile.so
 modules/*.o
 modules/build
