@@ -9,7 +9,7 @@ url="https://github.com/Daenyth/pkgtools"
 license=('GPL')
 depends=('bash>=4' 'libarchive' 'pcre' 'python')
 makedepends=('git')
-optdepends=('abs: Provides proto packaging files for newpkg')
+optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
 provides=('pkgtools')
 conflicts=('pkgtools')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')

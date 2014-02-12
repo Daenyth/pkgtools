@@ -8,7 +8,7 @@ arch=('any')
 url="https://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
 depends=('bash>=4' 'pcre' 'libarchive' 'python')
-optdepends=('abs: Provides proto packaging files for newpkg')
+optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
 provides=('newpkg' 'pkgfile')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
