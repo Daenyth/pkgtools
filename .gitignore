@@ -5,7 +5,4 @@ pkgtools.tar.gz
 .*.swp
 *.files.*
 scripts/*.pyc
-modules/pkgfile.so
-modules/*.o
-modules/build
 tags

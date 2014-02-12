@@ -1,26 +1,22 @@
 # Maintainer: Daenyth <Daenyth+Arch AT gmail DOT com>
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools
-pkgver=23
+pkgver=24
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
-arch=('i686' 'x86_64')
-url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
+arch=('any')
+url="https://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-source=(v$pkgver::http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
+depends=('bash>=4' 'pcre' 'libarchive' 'python' 'namcap' 'pkgfile')
+optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
+provides=('newpkg')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-provides=(newpkg pkgfile)
-depends=('bash>=4' 'pcre' 'libarchive' 'python')
-optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg')
-md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
+source=("${pkgname}-v${pkgver}.tar.gz::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
+md5sums=('f139c3940e1038cac4e29e985089e8a8')
 
-build() {
-  cd "$srcdir/Daenyth-$pkgname"-*
+package() {
+	cd "Daenyth-$pkgname"-*
 
-  make
-  make DESTDIR="$pkgdir" install
+	make DESTDIR="$pkgdir" install
 }
-
-# vim:set ts=2 sw=2 et:

@@ -37,7 +37,7 @@ LIST=1
 clean_makedirs () {
     vmsg "Cleaning leftover makepkg directories... "
     for dir in pkg src; do
-        if [[ -d $dir ]]; then
+        if [[ -d "$dir" ]]; then
             if (( LIST )); then
                 echo "$dir/"
             else
@@ -52,7 +52,7 @@ clean_srcpkgs () {
     . /etc/makepkg.conf
     vmsg "Cleaning source packages... "
     SRCPKGS=(*"$SRCEXT")
-    if [[ ! -f ${SRCPKGS[0]} ]]; then
+    if [[ ! -f "${SRCPKGS[0]}" ]]; then
         vmsg "Empty.\n"
         return 0
     fi
@@ -60,10 +60,10 @@ clean_srcpkgs () {
         printf '%s\n' "${SRCPKGS[@]}"
         return 0
     fi
-    if [[ -n $SRCDEST ]]; then
+    if [[ -n "$SRCDEST" ]]; then
         vmsg "Moving to \$SRCDEST... "
         mv -f "${SRCPKGS[@]}" "$SRCDEST"
-    elif [[ $PURGE ]]; then
+    elif [[ "$PURGE" ]]; then
         vmsg "Purging... "
         rm -f "${SRCPKGS[@]}"
     else
@@ -77,7 +77,7 @@ clean_pkgs () {
     . /etc/makepkg.conf
     vmsg "Cleaning built packages... "
     PKGS=(*"$PKGEXT")
-    if [[ ! -f ${PKGS[0]} ]]; then
+    if [[ ! -f "${PKGS[0]}" ]]; then
         vmsg "Empty.\n"
         return 0
     fi
@@ -85,10 +85,10 @@ clean_pkgs () {
         printf '%s\n' "${PKGS[@]}"
         return 0
     fi
-    if [[ -n $PKGDEST ]]; then
+    if [[ -n "$PKGDEST" ]]; then
         vmsg "Moving to \$PKGDEST... "
         mv -f "${PKGS[@]}" "$PKGDEST"
-    elif [[ $PURGE ]]; then
+    elif [[ "$PURGE" ]]; then
         vmsg "Purging... "
         rm -f "${PKGS[@]}"
     else
@@ -102,9 +102,9 @@ clean_downloads () {
     . PKGBUILD
     vmsg "Cleaning downloaded source files... "
     for file in "${source[@]}" "$install"; do
-        if echo $file | grep -q '://'; then
+        if echo "$file" | grep -q '://'; then
             file=$(get_filename "$file")
-            if [[ -f $file ]]; then
+            if [[ -f "$file" ]]; then
                 if (( LIST )); then
                     echo "$file"
                 else
@@ -117,19 +117,19 @@ clean_downloads () {
 }
 
 clean_cruft () {
-    [[ $PURGE ]] || return 1
+    [[ "$PURGE" ]] || return 1
     vmsg "Purging all non-required files... "
 
     . PKGBUILD
     declare -A noremove
     for file in "${source[@]}" "$install" "$changelog" PKGBUILD; do
-        [[ -z $file ]] && continue
+        [[ -z "$file" ]] && continue
         file=$(get_filename "$file")
         noremove["$file"]=1
     done
 
     for file in *; do
-        if [[ ${noremove["$file"]} != 1 ]]; then
+        if [[ "${noremove["$file"]}" != 1 ]]; then
             if (( LIST )); then
                 echo "$file"
             else
@@ -160,7 +160,7 @@ get_filename() {
 usage () {
 
 #           |--------------------------------------------------------------------------------| 80 Characters
-        msg "%s version %s -- Clean files from a PKGBUILD directory\n" "$PROGNAME" $MYVERSION
+        msg "%s version %s -- Clean files from a PKGBUILD directory\n" "$PROGNAME" "$MYVERSION"
         msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
         msg "  -c --clean   - Clean the directory of unneeded files.\n"
         msg "                 The default is to list files to be cleaned.\n"
@@ -169,7 +169,7 @@ usage () {
         msg "  -v --verbose - Enable verbose output.\n"
         msg "\nWARNING: This tool can be very destructive. Use at your own risk!\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
-        quit ${1:-0}
+        quit "${1:-0}"
 }
 
 

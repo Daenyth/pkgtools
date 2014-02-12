@@ -1,44 +1,30 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools-git
-pkgver=20110902
+_pkgname=pkgtools
+pkgver=20140211.bc854ae
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
-arch=('i686' 'x86_64')
-url="http://github.com/Daenyth/pkgtools"
+arch=('any')
+url="https://github.com/Daenyth/pkgtools"
 license=('GPL')
-source=()
-depends=('bash>=4' 'libarchive' 'pcre' 'python')
-makedepends=(git)
-provides=(pkgtools)
-conflicts=(pkgtools)
+depends=('bash>=4' 'libarchive' 'pcre' 'python' 'namcap' 'pkgfile')
+makedepends=('git')
+optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
+provides=('pkgtools' 'newpkg')
+conflicts=('pkgtools')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
-install=pkgtools.install
-optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg')
 options=('!strip')
+install=pkgtools.install
+source=("git+https://github.com/Daenyth/${_pkgname}.git")
+sha1sums=('SKIP')
 
-_gitroot="git://github.com/Daenyth/pkgtools.git"
-_gitname="pkgtools"
-
-build() {
-  cd ${srcdir}
-  msg "Connecting to GIT server...."
-
-  if [ -d ${srcdir}/$_gitname ] ; then
-    cd $srcdir/$_gitname && git pull origin
-    msg "The local files are updated."
-  else
-    git clone $_gitroot
-  fi
-
-  msg "GIT checkout done or server timeout"
-  msg "Starting make..."
-
-  [[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
-  cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
-  cd ${srcdir}/$_gitname-build
-
-  make
-  make DESTDIR=${pkgdir} install
+pkgver() {
+	cd "${_pkgname%-git}"
+	echo "$(date +%Y%m%d).$(git rev-parse --short master)"
 }
-# vim:set ts=2 sw=2 et:
+
+package() {
+	cd "${_pkgname%-git}"
+	git submodule update --init
+	make DESTDIR="${pkgdir}" install
+}

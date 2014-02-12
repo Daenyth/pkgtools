@@ -22,5 +22,3 @@ _set_contributor() {
 _set_pkgname() {
     sed -i "s#^pkgname=.*#pkgname=$pkgname#" PKGBUILD
 }
-
-
