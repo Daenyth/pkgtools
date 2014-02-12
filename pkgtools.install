@@ -1,6 +1,6 @@
 is_update_from() {
-  res="`vercmp $1 $2`"
-  case $res in
+  res="$(vercmp $1 $2)"
+  case "$res" in
     '-1'|'0') return 0;;
     '1') return 1;;
   esac
