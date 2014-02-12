@@ -1,5 +1,6 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools-git
+_pkgname=pkgtools
 pkgver=20110902
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
@@ -14,30 +15,15 @@ conflicts=('pkgtools')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 options=('!strip')
 install=pkgtools.install
-source=()
+source=("git+https://github.com/Daenyth/${_pkgname}.git")
+sha1sums=('SKIP')
 
-_gitroot="git://github.com/Daenyth/pkgtools.git"
-_gitname="pkgtools"
-
-build() {
-	msg "Connecting to GIT server...."
-
-	if [ -d ${srcdir}/$_gitname ] ; then
-		cd $srcdir/$_gitname && git pull origin
-		msg "The local files are updated."
-	else
-		git clone $_gitroot
-	fi
-
-	msg "GIT checkout done or server timeout"
-	msg "Starting make..."
-
-	[[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
-	cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
+pkgver() {
+	cd "${_pkgname%-git}"
+	echo "$(date +%Y%m%d).$(git rev-parse --short master)"
 }
 
 package() {
-	cd "$_gitname-build"
-
-	make DESTDIR=${pkgdir} install
+	cd "${_pkgname%-git}"
+	make DESTDIR="${pkgdir}" install
 }
