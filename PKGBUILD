@@ -12,7 +12,7 @@ optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
 provides=('newpkg' 'pkgfile')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-source=("v$pkgver::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
+source=("${pkgname}-v${pkgver}.tar.gz::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
 md5sums=('f139c3940e1038cac4e29e985089e8a8')
 
 package() {
