@@ -7,10 +7,10 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('any')
 url="https://github.com/Daenyth/pkgtools"
 license=('GPL')
-depends=('bash>=4' 'libarchive' 'pcre' 'python' 'namcap')
+depends=('bash>=4' 'libarchive' 'pcre' 'python' 'namcap' 'pkgfile')
 makedepends=('git')
 optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
-provides=('pkgtools')
+provides=('pkgtools' 'newpkg')
 conflicts=('pkgtools')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 options=('!strip')

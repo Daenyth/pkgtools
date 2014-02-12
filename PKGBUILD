@@ -7,9 +7,9 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('any')
 url="https://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-depends=('bash>=4' 'pcre' 'libarchive' 'python' 'namcap')
+depends=('bash>=4' 'pcre' 'libarchive' 'python' 'namcap' 'pkgfile')
 optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
-provides=('newpkg' 'pkgfile')
+provides=('newpkg')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 source=("${pkgname}-v${pkgver}.tar.gz::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
