@@ -4,19 +4,19 @@ pkgname=pkgtools
 pkgver=23
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
-arch=('i686' 'x86_64')
-url="http://bbs.archlinux.org/viewtopic.php?pid=384196"
+arch=('any')
+url="https://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-source=(v$pkgver::http://github.com/Daenyth/pkgtools/tarball/v$pkgver)
-backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
-install=pkgtools.install
-provides=(newpkg pkgfile)
 depends=('bash>=4' 'pcre' 'libarchive' 'python')
 optdepends=('abs: Provides proto packaging files for newpkg')
+provides=('newpkg' 'pkgfile')
+backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
+install=pkgtools.install
+source=("v$pkgver::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
 md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
 
 package() {
-  cd "$srcdir/Daenyth-$pkgname"-*
+  cd "Daenyth-$pkgname"-*
 
   make DESTDIR="$pkgdir" install
 }

@@ -14,14 +14,14 @@ post_upgrade() {
     echo "   run «mv ~/.pkgtools \"\$XDG_CONFIG_HOME/pkgtools\"»"
   fi
   if is_update_from $2 18-1; then
-    echo " - newpkg has been rewritten to be completely modular. See here for more info: http://github.com/Daenyth/pkgtools/commit/2d37197"
+    echo " - newpkg has been rewritten to be completely modular. See here for more info: https://github.com/Daenyth/pkgtools/commit/2d37197"
   fi
   if is_update_from $2 19-1; then
     echo " - This version of pkgtools contains a new tool called 'maintpkg'"
     echo "   It sets the Maintainer in a PKGBUILD to your PACKAGER while preserving old Contributors"
   fi
   if is_update_from $2 22-1; then
-    echo " - This is the largest release in a long time. This updates all python scripts to py3k."
+    echo " - This is the largest release in a long time. This updates all Python scripts to Python 3."
   fi
 }
 
