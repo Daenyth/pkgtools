@@ -1,7 +1,7 @@
 # Contributor: Daenyth <Daenyth+Arch AT gmail DOT com>
 pkgname=pkgtools-git
 _pkgname=pkgtools
-pkgver=20110902
+pkgver=20140211.bc854ae
 pkgrel=1
 pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('any')
@@ -25,5 +25,6 @@ pkgver() {
 
 package() {
 	cd "${_pkgname%-git}"
+	git submodule update --init
 	make DESTDIR="${pkgdir}" install
 }
