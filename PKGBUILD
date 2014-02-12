@@ -16,9 +16,7 @@ source=("v$pkgver::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
 md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
 
 package() {
-  cd "Daenyth-$pkgname"-*
+	cd "Daenyth-$pkgname"-*
 
-  make DESTDIR="$pkgdir" install
+	make DESTDIR="$pkgdir" install
 }
-
-# vim:set ts=2 sw=2 et:

@@ -20,25 +20,24 @@ _gitroot="git://github.com/Daenyth/pkgtools.git"
 _gitname="pkgtools"
 
 build() {
-  msg "Connecting to GIT server...."
+	msg "Connecting to GIT server...."
 
-  if [ -d ${srcdir}/$_gitname ] ; then
-    cd $srcdir/$_gitname && git pull origin
-    msg "The local files are updated."
-  else
-    git clone $_gitroot
-  fi
+	if [ -d ${srcdir}/$_gitname ] ; then
+		cd $srcdir/$_gitname && git pull origin
+		msg "The local files are updated."
+	else
+		git clone $_gitroot
+	fi
 
-  msg "GIT checkout done or server timeout"
-  msg "Starting make..."
+	msg "GIT checkout done or server timeout"
+	msg "Starting make..."
 
-  [[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
-  cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
+	[[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
+	cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
 }
 
 package() {
-  cd "$_gitname-build"
+	cd "$_gitname-build"
 
-  make DESTDIR=${pkgdir} install
+	make DESTDIR=${pkgdir} install
 }
-# vim:set ts=2 sw=2 et:
