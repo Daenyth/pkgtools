@@ -13,7 +13,7 @@ provides=('newpkg' 'pkgfile')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
 source=("v$pkgver::https://github.com/Daenyth/pkgtools/tarball/v$pkgver")
-md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
+md5sums=('f139c3940e1038cac4e29e985089e8a8')
 
 package() {
 	cd "Daenyth-$pkgname"-*
