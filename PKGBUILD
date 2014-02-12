@@ -7,7 +7,7 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('any')
 url="https://bbs.archlinux.org/viewtopic.php?pid=384196"
 license=('GPL')
-depends=('bash>=4' 'pcre' 'libarchive' 'python')
+depends=('bash>=4' 'pcre' 'libarchive' 'python' 'namcap')
 optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
 provides=('newpkg' 'pkgfile')
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
