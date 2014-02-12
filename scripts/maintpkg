@@ -35,24 +35,24 @@ readonly MYVERSION=1.0
 # usage() {{{
 usage () {
 #           |--------------------------------------------------------------------------------| 80 Characters
-        msg "%s version %s -- Set maintainer information in a PKGBUILD\n" "$PROGNAME" $MYVERSION
+        msg "%s version %s -- Set maintainer information in a PKGBUILD\n" "$PROGNAME" "$MYVERSION"
         msg "Usage: %s [OPTIONS]\n" "$PROGNAME"
         msg "  -h --help       - Print this help.\n"
         msg "  -v --verbose    - Enable verbose output.\n"
 #           |--------------------------------------------------------------------------------| 80 Characters
-        quit ${1:-0}
+        quit "${1:-0}"
 }
 # }}}
 
 get_maint_line() {
     line=$(grep -m1 -nF '# Maintainer:' PKGBUILD | cut -d: -f1)
-    if [[ -z $line ]]; then
+    if [[ -z "$line" ]]; then
         line=$(grep -m1 -nF '# Contributor:' PKGBUILD | cut -d: -f1)
-        if [[ -z $line ]]; then
+        if [[ -z "$line" ]]; then
             line=1
         fi
     fi
-    echo $line
+    echo "$line"
 }
 
 while [[ $# > 0 ]]; do

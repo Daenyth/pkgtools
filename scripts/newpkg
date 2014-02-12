@@ -28,14 +28,14 @@ PKGTOOLS_DIR='/usr/share/pkgtools'
 PRESET_DIR="$PKGTOOLS_DIR/newpkg/presets"
 VERBOSE=0
 
-if [[ -r $PKGTOOLS_DIR/functions ]]; then
-    . $PKGTOOLS_DIR/functions
+if [[ -r "$PKGTOOLS_DIR/functions" ]]; then
+    . "$PKGTOOLS_DIR/functions"
 else
     printf "Unable to source function file!\n" >&2
     exit 1
 fi
-if [[ -r $PKGTOOLS_DIR/functions.newpkg ]]; then
-    . $PKGTOOLS_DIR/functions.newpkg
+if [[ -r "$PKGTOOLS_DIR/functions.newpkg" ]]; then
+    . "$PKGTOOLS_DIR/functions.newpkg"
 else
     printf "Unable to source newpkg function file!\n" >&2
     exit 1
@@ -83,7 +83,7 @@ function usage {
 # make_pkgdir() {{{
 make_pkgdir () {
     mkdir -p "$pkgdir" || die 1 "Unable to create directory %s" "$pkgdir"
-    vmsg "Creating package dir for %s\n" $pkgname
+    vmsg "Creating package dir for %s\n" "$pkgname"
 
     cd "$pkgdir" || die 1 "Can't cd to %s!\n" "$pkgdir"
 }
@@ -103,7 +103,7 @@ modify_files() {
     vmsg "Running modifications\n"
     for mod in "${MODIFICATIONS[@]}"; do
         [[ $(type -t $mod) == 'function' ]] || continue
-        $mod
+        "$mod"
     done
 }
 # }}}
@@ -114,12 +114,12 @@ if [[ -z "$1" ]]; then
 fi
 
 while (( $# != 0 )); do
-    case $1 in
+    case "$1" in
         -a|--action)
-            if [[ -z $2 ]]; then
+            if [[ -z "$2" ]]; then
                 die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
             fi
-            add_action $2
+            add_action "$2"
             shift
             ;;
         -e|--edit)
@@ -135,16 +135,16 @@ while (( $# != 0 )); do
             add_action rcd
             ;;
         -p|--pkgbuild)
-            if [[ -z $2 ]]; then
+            if [[ -z "$2" ]]; then
                 die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
             fi
             setpkgbuild "$2"; shift
             ;;
         -P|--preset)
-            if [[ -z $2 ]]; then
+            if [[ -z "$2" ]]; then
                 die 1 "%s %s option requires a parameter!\n" "$PROGNAME" "$1"
             fi
-            PRESET=$2; shift
+            PRESET="$2"; shift
             ;;
         --sf|--sourceforge)
             add_action sf
@@ -165,18 +165,18 @@ while (( $# != 0 )); do
     shift
 done
 
-[[ -z $pkgname ]] && die 1 "No package name supplied\n"
+[[ -z "$pkgname" ]] && die 1 "No package name supplied\n"
 pkgdir="${BASEDIR}/${pkgname}"
 
-if [[ -r $PRESET_DIR/$PRESET.preset ]]; then
-    . "$PRESET_DIR/$PRESET.preset"
+if [[ -r "$PRESET_DIR/${PRESET}.preset" ]]; then
+    . "$PRESET_DIR/${PRESET}.preset"
 else
     die 1 "Can't read preset '%s' in '%s'\n" "$PRESET" "$PRESET_DIR"
 fi
 
-for act in ${ACTIONS[@]}; do
-    if [[ -r $PRESET_DIR/$act.action ]]; then
-        . "$PRESET_DIR/$act.action"
+for act in "${ACTIONS[@]}"; do
+    if [[ -r "$PRESET_DIR/${act}.action" ]]; then
+        . "$PRESET_DIR/${act}.action"
     else
         die 1 "Can't read action '%s' in '%s'\n" "$act" "$PRESET_DIR"
     fi
@@ -185,8 +185,8 @@ done
 make_pkgdir
 copy_files
 modify_files
-(( EDIT )) && ${EDITOR:-${VISUAL:-vi}} PKGBUILD
+(( EDIT )) && "${EDITOR:-${VISUAL:-vi}}" PKGBUILD
 
-msg "All done! New package prepared in %s\n" $pkgdir
+msg "All done! New package prepared in %s\n" "$pkgdir"
 quit 0
 # vim: set ts=4 sw=4 fdm=marker et:

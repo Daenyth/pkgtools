@@ -11,10 +11,10 @@ MYVERSION=0.1
 PROGNAME="upgpkg"
 
 if [ -r /usr/share/pkgtools/functions ]; then
-        source /usr/share/pkgtools/functions
+    source /usr/share/pkgtools/functions
 else
-        printf "$(gettext "$PROGNAME: Unable to source function file!\n")" >&2
-        exit 1
+    printf "$(gettext "$PROGNAME: Unable to source function file!\n")" >&2
+    exit 1
 fi
 
 die() {
@@ -25,18 +25,28 @@ die() {
 }
 
 if [ -r /etc/pkgtools/newpkg.conf ]; then
-        source /etc/pkgtools/newpkg.conf
+    source /etc/pkgtools/newpkg.conf
 fi
 if [ -r "${HOME}/.pkgtools/newpkg.conf" ]; then
-        source "${HOME}/.pkgtools/newpkg.conf"
+    source "${HOME}/.pkgtools/newpkg.conf"
 fi
 
-if [ -z "$BASEDIR" ]; then die "$(gettext "$PROGNAME: unable to locate BASEDIR in configuration.")"; fi
+if [ -z "$BASEDIR" ]; then
+    die "$(gettext "$PROGNAME: unable to locate BASEDIR in configuration.")"
+fi
 
-if [ -z "$1" ]; then printf "%s %s\n" "$PROGNAME" "$MYVERSION"; printf "$(gettext "usage: $PROGNAME package-name newver\n")"; exit; fi
+if [ -z "$1" ]; then
+    printf "%s %s\n" "$PROGNAME" "$MYVERSION"
+    printf "$(gettext "usage: $PROGNAME package-name newver\n")"
+    exit
+fi
 
-if [ ! -d "$BASEDIR/$1" ]; then die "$(gettext "$PROGNAME: package %s not in %s.\n")" "$1" "$BASEDIR"; fi
-if [ -z "$2" ]; then die "$(gettext "$PROGNAME: no new version specified for %s\n")" "$1"; fi
+if [ ! -d "$BASEDIR/$1" ]; then
+    die "$(gettext "$PROGNAME: package %s not in %s.\n")" "$1" "$BASEDIR"
+fi
+if [ -z "$2" ]; then
+    die "$(gettext "$PROGNAME: no new version specified for %s\n")" "$1"
+fi
 
 # Main code follows
 
@@ -44,7 +54,7 @@ cd "$BASEDIR/$1"
 sed -ri '/md5sums[ ]?\=/{:a; /\)/d; N; ba;}' PKGBUILD || die "$PROGNAME: could not bump pkgver of $1\n"
 source PKGBUILD
 
-if [ $(vercmp $2 $pkgver) -gt 0 ]; then
+if [ $(vercmp "$2" "$pkgver") -gt 0 ]; then
     sed -i "s/pkgver=.*$/pkgver=$2/g" PKGBUILD
     sed -i "s/pkgrel=.*$/pkgrel=1/g" PKGBUILD
     makepkg -g >> PKGBUILD
@@ -52,7 +62,7 @@ else
     die "$(gettext "$PROGNAME: %s - new version (%s) older or equal to current %s\n")" "$1" "$2" "$pkgver"
 fi
 makepkg -m
-if [ $? -gt 0 ]; then
+if [ "$?" -gt 0 ]; then
     sed -i "s/pkgver=.*$/pkgver=$pkgver/g" PKGBUILD
     sed -i "s/pkgrel=.*$/pkgrel=$pkgrel/g" PKGBUILD
     die "$(gettext "$PROGNAME: %s - build failed for %s, reverting to %s\n")" "$1" "$2" "$pkgver"
