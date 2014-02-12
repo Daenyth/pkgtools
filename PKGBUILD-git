@@ -7,7 +7,7 @@ pkgdesc="A collection of scripts for Arch Linux packages"
 arch=('any')
 url="https://github.com/Daenyth/pkgtools"
 license=('GPL')
-depends=('bash>=4' 'libarchive' 'pcre' 'python' 'namcap' 'pkgfile')
+depends=('bash>=4' 'libarchive' 'pcre' 'python' 'namcap' 'pkgfile' 'gem2arch')
 makedepends=('git')
 optdepends=('abs: Provides PKGBUILD prototypes for newpkg')
 provides=('pkgtools' 'newpkg')
@@ -20,7 +20,7 @@ sha1sums=('SKIP')
 
 pkgver() {
 	cd "${_pkgname%-git}"
-	echo "$(date +%Y%m%d).$(git rev-parse --short master)"
+	echo "$(date +%Y%m%d).$(git rev-list --count master).$(git rev-parse --short master)"
 }
 
 package() {

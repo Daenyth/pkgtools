@@ -1,6 +1,6 @@
 is_update_from() {
-  res="`vercmp $1 $2`"
-  case $res in
+  res="$(vercmp $1 $2)"
+  case "$res" in
     '-1'|'0') return 0;;
     '1') return 1;;
   esac
@@ -22,6 +22,10 @@ post_upgrade() {
   fi
   if is_update_from $2 22-1; then
     echo " - This is the largest release in a long time. This updates all Python scripts to Python 3."
+  fi
+  if is_update_from $2 24-1; then
+    echo " - This update removes the gem2arch and pkgfile scripts. This update also updates pkgconflict to work with pkgfile from [extra] and other minor fixes."
+    echo " - You may want to remove /var/cache/pkgtools/lists, which is no longer used."
   fi
 }
 
