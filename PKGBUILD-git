@@ -13,8 +13,7 @@ provides=(pkgtools)
 conflicts=(pkgtools)
 backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spec2arch.conf')
 install=pkgtools.install
-optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg')
+optdepends=('abs: Provides proto packaging files for newpkg')
 options=('!strip')
 
 _gitroot="git://github.com/Daenyth/pkgtools.git"
@@ -36,9 +35,11 @@ build() {
 
   [[ -d $srcdir/$_gitname-build ]] && rm -r ${srcdir}/$_gitname-build
   cp -r ${srcdir}/$_gitname ${srcdir}/$_gitname-build
-  cd ${srcdir}/$_gitname-build
+}
 
-  make
+package() {
+  cd "$_gitname-build"
+
   make DESTDIR=${pkgdir} install
 }
 # vim:set ts=2 sw=2 et:

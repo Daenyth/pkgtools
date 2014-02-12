@@ -12,14 +12,12 @@ backup=('etc/pkgtools/newpkg.conf' 'etc/pkgtools/pkgfile.conf' 'etc/pkgtools/spe
 install=pkgtools.install
 provides=(newpkg pkgfile)
 depends=('bash>=4' 'pcre' 'libarchive' 'python')
-optdepends=('cron: For pkgfile --update entry'
-            'abs: Provides proto packaging files for newpkg')
+optdepends=('abs: Provides proto packaging files for newpkg')
 md5sums=('5361111e31741f8d7ff8ca45c7996b6b')
 
-build() {
+package() {
   cd "$srcdir/Daenyth-$pkgname"-*
 
-  make
   make DESTDIR="$pkgdir" install
 }
 
